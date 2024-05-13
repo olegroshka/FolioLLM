@@ -10,7 +10,7 @@ pipeline = transformers.pipeline(
     model=model_id,
     model_kwargs={"torch_dtype": torch.bfloat16},
     device_map="auto",
-    token="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"
+    token="###"
 )
 
 pipeline("Hey how are you doing today?")
