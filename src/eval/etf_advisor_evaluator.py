@@ -13,7 +13,7 @@ class ETFAdvisorEvaluator:
         response = self.tokenizer.decode(output[0], skip_special_tokens=True)
         return response
 
-    def evaluate(self):
+    def evaluate(self, detailed=False):
         precision_scores = []
         recall_scores = []
         f1_scores = []
@@ -30,11 +30,12 @@ class ETFAdvisorEvaluator:
             recall_scores.append(R.mean().item())
             f1_scores.append(F1.mean().item())
 
-            print(f"Prompt: {prompt}")
-            print(f"Expected Answer: {expected_answer}")
-            print(f"Generated Response: {generated_response}")
-            print(f"BERT Score - Precision: {precision_scores[-1]:.4f}, Recall: {recall_scores[-1]:.4f}, F1: {f1_scores[-1]:.4f}")
-            print("---")
+            if detailed:
+                print(f"Prompt: {prompt}")
+                print(f"Expected Answer: {expected_answer}")
+                print(f"Generated Response: {generated_response}")
+                print(f"BERT Score - Precision: {precision_scores[-1]:.4f}, Recall: {recall_scores[-1]:.4f}, F1: {f1_scores[-1]:.4f}")
+                print("---")
 
         avg_precision = np.mean(precision_scores)
         avg_recall = np.mean(recall_scores)

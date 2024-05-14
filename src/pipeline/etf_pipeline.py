@@ -4,13 +4,13 @@ from src.dataset.data_utils import load_etf_dataset
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
 from src.training.etf_trainer import ETFTrainer
 
-
 class ETFAdvisorPipeline:
-    def __init__(self, model_name, etf_dataset, test_prompts, output_dir):
+    def __init__(self, model_name, etf_dataset, test_prompts, output_dir, detailed=False):
         self.model_name = model_name
         self.etf_dataset = etf_dataset
         self.test_prompts = test_prompts
         self.output_dir = output_dir
+        self.detailed = detailed
 
     def run(self):
         # Step 1: Evaluate the base model
@@ -18,7 +18,7 @@ class ETFAdvisorPipeline:
         base_model = AutoModelForMaskedLM.from_pretrained(self.model_name)
         base_tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         base_evaluator = ETFAdvisorEvaluator(base_model, base_tokenizer, self.test_prompts)
-        base_evaluator.evaluate()
+        base_evaluator.evaluate(detailed=self.detailed)
 
         # Step 2: Fine-tune the model
         print("\nFine-tuning the model...")
@@ -32,7 +32,7 @@ class ETFAdvisorPipeline:
         fine_tuned_model = AutoModelForMaskedLM.from_pretrained(self.output_dir)
         fine_tuned_tokenizer = AutoTokenizer.from_pretrained(self.output_dir)
         fine_tuned_evaluator = ETFAdvisorEvaluator(fine_tuned_model, fine_tuned_tokenizer, self.test_prompts)
-        fine_tuned_evaluator.evaluate()
+        fine_tuned_evaluator.evaluate(detailed=self.detailed)
 
 
 def load_test_prompts(json_file):
@@ -46,11 +46,12 @@ def main():
     test_prompts_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/basic-competency-test-prompts.json'
     model_name = 'bert-base-uncased'
     output_dir = './fine_tuned_model'
+    detailed = False  # Set to False if you only want average scores
 
     etf_dataset = load_etf_dataset(json_file)
     test_prompts = load_test_prompts(test_prompts_file)
 
-    pipeline = ETFAdvisorPipeline(model_name, etf_dataset, test_prompts, output_dir)
+    pipeline = ETFAdvisorPipeline(model_name, etf_dataset, test_prompts, output_dir, detailed=detailed)
     pipeline.run()
 
 

@@ -1,7 +1,5 @@
-from transformers import AutoModelForMaskedLM, AutoTokenizer, TrainingArguments, Trainer, \
-    DataCollatorForLanguageModeling
+from transformers import AutoModelForMaskedLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorForLanguageModeling
 from datasets import Dataset
-
 
 class ETFTrainer:
     def __init__(self, model_name, etf_dataset):
@@ -21,8 +19,7 @@ class ETFTrainer:
 
         training_args = TrainingArguments(
             output_dir='./results',
-            evaluation_strategy='no',  # Disable evaluation during training for now..
-            #evaluation_strategy='epoch',
+            evaluation_strategy='no',  # Disable evaluation during training for now
             learning_rate=2e-5,
             per_device_train_batch_size=16,
             per_device_eval_batch_size=64,
@@ -42,3 +39,4 @@ class ETFTrainer:
 
     def save_model(self, output_dir):
         self.model.save_pretrained(output_dir)
+        self.tokenizer.save_pretrained(output_dir)
