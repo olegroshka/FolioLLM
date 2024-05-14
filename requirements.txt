@@ -1,0 +1,16 @@
+numpy
+scipy
+tqdm
+docopt
+nltk
+torchvision
+torch
+sentencepiece
+lxml==5.0.0
+sacrebleu
+tensorboard
+transformers
+datasets  # Hugging Face's datasets library for easy access to datasets
+tokenizers  # Efficient tokenizers for Transformers models
+perf
+openpyxl
