@@ -14,3 +14,4 @@ datasets  # Hugging Face's datasets library for easy access to datasets
 tokenizers  # Efficient tokenizers for Transformers models
 perf
 openpyxl
+bert-score

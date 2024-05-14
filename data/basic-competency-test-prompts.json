@@ -1,0 +1,62 @@
+[
+    {
+        "prompt": "Suggest an ETF with low expense ratio and high year-to-date return.",
+        "expected_answer": "Based on the given criteria, a good ETF recommendation would be one with an expense ratio below 0.5% and a year-to-date return above 10%."
+    },
+    {
+        "prompt": "What are some ETFs that focus on the technology sector?",
+        "expected_answer": "Some popular ETFs that focus on the technology sector include QQQ (Invesco QQQ Trust), VGT (Vanguard Information Technology ETF), and XLK (Technology Select Sector SPDR Fund)."
+    },
+    {
+        "prompt": "Recommend an ETF with a high concentration of holdings in a particular industry.",
+        "expected_answer": "For a high concentration of holdings in a specific industry, you can consider sector-specific ETFs such as XLE (Energy Select Sector SPDR Fund) for the energy sector or XLF (Financial Select Sector SPDR Fund) for the financial sector."
+    },
+    {
+        "prompt": "What are some ETFs that provide exposure to emerging markets?",
+        "expected_answer": "Some ETFs that provide exposure to emerging markets include VWO (Vanguard FTSE Emerging Markets ETF), EEM (iShares MSCI Emerging Markets ETF), and IEMG (iShares Core MSCI Emerging Markets ETF)."
+    },
+    {
+        "prompt": "Suggest an ETF with a focus on dividend-paying stocks.",
+        "expected_answer": "For an ETF that focuses on dividend-paying stocks, you can consider VYM (Vanguard High Dividend Yield ETF), DVY (iShares Select Dividend ETF), or SDIV (Global X SuperDividend ETF)."
+    },
+    {
+        "prompt": "Recommend an ETF with a low expense ratio and broad market exposure.",
+        "expected_answer": "An ETF with a low expense ratio and broad market exposure would be VTI (Vanguard Total Stock Market ETF) or ITOT (iShares Core S&P Total U.S. Stock Market ETF), both of which have expense ratios below 0.05%."
+    },
+    {
+        "prompt": "What are some ETFs that invest in companies with strong environmental, social, and governance (ESG) practices?",
+        "expected_answer": "Some ETFs that focus on companies with strong ESG practices include ESGU (iShares ESG Aware MSCI USA ETF), DSI (iShares MSCI KLD 400 Social ETF), and SUSA (iShares MSCI USA ESG Select ETF)."
+    },
+    {
+        "prompt": "Suggest an ETF with exposure to the real estate sector.",
+        "expected_answer": "For exposure to the real estate sector, you can consider VNQ (Vanguard Real Estate ETF), IYR (iShares U.S. Real Estate ETF), or XLRE (Real Estate Select Sector SPDR Fund)."
+    },
+    {
+        "prompt": "Recommend an ETF that invests in small-cap stocks.",
+        "expected_answer": "Some ETFs that invest in small-cap stocks include IWM (iShares Russell 2000 ETF), VB (Vanguard Small-Cap ETF), and IJR (iShares Core S&P Small-Cap ETF)."
+    },
+    {
+        "prompt": "What are some ETFs that focus on the healthcare sector?",
+        "expected_answer": "Some popular ETFs that focus on the healthcare sector include XLV (Health Care Select Sector SPDR Fund), VHT (Vanguard Health Care ETF), and IYH (iShares U.S. Healthcare ETF)."
+    },
+    {
+        "prompt": "Suggest an ETF with exposure to international developed markets.",
+        "expected_answer": "For exposure to international developed markets, you can consider VEA (Vanguard FTSE Developed Markets ETF), IEFA (iShares Core MSCI EAFE ETF), or EFA (iShares MSCI EAFE ETF)."
+    },
+    {
+        "prompt": "Recommend an ETF that invests in government bonds.",
+        "expected_answer": "Some ETFs that invest in government bonds include GOVT (iShares U.S. Treasury Bond ETF), BND (Vanguard Total Bond Market ETF), and AGG (iShares Core U.S. Aggregate Bond ETF)."
+    },
+    {
+        "prompt": "What are some ETFs that provide exposure to the energy sector?",
+        "expected_answer": "Some ETFs that provide exposure to the energy sector include XLE (Energy Select Sector SPDR Fund), VDE (Vanguard Energy ETF), and IYE (iShares U.S. Energy ETF)."
+    },
+    {
+        "prompt": "Suggest an ETF with a focus on growth stocks.",
+        "expected_answer": "For an ETF that focuses on growth stocks, you can consider VUG (Vanguard Growth ETF), IWF (iShares Russell 1000 Growth ETF), or VONG (Vanguard Russell 1000 Growth ETF)."
+    },
+    {
+        "prompt": "Recommend an ETF that invests in companies with a history of increasing dividends.",
+        "expected_answer": "Some ETFs that invest in companies with a history of increasing dividends include VIG (Vanguard Dividend Appreciation ETF), DGRO (iShares Core Dividend Growth ETF), and SDIV (Global X SuperDividend ETF)."
+    }
+]

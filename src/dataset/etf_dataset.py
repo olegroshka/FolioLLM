@@ -1,7 +1,10 @@
 import json
+import logging
 from torch.utils.data import Dataset
-
 import datetime
+
+# Configure logging
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ETFDataset(Dataset):
     def __init__(self, data):
@@ -9,7 +12,11 @@ class ETFDataset(Dataset):
 
     def __getitem__(self, index):
         sample = self.data[index]
-        label = sample["ETFTicker"]  # Label
+        # Label
+        label = sample.get("ETFTicker")
+        if label is None:
+            logging.warning(f"Missing 'ETFTicker' in sample at index {index}")
+            label = "Unknown"  # Default value or handle accordingly
 
         # Numeric features
         tot_ret_ytd = sample["Tot Ret Ytd"]
@@ -19,19 +26,22 @@ class ETFDataset(Dataset):
         fund_asset_class_focus = sample["Fund Asset Class Focus"]
 
         # Summary features
-        summary = sample["Summary"]
-        class_assets = summary["Class Assets (MLN USD)"]
-        fund_assets = summary["Fund Assets (MLN USD)"]
-        expense_ratio = summary["Expense Ratio"]
-        ytd_return = summary["YTD Return"]
-        twelve_month_yield = summary["12M Yld"]
-        thirty_day_vol = summary["30D Vol"]
-        ytd_flow = summary["YTD Flow"]
-        one_month_flow = summary["1M Flow"]
-        one_year_nav_trk_error = summary["1 Yr NAV Trk Error"]
-        holdings = summary["Holdings"]
-        primary = summary["Primary"]
-        cross = summary["Cross"]
+        summary = sample.get("Summary")
+        if summary is None:
+            logging.warning(f"Missing 'Summary' in sample at index {index}")
+            summary = {}  # Default to an empty dictionary
+        class_assets = summary.get("Class Assets (MLN USD)", 0)
+        fund_assets = summary.get("Fund Assets (MLN USD)", 0)
+        expense_ratio = summary.get("Expense Ratio", 0)
+        ytd_return = summary.get("YTD Return", 0)
+        twelve_month_yield = summary.get("12M Yld", 0)
+        thirty_day_vol = summary.get("30D Vol", 0)
+        ytd_flow = summary.get("YTD Flow", 0)
+        one_month_flow = summary.get("1M Flow", 0)
+        one_year_nav_trk_error = summary.get("1 Yr NAV Trk Error", 0)
+        holdings = summary.get("Holdings", 0)
+        primary = summary.get("Primary", 0)
+        cross = summary.get("Cross", 0)
 
         # Convert categorical features to numeric representations if needed
         # For example, you can use one-hot encoding or label encoding
