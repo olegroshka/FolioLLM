@@ -8,7 +8,7 @@ def process_xls_file(file_path):
     #print(df_results.columns)
 
     # Extract the required fields from the "excelexportfsrcresults" tab
-    required_fields = ["Ticker\n", "Tot Ret Ytd\n", "Tot Ret 1Y\n", "Fund Asset Class Focus"]
+    required_fields = ["Ticker\n", "Name", "Manager", "Tot Ret Ytd\n", "Tot Ret 1Y\n", "Fund Asset Class Focus"]
     required_fields = [col.strip() for col in required_fields]
     data_results = df_results[required_fields].to_dict(orient="records")
 

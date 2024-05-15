@@ -1,8 +1,9 @@
 import json
 from transformers import T5ForConditionalGeneration, T5Tokenizer
-from src.dataset.data_utils import load_etf_dataset
+from src.dataset.data_utils import load_etf_dataset, load_test_prompts
 from src.eval.t5_etf_advisor_evaluator import T5ETFAdvisorEvaluator
 from src.training.t5_etf_trainer import T5ETFTrainer
+from src.training.t5_xl_etf_trainer import T5XLETFTrainer
 
 class ETFAdvisorPipeline:
     def __init__(self, model_name, etf_dataset, test_prompts, output_dir, detailed=False, offload_folder="/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/offload"):
@@ -23,7 +24,8 @@ class ETFAdvisorPipeline:
 
         # Step 2: Fine-tune the model
         print("\nFine-tuning the model...")
-        trainer = T5ETFTrainer(self.model_name, self.etf_dataset, offload_folder=self.offload_folder)
+        #trainer = T5ETFTrainer(self.model_name, self.etf_dataset, offload_folder=self.offload_folder)
+        trainer = T5ETFTrainer(self.model_name, self.etf_dataset)
         trainer.tokenize_dataset()
         trainer.train()
         trainer.save_model(self.output_dir)
@@ -35,14 +37,10 @@ class ETFAdvisorPipeline:
         fine_tuned_evaluator = T5ETFAdvisorEvaluator(fine_tuned_model, fine_tuned_tokenizer, self.test_prompts)
         fine_tuned_evaluator.evaluate(detailed=self.detailed)
 
-def load_test_prompts(json_file):
-    with open(json_file, 'r') as file:
-        test_prompts = json.load(file)
-    return test_prompts
-
 def main():
     json_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_data.json'
     test_prompts_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/basic-competency-test-prompts.json'
+    model_name = 'google-t5/t5-large'
     model_name = 'google/flan-t5-xxl'
     output_dir = './fine_tuned_model'
     detailed = True  # Set to False if you only want average scores

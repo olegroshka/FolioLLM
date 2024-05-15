@@ -18,36 +18,41 @@ class ETFDataset(Dataset):
             logging.warning(f"Missing 'ETFTicker' in sample at index {index}")
             label = "Unknown"  # Default value or handle accordingly
 
+        etf_name = self.get_categorical_feature(sample, "Name")
+        manager = self.get_categorical_feature(sample, "Manager")
+
         # Numeric features
-        tot_ret_ytd = sample["Tot Ret Ytd"]
-        tot_ret_1y = sample["Tot Ret 1Y"]
+        tot_ret_ytd = self.get_numeric_feature(sample, "Tot Ret Ytd")
+        tot_ret_1y = self.get_numeric_feature(sample, "Tot Ret 1Y")
 
         # Categorical features
-        fund_asset_class_focus = sample["Fund Asset Class Focus"]
+        fund_asset_class_focus = self.get_categorical_feature(sample, "Fund Asset Class Focus")
 
         # Summary features
         summary = sample.get("Summary")
         if summary is None:
             logging.warning(f"Missing 'Summary' in sample at index {index}")
             summary = {}  # Default to an empty dictionary
-        class_assets = summary.get("Class Assets (MLN USD)", 0)
-        fund_assets = summary.get("Fund Assets (MLN USD)", 0)
-        expense_ratio = summary.get("Expense Ratio", 0)
-        ytd_return = summary.get("YTD Return", 0)
-        twelve_month_yield = summary.get("12M Yld", 0)
-        thirty_day_vol = summary.get("30D Vol", 0)
-        ytd_flow = summary.get("YTD Flow", 0)
-        one_month_flow = summary.get("1M Flow", 0)
-        one_year_nav_trk_error = summary.get("1 Yr NAV Trk Error", 0)
-        holdings = summary.get("Holdings", 0)
-        primary = summary.get("Primary", 0)
-        cross = summary.get("Cross", 0)
+        class_assets = self.get_numeric_feature(summary, "Class Assets (MLN USD)")
+        fund_assets = self.get_numeric_feature(summary, "Fund Assets (MLN USD)")
+        expense_ratio = self.get_numeric_feature(summary, "Expense Ratio")
+        ytd_return = self.get_numeric_feature(summary, "YTD Return")
+        twelve_month_yield = self.get_numeric_feature(summary, "12M Yld")
+        thirty_day_vol = self.get_numeric_feature(summary, "30D Vol")
+        ytd_flow = self.get_numeric_feature(summary, "YTD Flow")
+        one_month_flow = self.get_numeric_feature(summary, "1M Flow")
+        one_year_nav_trk_error = self.get_numeric_feature(summary, "1 Yr NAV Trk Error")
+        holdings = self.get_numeric_feature(summary, "Holdings")
+        primary = self.get_categorical_feature(summary, "Primary")
+        cross = self.get_categorical_feature(summary, "Cross")
 
         # Convert categorical features to numeric representations if needed
         # For example, you can use one-hot encoding or label encoding
 
         # Create a dictionary of features
         features = {
+            "etf_name": etf_name,
+            "manager": manager,
             "tot_ret_ytd": tot_ret_ytd,
             "tot_ret_1y": tot_ret_1y,
             "fund_asset_class_focus": fund_asset_class_focus,
@@ -72,6 +77,27 @@ class ETFDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
+
+    def get_numeric_feature(self, data, feature_name):
+        value = data.get(feature_name)
+        if value is None or value == "--":
+            return 0.0  # Default value for missing numeric features
+        if isinstance(value, str):
+            try:
+                return float(
+                    value.replace("%", "").replace(",", ""))  # Remove '%' and ',' characters and convert to float
+            except ValueError:
+                return 0.0  # Default value if conversion fails
+        elif isinstance(value, (int, float)):
+            return float(value)  # Return the value as a float
+        else:
+            return 0.0  # Default value for unsupported types
+
+    def get_categorical_feature(self, data, feature_name):
+        value = data.get(feature_name)
+        if value is None:
+            return ""  # Default value for missing categorical features
+        return str(value)  # Convert to string
 
     def timestamp_to_seconds(self, timestamp):
         # Convert timestamp string to datetime object
