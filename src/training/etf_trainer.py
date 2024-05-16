@@ -16,20 +16,72 @@ torch.cuda.empty_cache()
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
+def tokenize_structured_json(trainer, sample):
+    try:
+        input_text = f"ETF Ticker: {sample['etf_ticker']}\n"
+        input_text += "Features:\n"
+        for feature, value in sample['features'].items():
+            input_text += f"{feature}: {value}\n"
+
+        model_inputs = trainer.tokenizer(
+            input_text,
+            padding='max_length',
+            truncation=True,
+            max_length=256
+        )
+
+        model_inputs["labels"] = model_inputs["input_ids"]
+
+        return model_inputs
+    except KeyError as e:
+        logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
+        return None
+
+
+# Tokenization function for prompt/response pair dataset
+def tokenize_prompt_response(trainer, sample):
+    try:
+        prompt_inputs = trainer.tokenizer(
+            sample['prompt'],
+            padding='max_length',
+            truncation=True,
+            max_length=256
+        )
+        response_inputs = trainer.tokenizer(
+            sample['response'],
+            padding='max_length',
+            truncation=True,
+            max_length=256
+        )
+
+        model_inputs = {
+            'input_ids': prompt_inputs['input_ids'] + response_inputs['input_ids'][1:],
+            'attention_mask': prompt_inputs['attention_mask'] + response_inputs['attention_mask'][1:]
+        }
+
+        model_inputs["labels"] = model_inputs["input_ids"].copy()
+
+        return model_inputs
+    except KeyError as e:
+        logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
+        return None
+
 class MemoryMonitorCallback(TrainerCallback):
     def on_step_end(self, args, state, control, **kwargs):
         torch.cuda.empty_cache()
-        print(f"GPU memory allocated: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
+        print(f"\nGPU memory allocated: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
         print(f"GPU memory reserved: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
 
     def on_epoch_begin(self, args, state, control, **kwargs):
         torch.cuda.empty_cache()
-        print("Cleared CUDA cache at the start of the epoch.")
+        print("\nCleared CUDA cache at the start of the epoch.")
 
 class ETFTrainer:
-    def __init__(self, model_name, etf_dataset):
+    def __init__(self, model_name, etf_dataset, tokenize_function):
         self.model_name = model_name
         self.etf_dataset = etf_dataset
+        self.tokenize_function = tokenize_function
+
         if "t5" in self.model_name.lower():
             self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)  # .to('cuda')
             self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)#.to('cuda')
@@ -43,31 +95,12 @@ class ETFTrainer:
 
     def tokenize_dataset(self):
         def tokenize_function(sample):
-            try:
-                # Convert the sample dictionary to a string representation
-                input_text = f"ETF Ticker: {sample['etf_ticker']}\n"
-                input_text += "Features:\n"
-                for feature, value in sample['features'].items():
-                    input_text += f"{feature}: {value}\n"
-
-                # Tokenize the input text with padding and truncation
-                model_inputs = self.tokenizer(
-                    input_text,
-                    padding='max_length',
-                    truncation=True,
-                    max_length=256  # Adjust max_length as needed
-                )
-
-                # Set the labels to be the same as the input IDs
-                model_inputs["labels"] = model_inputs["input_ids"]
-
-                return model_inputs
-            except KeyError as e:
-                logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
-                return None
+            return self.tokenize_function(self, sample)
 
         self.tokenized_dataset = self.etf_dataset.map(tokenize_function, batched=False, remove_columns=self.etf_dataset.column_names)
         self.tokenized_dataset = self.tokenized_dataset.filter(lambda x: x is not None)
+
+        # Tokenization function for structured JSON dataset
 
     def train(self):
         data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)  # Use mlm=False for causal LM
@@ -152,15 +185,15 @@ class ETFTrainer:
             output_dir='./results',
             evaluation_strategy='no',  # Disable evaluation during training for now
             learning_rate=2e-5,
-            per_device_train_batch_size=16,#16,
-            per_device_eval_batch_size=32,#64,
-            num_train_epochs=3,
+            per_device_train_batch_size=2,#16,
+            per_device_eval_batch_size=2,#64,
+            num_train_epochs=5,
             weight_decay=0.01,
             gradient_accumulation_steps=64,
             logging_dir='./logs',
             fp16=True,
-            #deepspeed=ds_config.config,  # Use DeepSpeed for optimization
-
+            deepspeed=ds_config.config,  # Use DeepSpeed for optimization
+            logging_steps=1,  # log the training loss every # steps
         )
 
         trainer = Trainer(

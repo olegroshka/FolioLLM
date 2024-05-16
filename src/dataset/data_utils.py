@@ -21,7 +21,17 @@ def load_etf_dataset(json_file):
 
     return hf_dataset
 
+def load_prompt_response_dataset(json_file):
+    with open(json_file, 'r') as file:
+        json_data = json.load(file)
 
+    # Convert the JSON data to a Hugging Face Dataset
+    hf_dataset = Dataset.from_dict({
+        'prompt': [sample['prompt'] for sample in json_data],
+        'response': [sample['response'] for sample in json_data]
+    })
+
+    return hf_dataset
 def main():
     json_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_data.json'  # Replace with the path to your JSON file
 
