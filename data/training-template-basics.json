@@ -41,11 +41,11 @@
     },
     {
         "prompt": "What is the 1-day return of the [ETF Name]?",
-        "response": "The {etf_name} ({ticker} US Equity) has a 1-day return of {1d_return}%."
+        "response": "The {etf_name} ({ticker} US Equity) has a 1-day return of {return_1d}%."
     },
     {
         "prompt": "What is the MTD return of the [ETF Name]?",
-        "response": "The {etf_name} ({ticker} US Equity) has a month-to-date return of {mtd_return}%."
+        "response": "The {etf_name} ({ticker} US Equity) has a month-to-date return of {return_mtd}%."
     },
     {
         "prompt": "What is the inception date of the [ETF Name]?",
@@ -86,5 +86,45 @@
     {
         "prompt": "What is the industry focus of the [ETF Name]?",
         "response": "The industry focus of the {etf_name} ({ticker} US Equity) is {industry_focus}."
+    },
+    {
+        "prompt": "What is the manager and inception date of [ETF Name]?",
+        "response": "The {etf_name} is managed by {manager} and was incepted on {inception_date}."
+    },
+    {
+        "prompt": "What is the primary focus and strategy of [ETF Name]?",
+        "response": "The primary focus of the {etf_name} ({ticker} US Equity) is {asset_class_focus}, and its strategy is {fund_strategy}."
+    },
+    {
+        "prompt": "Can you provide the expense ratio and average bid-ask spread for [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has an expense ratio of {expense_ratio} and an average bid-ask spread of {avg_bid_ask_spread}%."
+    },
+    {
+        "prompt": "What is the short interest percentage and open interest for [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a short interest percentage of {short_interest}% and an open interest of {open_interest}."
+    },
+    {
+        "prompt": "What is the total return year-to-date and total return over 1 year for [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a total return year-to-date of {tot_ret_ytd}% and a total return over 1 year of {total_return_1y}%."
+    },
+    {
+        "prompt": "What is the fund asset class focus and fund geographical focus of [ETF Name]?",
+        "response": "The fund asset class focus of the {etf_name} ({ticker} US Equity) is {asset_class_focus}, and its geographical focus is {fund_geographical_focus}."
+    },
+    {
+        "prompt": "Can you provide the 12-month yield and 30-day volume of [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a 12-month yield of {yield_12m}% and a 30-day volume of {volume_30d}."
+    },
+    {
+        "prompt": "What are the holdings and aggregated value traded for [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) holds {holdings} assets and has an aggregated value traded of {aggregated_value_traded} USD."
+    },
+    {
+        "prompt": "What is the payment type and use of derivatives for [ETF Name]?",
+        "response": "The payment type for the {etf_name} ({ticker} US Equity) is {payment_type}, and it {use_derivative} uses derivatives."
+    },
+    {
+        "prompt": "What is the regulatory structure and leverage status of [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a regulatory structure of {structure} and it {leverage}."
     }
 ]

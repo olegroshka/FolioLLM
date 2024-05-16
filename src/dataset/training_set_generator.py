@@ -1,40 +1,79 @@
 import json
 import argparse
 
+def get_value(data, keys, default="--"):
+    """Helper function to get a nested value from a dictionary."""
+    for key in keys:
+        if key in data:
+            data = data[key]
+        else:
+            return default
+    return data
 
 def generate_training_data(etf_data, templates):
     training_data = []
     for etf in etf_data:
-        try:
-            etf_name = etf['Name']
-            ticker = etf['Ticker']
-            manager = etf['Manager']
-            ytd_return = etf['Tot Ret Ytd']
-            expense_ratio = etf['Expense']['Expense Ratio']
-            total_return_1y = etf['Tot Ret 1Y']
-            holdings = etf['Summary']['Holdings']
-            volume_30d = etf['Summary']['30D Vol']
-            asset_class_focus = etf['Descriptive']['Fund Asset Class Focus']
-            class_assets = etf['Summary']['Class Assets (MLN USD)']
-            fund_assets = etf['Summary']['Fund Assets (MLN USD)']
-            yield_12m = etf['Summary']['12M Yld']
-            flow_1m = etf['Summary']['1M Flow']
-            ytd_flow = etf['Summary']['YTD Flow']
-            primary = "primary" if etf['Summary']['Primary'] == "Y" else "cross"
-            nav_trk_error = etf['Summary']['1 Yr NAV Trk Error']
-            inception_date = etf['Regulatory']['Inception Date']
-            use_derivative = "Yes" if etf['Regulatory']['Use Derivative'] == "Y" else "No"
-            payment_type = etf['Flow']['Payment Type']
-            total_value_traded = etf['Liquidity']['Aggregated Value Traded']
-            bid_ask_spread = etf['Liquidity']['Bid Ask Spread']
-            short_interest = etf['Liquidity']['Short Interest%']
-            open_interest = etf['Liquidity']['Open Interest']
-            economic_association = etf['Descriptive']['Economic Association']
-            industry_focus = etf['Descriptive']['Fund Industry Focus']
-            return_1d = etf['Performance']['1D Return']
-            return_mtd = etf['Performance']['MTD Return']
+        etf_name = get_value(etf, ['Name'])
+        ticker = get_value(etf, ['Ticker'])
+        manager = get_value(etf, ['Manager'])
+        ytd_return = get_value(etf, ['Tot Ret Ytd'])
+        expense_ratio = get_value(etf, ['Expense', 'Expense Ratio'])
+        total_return_1y = get_value(etf, ['Tot Ret 1Y'])
+        holdings = get_value(etf, ['Summary', 'Holdings'])
+        volume_30d = get_value(etf, ['Summary', '30D Vol'])
+        asset_class_focus = get_value(etf, ['Descriptive', 'Fund Asset Class Focus'])
+        class_assets = get_value(etf, ['Summary', 'Class Assets (MLN USD)'])
+        fund_assets = get_value(etf, ['Summary', 'Fund Assets (MLN USD)'])
+        yield_12m = get_value(etf, ['Summary', '12M Yld'])
+        flow_1m = get_value(etf, ['Summary', '1M Flow'])
+        ytd_flow = get_value(etf, ['Summary', 'YTD Flow'])
+        primary = "primary" if get_value(etf, ['Summary', 'Primary']) == "Y" else "cross"
+        nav_trk_error = get_value(etf, ['Summary', '1 Yr NAV Trk Error'])
+        inception_date = get_value(etf, ['Regulatory', 'Inception Date'])
+        inception_year = inception_date.split('/')[2] if inception_date != "--" else "--"
+        use_derivative = "Yes" if get_value(etf, ['Regulatory', 'Use Derivative']) == "Y" else "No"
+        payment_type = get_value(etf, ['Flow', 'Payment Type'])
+        total_value_traded = get_value(etf, ['Liquidity', 'Aggregated Value Traded'])
+        bid_ask_spread = get_value(etf, ['Liquidity', 'Bid Ask Spread'])
+        short_interest = get_value(etf, ['Liquidity', 'Short Interest%'])
+        open_interest = get_value(etf, ['Liquidity', 'Open Interest'])
+        economic_association = get_value(etf, ['Descriptive', 'Economic Association'])
+        industry_focus = get_value(etf, ['Descriptive', 'Fund Industry Focus'])
+        return_1d = get_value(etf, ['Performance', '1D Return'])
+        return_mtd = get_value(etf, ['Performance', 'MTD Return'])
+        avg_bid_ask_spread = get_value(etf, ['Expense', 'Avg Bid Ask Spread'])
+        structure = get_value(etf, ['Regulatory', 'Structure'])
+        leverage = "uses leverage" if get_value(etf, ['Regulatory', 'Leverage']) == "Y" else "does not use leverage"
+        fund_strategy = get_value(etf, ['Descriptive', 'Fund Strategy'])
+        fund_geographical_focus = get_value(etf, ['Descriptive', 'Fund Geographical Focus'])
+        tot_ret_ytd = get_value(etf, ['Tot Ret Ytd'])
+        aggregated_value_traded = get_value(etf, ['Liquidity', 'Aggregated Value Traded'])
 
-            for template in templates:
+        # Log missing keys
+        missing_keys = []
+        required_keys = {
+            'etf_name': etf_name, 'ticker': ticker, 'manager': manager, 'ytd_return': ytd_return,
+            'expense_ratio': expense_ratio, 'total_return_1y': total_return_1y, 'holdings': holdings,
+            'volume_30d': volume_30d, 'asset_class_focus': asset_class_focus, 'class_assets': class_assets,
+            'fund_assets': fund_assets, 'yield_12m': yield_12m, 'flow_1m': flow_1m, 'ytd_flow': ytd_flow,
+            'primary': primary, 'nav_trk_error': nav_trk_error, 'inception_date': inception_date,
+            'inception_year': inception_year, 'use_derivative': use_derivative, 'payment_type': payment_type,
+            'total_value_traded': total_value_traded, 'bid_ask_spread': bid_ask_spread, 'short_interest': short_interest,
+            'open_interest': open_interest, 'economic_association': economic_association, 'industry_focus': industry_focus,
+            'return_1d': return_1d, 'return_mtd': return_mtd, 'avg_bid_ask_spread': avg_bid_ask_spread, 'structure': structure,
+            'leverage': leverage, 'fund_strategy': fund_strategy, 'fund_geographical_focus': fund_geographical_focus,
+            'tot_ret_ytd': tot_ret_ytd, 'aggregated_value_traded': aggregated_value_traded
+        }
+
+        for key, value in required_keys.items():
+            if value == "--":
+                missing_keys.append(key)
+
+        if missing_keys:
+            print(f"Missing keys for ETF {etf_name} ({ticker}): {', '.join(missing_keys)}")
+
+        for template in templates:
+            try:
                 prompt = template['prompt'].replace("[ETF Name]", etf_name)
                 response = template['response'].format(
                     etf_name=etf_name,
@@ -54,6 +93,7 @@ def generate_training_data(etf_data, templates):
                     primary=primary,
                     nav_trk_error=nav_trk_error,
                     inception_date=inception_date,
+                    inception_year=inception_year,
                     use_derivative=use_derivative,
                     payment_type=payment_type,
                     total_value_traded=total_value_traded,
@@ -63,16 +103,20 @@ def generate_training_data(etf_data, templates):
                     economic_association=economic_association,
                     industry_focus=industry_focus,
                     return_1d=return_1d,
-                    return_mtd=return_mtd
+                    return_mtd=return_mtd,
+                    avg_bid_ask_spread=avg_bid_ask_spread,
+                    structure=structure,
+                    leverage=leverage,
+                    fund_strategy=fund_strategy,
+                    fund_geographical_focus=fund_geographical_focus,
+                    tot_ret_ytd=tot_ret_ytd,
+                    aggregated_value_traded=aggregated_value_traded
                 )
                 training_data.append({"prompt": prompt, "response": response})
-
-        except KeyError as e:
-            print(f"Missing key in ETF data: {e}")
-            continue
+            except KeyError as e:
+                print(f"Error formatting response for ETF {etf_name} ({ticker}): missing key {e}")
 
     return training_data
-
 
 def main(etf_data_file, template_data_file, output_file):
     # Load ETF data
@@ -91,7 +135,6 @@ def main(etf_data_file, template_data_file, output_file):
         json.dump(training_data, f, indent=4)
 
     print(f"Training data generated and saved to {output_file}")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate training data for ETF advisor chatbot")
