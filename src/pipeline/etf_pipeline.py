@@ -18,7 +18,7 @@ class ETFAdvisorPipeline:
 
     def run(self):
         # Step 1: Evaluate the base model
-        #self.eval_base_model()
+        self.eval_base_model()
 
         # Step 2: Fine-tune the model
         self.finetune_model()
