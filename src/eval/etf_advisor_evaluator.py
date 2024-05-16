@@ -3,7 +3,8 @@ import numpy as np
 from rouge import Rouge
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from bert_score import score
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 
 class ETFAdvisorEvaluator:
     def __init__(self, model, tokenizer, test_prompts):
@@ -11,10 +12,16 @@ class ETFAdvisorEvaluator:
         self.tokenizer = tokenizer
         self.test_prompts = test_prompts
 
+        # Set pad_token to eos_token if not already set
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
     def generate_response(self, prompt):
-        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
-        input_ids = input_ids.to(self.model.device)  # Move input tensors to the same device as the model
-        output = self.model.generate(input_ids, max_length=100, num_return_sequences=1)
+        inputs = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+        input_ids = inputs.input_ids.to(self.model.device)
+        attention_mask = inputs.attention_mask.to(self.model.device)
+
+        output = self.model.generate(input_ids, attention_mask=attention_mask, max_length=100, num_return_sequences=1)
         return self.tokenizer.decode(output[0], skip_special_tokens=True)
 
     def evaluate(self, detailed=False):
@@ -71,9 +78,9 @@ class ETFAdvisorEvaluator:
         valid_rouge_scores = [score for score in rouge_scores if score is not None]
         if valid_rouge_scores:
             avg_rouge_score = {
-                'rouge-1': sum([score['rouge-1']['f'] for score in valid_rouge_scores]) / len(valid_rouge_scores),
-                'rouge-2': sum([score['rouge-2']['f'] for score in valid_rouge_scores]) / len(valid_rouge_scores),
-                'rouge-l': sum([score['rouge-l']['f'] for score in valid_rouge_scores]) / len(valid_rouge_scores)
+                'rouge-1': np.mean([score['rouge-1']['f'] for score in valid_rouge_scores]),
+                'rouge-2': np.mean([score['rouge-2']['f'] for score in valid_rouge_scores]),
+                'rouge-l': np.mean([score['rouge-l']['f'] for score in valid_rouge_scores])
             }
         else:
             avg_rouge_score = {
@@ -88,3 +95,27 @@ class ETFAdvisorEvaluator:
             f"Average BERT Score - Precision: {avg_bert_precision:.4f}, Recall: {avg_bert_recall:.4f}, F1: {avg_bert_f1:.4f}")
         print(f"Average ROUGE Score: {avg_rouge_score}")
         print(f"Average Cosine Similarity: {avg_cosine_similarity:.4f}")
+
+        return {
+            "avg_bert_precision": avg_bert_precision,
+            "avg_bert_recall": avg_bert_recall,
+            "avg_bert_f1": avg_bert_f1,
+            "avg_rouge_score": avg_rouge_score,
+            "avg_cosine_similarity": avg_cosine_similarity
+        }
+
+
+# Example usage:
+# Assuming you have a GPT-2 model and tokenizer loaded
+model_name = "gpt2"
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+test_prompts = [
+    {"prompt": "What is the YTD return and expense ratio of Cullen Enhanced Equity Income ETF?",
+     "expected_answer": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a YTD return of 572.631% and an expense ratio of 0.55%."},
+    # Add more test prompts here
+]
+
+evaluator = ETFAdvisorEvaluator(model, tokenizer, test_prompts)
+evaluator.evaluate(detailed=True)

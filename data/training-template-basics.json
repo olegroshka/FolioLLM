@@ -1,0 +1,90 @@
+[
+    {
+        "prompt": "What is the YTD return and expense ratio of [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a YTD return of {ytd_return}% and an expense ratio of {expense_ratio}."
+    },
+    {
+        "prompt": "Who manages the [ETF Name] and what is its ticker?",
+        "response": "The {etf_name} is managed by {manager} and its ticker is {ticker}."
+    },
+    {
+        "prompt": "What is the total return over 1 year for the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a total return over 1 year of {total_return_1y}%."
+    },
+    {
+        "prompt": "Can you provide details on the holdings and volume of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) holds {holdings} assets and has a 30-day volume of {volume_30d}."
+    },
+    {
+        "prompt": "What is the asset class focus of the [ETF Name]?",
+        "response": "The asset class focus of the {etf_name} ({ticker} US Equity) is {asset_class_focus}."
+    },
+    {
+        "prompt": "What are the fund and class assets of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has class assets of {class_assets} million USD and fund assets of {fund_assets} million USD."
+    },
+    {
+        "prompt": "What is the 12-month yield and 1-month flow of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a 12-month yield of {yield_12m}% and a 1-month flow of {flow_1m} million USD."
+    },
+    {
+        "prompt": "Is the [ETF Name] a primary or cross-listed ETF?",
+        "response": "The {etf_name} ({ticker} US Equity) is a {primary} listed ETF."
+    },
+    {
+        "prompt": "What is the YTD flow and NAV tracking error of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a YTD flow of {ytd_flow} million USD and a 1-year NAV tracking error of {nav_trk_error}%."
+    },
+    {
+        "prompt": "What is the summary of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has class assets of {class_assets} million USD, fund assets of {fund_assets} million USD, an expense ratio of {expense_ratio}, a 12-month yield of {yield_12m}%, a 30-day volume of {volume_30d}, a YTD flow of {ytd_flow} million USD, a 1-month flow of {flow_1m} million USD, and holds {holdings} assets."
+    },
+    {
+        "prompt": "What is the 1-day return of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a 1-day return of {1d_return}%."
+    },
+    {
+        "prompt": "What is the MTD return of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) has a month-to-date return of {mtd_return}%."
+    },
+    {
+        "prompt": "What is the inception date of the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) was incepted on {inception_date}."
+    },
+    {
+        "prompt": "What is the total return over 3 years for the [ETF Name]?",
+        "response": "The {etf_name} ({ticker} US Equity) does not have a 3-year return as it was incepted in {inception_year}."
+    },
+    {
+        "prompt": "Does the [ETF Name] use derivatives?",
+        "response": "Yes, the {etf_name} ({ticker} US Equity) uses derivatives."
+    },
+    {
+        "prompt": "What is the payment type for the [ETF Name]?",
+        "response": "The payment type for the {etf_name} ({ticker} US Equity) is {payment_type}."
+    },
+    {
+        "prompt": "What is the total asset value traded for the [ETF Name]?",
+        "response": "The total asset value traded for the {etf_name} ({ticker} US Equity) is {total_value_traded} USD."
+    },
+    {
+        "prompt": "What is the bid-ask spread for the [ETF Name]?",
+        "response": "The bid-ask spread for the {etf_name} ({ticker} US Equity) is {bid_ask_spread}."
+    },
+    {
+        "prompt": "What is the short interest percentage for the [ETF Name]?",
+        "response": "The short interest percentage for the {etf_name} ({ticker} US Equity) is {short_interest}%."
+    },
+    {
+        "prompt": "What is the open interest for the [ETF Name]?",
+        "response": "The open interest for the {etf_name} ({ticker} US Equity) is {open_interest}."
+    },
+    {
+        "prompt": "What is the economic association of the [ETF Name]?",
+        "response": "The economic association of the {etf_name} ({ticker} US Equity) is {economic_association}."
+    },
+    {
+        "prompt": "What is the industry focus of the [ETF Name]?",
+        "response": "The industry focus of the {etf_name} ({ticker} US Equity) is {industry_focus}."
+    }
+]

@@ -1,7 +1,7 @@
 import torch
 from accelerate.utils import HfDeepSpeedConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, \
-    DataCollatorForLanguageModeling, TrainerCallback
+    DataCollatorForLanguageModeling, TrainerCallback, T5ForConditionalGeneration, T5Tokenizer
 import logging
 
 from accelerate import Accelerator
@@ -30,8 +30,16 @@ class ETFTrainer:
     def __init__(self, model_name, etf_dataset):
         self.model_name = model_name
         self.etf_dataset = etf_dataset
-        self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        if "t5" in self.model_name.lower():
+            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)  # .to('cuda')
+            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)#.to('cuda')
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)  # .to('cuda')
+            self.model = AutoModelForCausalLM.from_pretrained(self.model_name)#.to('cuda')  # AutoModelForMaskedLM.from_pretrained(self.model_name)
+
+        # Set pad_token to eos_token if not already set
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def tokenize_dataset(self):
         def tokenize_function(sample):
@@ -47,7 +55,7 @@ class ETFTrainer:
                     input_text,
                     padding='max_length',
                     truncation=True,
-                    max_length=128  # Adjust max_length as needed
+                    max_length=256  # Adjust max_length as needed
                 )
 
                 # Set the labels to be the same as the input IDs
@@ -108,6 +116,7 @@ class ETFTrainer:
             "train_batch_size": "auto",  # Set to 'auto' to avoid mismatch errors
             "gradient_accumulation_steps": "auto",
             "gradient_clipping": 1.0,
+
             "fp16": {
                 "enabled": True
             },
@@ -143,14 +152,14 @@ class ETFTrainer:
             output_dir='./results',
             evaluation_strategy='no',  # Disable evaluation during training for now
             learning_rate=2e-5,
-            per_device_train_batch_size=8,#16,
-            per_device_eval_batch_size=8,#64,
+            per_device_train_batch_size=16,#16,
+            per_device_eval_batch_size=32,#64,
             num_train_epochs=3,
             weight_decay=0.01,
-            gradient_accumulation_steps=16,
+            gradient_accumulation_steps=64,
             logging_dir='./logs',
             fp16=True,
-            deepspeed=ds_config.config,  # Use DeepSpeed for optimization
+            #deepspeed=ds_config.config,  # Use DeepSpeed for optimization
 
         )
 
