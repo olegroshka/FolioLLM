@@ -1,11 +1,13 @@
 import json
 import argparse
 
-def get_value(data, keys, default="--"):
+def get_value(data, keys, default="unavailable"):
     """Helper function to get a nested value from a dictionary."""
     for key in keys:
         if key in data:
             data = data[key]
+            if data in ["N/A", "nan", "--", None]:
+                return default
         else:
             return default
     return data
@@ -30,7 +32,7 @@ def generate_training_data(etf_data, templates):
         primary = "primary" if get_value(etf, ['Summary', 'Primary']) == "Y" else "cross"
         nav_trk_error = get_value(etf, ['Summary', '1 Yr NAV Trk Error'])
         inception_date = get_value(etf, ['Regulatory', 'Inception Date'])
-        inception_year = inception_date.split('/')[2] if inception_date != "--" else "--"
+        inception_year = inception_date.split('/')[-1] if inception_date != "unavailable" else "unavailable"
         use_derivative = "Yes" if get_value(etf, ['Regulatory', 'Use Derivative']) == "Y" else "No"
         payment_type = get_value(etf, ['Flow', 'Payment Type'])
         total_value_traded = get_value(etf, ['Liquidity', 'Aggregated Value Traded'])
@@ -66,7 +68,7 @@ def generate_training_data(etf_data, templates):
         }
 
         for key, value in required_keys.items():
-            if value == "--":
+            if value == "unavailable":
                 missing_keys.append(key)
 
         if missing_keys:

@@ -103,7 +103,8 @@ def rows_to_dic(xls_file_path, sheet_name, fields):
             print(f"Warning: Skipping row with missing Ticker: \n{row}")
             continue
         ticker = row["Ticker"].split(" ")[0]
-        data[ticker] = row
+        cleaned_row = row.apply(lambda x: "unavailable" if pd.isna(x) or x in ["N/A", "N.A.", "--", "nan", "NaN", "#N/A Field Not Applicable"] else x)
+        data[ticker] = cleaned_row
         del data[ticker]["Ticker"]
 
     return data
