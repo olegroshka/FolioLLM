@@ -20,3 +20,4 @@ rouge-score
 scikit-learn
 py-rouge
 deepspeed
+flash-attn

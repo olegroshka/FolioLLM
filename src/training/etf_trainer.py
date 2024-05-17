@@ -4,17 +4,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments,
     DataCollatorForLanguageModeling, TrainerCallback, T5ForConditionalGeneration, T5Tokenizer
 import logging
 
-from accelerate import Accelerator
-
-# Initialize the accelerator
-accelerator = Accelerator(mixed_precision='fp16')  # Enable mixed precision
-
-# Clear CUDA cache
-torch.cuda.empty_cache()
-
 # Configure logging
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 def tokenize_structured_json(trainer, sample):
     try:
@@ -37,8 +28,6 @@ def tokenize_structured_json(trainer, sample):
         logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
         return None
 
-
-# Tokenization function for prompt/response pair dataset
 def tokenize_prompt_response(trainer, sample):
     try:
         prompt_inputs = trainer.tokenizer(
@@ -83,11 +72,17 @@ class ETFTrainer:
         self.tokenize_function = tokenize_function
 
         if "t5" in self.model_name.lower():
-            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)  # .to('cuda')
-            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)#.to('cuda')
+            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
+            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)  # .to('cuda')
-            self.model = AutoModelForCausalLM.from_pretrained(self.model_name)#.to('cuda')  # AutoModelForMaskedLM.from_pretrained(self.model_name)
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
+
+        # Move model to GPU after initialization
+        self.model.to('cuda')
+
+        # Set tokenizer padding side to 'left'
+        self.tokenizer.padding_side = 'left'
 
         # Set pad_token to eos_token if not already set
         if self.tokenizer.pad_token is None:
@@ -100,58 +95,15 @@ class ETFTrainer:
         self.tokenized_dataset = self.etf_dataset.map(tokenize_function, batched=False, remove_columns=self.etf_dataset.column_names)
         self.tokenized_dataset = self.tokenized_dataset.filter(lambda x: x is not None)
 
-        # Tokenization function for structured JSON dataset
-
     def train(self):
         data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)  # Use mlm=False for causal LM
-
-        # deepspeed_config = {
-        #     "train_batch_size": "auto",  # Set to 'auto' to avoid mismatch errors
-        #     "gradient_accumulation_steps": "auto",
-        #     "fp16": {
-        #         "enabled": True
-        #     },
-        #     "optimizer": {
-        #         "type": "AdamW",
-        #         "params": {
-        #             "lr": 2e-5,
-        #             "betas": [0.9, 0.999],
-        #             "eps": 1e-8,
-        #             "weight_decay": 0.01
-        #         }
-        #     },
-        #     "zero_optimization": {
-        #         "stage": 3,  # More aggressive memory optimization
-        #         "offload_param": {
-        #             "device": "cpu",  # Offload parameters to CPU
-        #             "pin_memory": True
-        #         },
-        #         "offload_optimizer": {
-        #             "device": "cpu",
-        #             "pin_memory": True
-        #         },
-        #         "overlap_comm": True,  # Overlap communication with computation
-        #         "contiguous_gradients": True,  # Use contiguous memory for gradients
-        #         "reduce_bucket_size": 5e7,  # Adjust the bucket size for memory optimization
-        #         "stage3_prefetch_bucket_size": 2e7,
-        #         "stage3_param_persistence_threshold": 1e6,  # Threshold for param persistence in CPU
-        #     },
-        #     "aio": {
-        #         "block_size": 1048576,  # 1 MB
-        #         "queue_depth": 8,
-        #         "thread_count": 1,
-        #         "single_submit": False,
-        #         "overlap_events": True,
-        #     },
-        # }
 
         deepspeed_config = {
             "train_batch_size": "auto",  # Set to 'auto' to avoid mismatch errors
             "gradient_accumulation_steps": "auto",
             "gradient_clipping": 1.0,
-
             "fp16": {
-                "enabled": True
+                "enabled": "auto"
             },
             "zero_optimization": {
                 "stage": 3,
@@ -185,14 +137,14 @@ class ETFTrainer:
             output_dir='./results',
             evaluation_strategy='no',  # Disable evaluation during training for now
             learning_rate=2e-5,
-            per_device_train_batch_size=2,#16,
-            per_device_eval_batch_size=2,#64,
+            per_device_train_batch_size=2,
+            per_device_eval_batch_size=2,
             num_train_epochs=3,
             weight_decay=0.01,
             gradient_accumulation_steps=64,
             logging_dir='./logs',
             fp16=True,
-            deepspeed=ds_config.config,  # Use DeepSpeed for optimization
+            #deepspeed=ds_config.config,  # Use DeepSpeed for optimization
             logging_steps=1,  # log the training loss every # steps
         )
 
@@ -202,8 +154,6 @@ class ETFTrainer:
             train_dataset=self.tokenized_dataset,
             data_collator=data_collator,
         )
-
-        trainer = accelerator.prepare(trainer)
 
         # Hook into training loop
         trainer.add_callback(MemoryMonitorCallback())
@@ -215,7 +165,7 @@ class ETFTrainer:
         self.tokenizer.save_pretrained(output_dir)
 
 # Example usage
-# etf_trainer = ETFTrainer("distilgpt2", your_etf_dataset)
+# etf_trainer = ETFTrainer("distilgpt2", your_etf_dataset, tokenize_structured_json)
 # etf_trainer.tokenize_dataset()
 # etf_trainer.train()
 # etf_trainer.save_model("./output_model")

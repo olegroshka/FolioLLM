@@ -17,12 +17,42 @@ class ETFAdvisorEvaluator:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def generate_response(self, prompt):
-        inputs = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
-        input_ids = inputs.input_ids.to(self.model.device)
-        attention_mask = inputs.attention_mask.to(self.model.device)
+        messages = [
+            {"role": "system",
+             "content": "You are professional portfolio manager specializing in ETF who advises the client by provides deep inside into the finantial markets. Help the user and provide accurat information."},
+             {"role": "user", "content": prompt},
+        ]
 
-        output = self.model.generate(input_ids, attention_mask=attention_mask, max_length=100, num_return_sequences=1)
-        return self.tokenizer.decode(output[0], skip_special_tokens=True)
+        tokenized_chat = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=True,
+            add_generation_prompt=True,
+            return_tensors="pt"
+        ).to("cuda")
+
+        generation_params = {
+            'max_new_tokens': 1000,
+            'use_cache': True,
+            'do_sample': True,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'top_k': 50,
+            'eos_token_id': self.tokenizer.eos_token_id,
+        }
+
+        outputs = self.model.generate(tokenized_chat, **generation_params)
+        decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+
+        response = decoded_outputs[0].split("assistant\n")[1].strip()
+
+        return response
+
+        # inputs = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+        # input_ids = inputs.input_ids.to(self.model.device)
+        # attention_mask = inputs.attention_mask.to(self.model.device)
+        #
+        # output = self.model.generate(input_ids, attention_mask=attention_mask, max_length=100, num_return_sequences=1)
+        # return self.tokenizer.decode(output[0], skip_special_tokens=True)
 
     def evaluate(self, detailed=False):
         rouge = Rouge()
@@ -36,7 +66,10 @@ class ETFAdvisorEvaluator:
 
         for prompt_data in self.test_prompts:
             prompt = prompt_data['prompt']
-            expected_answer = prompt_data['expected_answer']
+            if 'expected_answer' in prompt_data:
+                expected_answer = prompt_data['expected_answer']
+            else:
+                expected_answer = prompt_data['response']
 
             generated_response = self.generate_response(prompt)
 
@@ -107,15 +140,15 @@ class ETFAdvisorEvaluator:
 
 # Example usage:
 # Assuming you have a GPT-2 model and tokenizer loaded
-model_name = "gpt2"
-model = AutoModelForCausalLM.from_pretrained(model_name)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-test_prompts = [
-    {"prompt": "What is the YTD return and expense ratio of Cullen Enhanced Equity Income ETF?",
-     "expected_answer": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a YTD return of 572.631% and an expense ratio of 0.55%."},
-    # Add more test prompts here
-]
-
-evaluator = ETFAdvisorEvaluator(model, tokenizer, test_prompts)
-evaluator.evaluate(detailed=True)
+# model_name = "gpt2"
+# model = AutoModelForCausalLM.from_pretrained(model_name)
+# tokenizer = AutoTokenizer.from_pretrained(model_name)
+#
+# test_prompts = [
+#     {"prompt": "What is the YTD return and expense ratio of Cullen Enhanced Equity Income ETF?",
+#      "expected_answer": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a YTD return of 572.631% and an expense ratio of 0.55%."},
+#     # Add more test prompts here
+# ]
+#
+# evaluator = ETFAdvisorEvaluator(model, tokenizer, test_prompts)
+# evaluator.evaluate(detailed=True)

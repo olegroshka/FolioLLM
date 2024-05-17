@@ -1,6 +1,8 @@
 import os
 import json
-from transformers import AutoModelForMaskedLM, AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, \
+import torch
+
+from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, \
     T5ForConditionalGeneration
 from src.dataset.data_utils import load_etf_dataset, load_prompt_response_dataset
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
@@ -18,7 +20,7 @@ class ETFAdvisorPipeline:
 
     def run(self):
         # Step 1: Evaluate the base model
-        self.eval_base_model()
+        #self.eval_base_model()
 
         # Step 2: Fine-tune the model
         self.finetune_model()
@@ -34,14 +36,15 @@ class ETFAdvisorPipeline:
         fine_tuned_evaluator.evaluate(detailed=self.detailed)
 
     def finetune_model(self):
-        print("\nFine-tuning the model on prompt/response pairs...")
-        trainer_prompt_response = ETFTrainer(self.model_name, self.etf_prompt_response_dataset, tokenize_prompt_response)
-        trainer_prompt_response.tokenize_dataset()
-        trainer_prompt_response.train()
-        trainer_prompt_response.save_model(self.output_dir)
+        # print("\nFine-tuning the model on prompt/response pairs...")
+        # trainer_prompt_response = ETFTrainer(self.model_name, self.etf_prompt_response_dataset, tokenize_prompt_response)
+        # trainer_prompt_response.tokenize_dataset()
+        # trainer_prompt_response.train()
+        # trainer_prompt_response.save_model(self.output_dir)
 
         print("\nFine-tuning the model on structured JSON...")
-        trainer_structured_json = ETFTrainer(self.output_dir, self.etf_structured_dataset, tokenize_structured_json)
+        trainer_structured_json = ETFTrainer(self.model_name, self.etf_structured_dataset, tokenize_structured_json)
+        # trainer_structured_json = ETFTrainer(self.output_dir, self.etf_structured_dataset, tokenize_structured_json)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
         trainer_structured_json.save_model(self.output_dir)
@@ -55,25 +58,43 @@ class ETFAdvisorPipeline:
 
     def create_tokenizer(self):
         if "t5" in self.model_name.lower():
-            tokenizer = T5Tokenizer.from_pretrained(self.model_name)#.to('cuda')
+            tokenizer = T5Tokenizer.from_pretrained(self.model_name).to('cuda')
         else:
-            tokenizer = AutoTokenizer.from_pretrained(self.model_name)#.to('cuda')
+            tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
         return tokenizer
 
     def load_base_model(self):
         if "t5" in self.model_name.lower():
-            model = T5ForConditionalGeneration.from_pretrained(self.model_name)#.to('cuda')
+            model = T5ForConditionalGeneration.from_pretrained(
+                self.model_name,
+                attn_implementation="flash_attention_2",
+                torch_dtype=torch.bfloat16
+            ).to('cuda')
         else:
-            model = AutoModelForCausalLM.from_pretrained(self.model_name)#.to('cuda')  # AutoModelForMaskedLM.from_pretrained(self.model_name)
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                attn_implementation="flash_attention_2",
+                torch_dtype=torch.bfloat16
+            ).to('cuda')
 
         return model
 
     def load_finetuned_model(self):
         if "t5" in self.model_name.lower():
-            model = T5ForConditionalGeneration.from_pretrained(self.output_dir)#.to('cuda')
+            model = T5ForConditionalGeneration.from_pretrained(
+                self.output_dir,
+                self.model_name,
+                attn_implementation="flash_attention_2",
+                torch_dtype=torch.bfloat16
+            ).to("cuda")
+
         else:
-            model = AutoModelForCausalLM.from_pretrained(self.output_dir)#.to('cuda')  # AutoModelForMaskedLM.from_pretrained(self.model_name)
+            model = AutoModelForCausalLM.from_pretrained(
+                self.output_dir,
+                attn_implementation="flash_attention_2",
+                torch_dtype=torch.bfloat16
+            ).to('cuda')
 
         return model
 
@@ -87,7 +108,7 @@ def load_test_prompts(json_file):
 def main():
     json_structured_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_data.json'
     json_prompt_response_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_training_data.json'
-    test_prompts_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/basic-competency-test-prompts.json'
+    test_prompts_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/basic-competency-test-prompts-1.json'
     #model_name = 'bert-base-uncased'
     #model_name = 'FacebookAI/roberta-large'
     #model_name = "stabilityai/stablelm-2-zephyr-1_6b" #good(!)
@@ -95,7 +116,8 @@ def main():
     #model_name = "facebook/opt-350m"
     #model_name = "EleutherAI/gpt-neo-2.7B"
     #model_name = "gpt2"
-    model_name = "gpt2-medium"
+    model_name = 'FINGU-AI/FinguAI-Chat-v1'
+    #model_name = "gpt2-medium"
     #model_name = "gpt2-large"
     #model_name = 'google-t5/t5-large'
     #model_name = 'google/flan-t5-xxl'
