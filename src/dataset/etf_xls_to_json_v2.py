@@ -3,13 +3,17 @@ import json
 import pandas as pd
 
 def process_xls_file(file_path):
-    # Read the XLSX file and select the "excelexportfsrcresults" tab
+    # Read the XLSX file and select the "Main" tab
     df_results = pd.read_excel(file_path, sheet_name="Main")
     #print(df_results.columns)
 
-    # Extract the required fields from the "excelexportfsrcresults" tab
-    required_fields = ["Ticker", "Name", "Manager", "Fund Asset Class Focus", "Fund Asset Group", "Fund Industry Focus", "Fund Geographical Focus", "Fund Objective", "Economic Association", "Fund Strategy", "Fund Market Cap Focus", "Fund Style"]
+    # Extract the required fields from the "Main" tab
+    required_fields = ["Ticker", "BBG Ticker", "FIGI", "Name", "Description", "Type", "Domicile", "Tot Ret Ytd",
+                       "Tot Ret 1Y", "Manager", "Fund Asset Class Focus", "Fund Asset Group", "Fund Industry Focus",
+                       "Fund Geographical Focus", "Fund Objective", "Economic Association", "Fund Strategy",
+                       "Fund Market Cap Focus", "Fund Style"]
     required_fields = [col.strip() for col in required_fields]
+    data_results = rows_to_dic(xls_file_path=file_path, sheet_name="Main", fields=required_fields)
     data_results = df_results[required_fields].to_dict(orient="records")
 
     # Create a dictionary mapping ticker to summary data
@@ -104,7 +108,8 @@ def rows_to_dic(xls_file_path, sheet_name, fields):
             print(f"Warning: Skipping row with missing Ticker: \n{row}")
             continue
         ticker = row["Ticker"].split(" ")[0]
-        data[ticker] = row
+        cleaned_row = row.apply(lambda x: "not available" if pd.isna(x) or x in ["N/A", "N.A.", "--", "nan", "NaN", "#N/A Field Not Applicable"] else x)
+        data[ticker] = cleaned_row
         del data[ticker]["Ticker"]
 
     return data
