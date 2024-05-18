@@ -16,3 +16,8 @@ perf
 openpyxl
 bert-score
 accelerate
+rouge-score
+scikit-learn
+py-rouge
+deepspeed
+flash-attn

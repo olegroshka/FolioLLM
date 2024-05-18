@@ -1,0 +1,42 @@
+[
+    {
+        "prompt": "What is the YTD return and expense ratio of Cullen Enhanced Equity Income ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a YTD return of 572.631% and an expense ratio of 0.55%."
+    },
+    {
+        "prompt": "Who manages the Cullen Enhanced Equity Income ETF and what is its ticker?",
+        "response": "The Cullen Enhanced Equity Income ETF is managed by Cullen Capital Management LLC and its ticker is DIVP."
+    },
+    {
+        "prompt": "What is the total return over 1 year for the Cullen Enhanced Equity Income ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a total return over 1 year of 572.631%."
+    },
+    {
+        "prompt": "Can you provide details on the holdings and volume of the Cullen Enhanced Equity Income ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) holds 47.0 assets and has a 30-day volume of 4491."
+    },
+    {
+        "prompt": "What is the asset class focus of the Cullen Enhanced Equity Income ETF?",
+        "response": "The asset class focus of the Cullen Enhanced Equity Income ETF (DIVP US Equity) is Equity."
+    },
+    {
+        "prompt": "What are the fund and class assets of the Cullen Enhanced Equity Income ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has class assets of 7.76 million USD and fund assets of 7.76 million USD."
+    },
+    {
+        "prompt": "What is the 12-month yield and 1-month flow of the Cullen Enhanced Equity Income ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a 12-month yield of +0.70% and a 1-month flow of 1.28 million USD."
+    },
+    {
+        "prompt": "Is the Cullen Enhanced Equity Income ETF a primary or cross-listed ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) is a primary listed ETF."
+    },
+    {
+        "prompt": "What is the YTD flow and NAV tracking error of the Cullen Enhanced Equity Income ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a YTD flow of 6.34 million USD and a 1-year NAV tracking error is not available."
+    },
+    {
+        "prompt": "What is the summary of the Cullen Enhanced Equity Income ETF?",
+        "response": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has class assets of 7.76 million USD, a fund asset of 7.76 million USD, an expense ratio of 0.55%, a 12-month yield of +0.70%, a 30-day volume of 4491, a YTD flow of 6.34 million USD, a 1-month flow of 1.28 million USD, and holds 47 assets."
+    }
+]

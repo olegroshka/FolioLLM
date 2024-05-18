@@ -5,7 +5,10 @@
 import torch
 from transformers import pipeline
 
-pipe = pipeline("text-generation", model="HuggingFaceH4/zephyr-7b-beta", torch_dtype=torch.bfloat16, device_map="auto")
+
+#stabilityai/stablelm-2-zephyr-1_6b
+#pipe = pipeline("text-generation", model="HuggingFaceH4/zephyr-7b-beta", torch_dtype=torch.bfloat16, device_map="auto")
+pipe = pipeline("text-generation", model="stabilityai/stablelm-2-zephyr-1_6b", torch_dtype=torch.bfloat16, device_map="auto")
 
 # We use the tokenizer's chat template to format each message - see https://huggingface.co/docs/transformers/main/en/chat_templating
 messages_list = [
