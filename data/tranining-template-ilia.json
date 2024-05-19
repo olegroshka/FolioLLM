@@ -1,0 +1,42 @@
+[
+    {
+        "prompt": "What are the {ytd_return}, {ticker}, {domicile}, {manager}, and {expense_ratio} of {etf_name}?",
+        "response": "The {etf_name} has a YTD return of {ytd_return}%, trades under the ticker {ticker}, is domiciled in {domicile}, managed by {manager}, and has an expense ratio of {expense_ratio}%."
+    },
+    {
+        "prompt": "Who manages {etf_name}, and what are its {expense_ratio}, {asset_class_focus}, {fund_strategy}, and {inception_date}?",
+        "response": "The {etf_name} is managed by {manager}, has an expense ratio of {expense_ratio}%, focuses on the {asset_class_focus} asset class, follows a {fund_strategy} strategy, and was incepted on {inception_date}."
+    },
+    {
+        "prompt": "Can you provide the {fund_type}, {inception_date}, {holdings}, {yield_12m}, and {total_value_traded} for {etf_name}?",
+        "response": "The {etf_name} is a {fund_type}, was incepted on {inception_date}, its primary holdings include {holdings}, it has a yield of {yield_12m}% over the last 12 months, and a total value traded of {total_value_traded}."
+    },
+    {
+        "prompt": "What is the {total_return_1y}, {fund_strategy}, {economic_association}, {volume_30d}, and {avg_bid_ask_spread} for {etf_name}?",
+        "response": "The {etf_name} has a total return of {total_return_1y}%, follows a {fund_strategy} strategy, is associated with the {economic_association} economic sector, has a volume of {volume_30d} in the last 30 days, and an average bid-ask spread of {avg_bid_ask_spread}%."
+    },
+    {
+        "prompt": "Give me the {short_interest}, {open_interest}, {primary}, {nav_trk_error}, and {inception_year} for {etf_name}.",
+        "response": "The {etf_name} has a short interest of {short_interest}, an open interest of {open_interest}, is primarily {primary}, has a NAV tracking error of {nav_trk_error}%, and was incepted in {inception_year}."
+    },
+    {
+        "prompt": "Can you tell me the {fund_geographical_focus}, {fund_market_cap_focus}, {fund_style}, {return_5y}, and {fund_assets} of {etf_name}?",
+        "response": "The {etf_name} focuses on the {fund_geographical_focus} region, has a market cap focus of {fund_market_cap_focus}, follows a {fund_style} style, has a 5-year return of {return_5y}%, and manages assets worth {fund_assets}."
+    },
+    {
+        "prompt": "What is the {yield_12m}, {leverage}, {structure}, {avg_bid_ask_spread}, and {aggregated_value_traded} for {etf_name}?",
+        "response": "The {etf_name} has a yield of {yield_12m}% over the last 12 months, employs {leverage} leverage, follows a {structure} structure, has an average bid-ask spread of {avg_bid_ask_spread}%, and an aggregated value traded of {aggregated_value_traded}."
+    },
+    {
+        "prompt": "Can you provide details on the {fund_industry_focus}, {class_assets}, {return_3y}, {nav_trk_error}, and {tot_ret_ytd} of {etf_name}?",
+        "response": "The {etf_name} focuses on the {fund_industry_focus} industry, manages assets in the {class_assets} class, has a 3-year return of {return_3y}%, a NAV tracking error of {nav_trk_error}%, and a total return YTD of {tot_ret_ytd}."
+    },
+    {
+        "prompt": "Tell me about the {ticker}, {figi}, {fund_strategy}, {return_mtd}, {inception_date}, and {primary} of {etf_name}.",
+        "response": "The {etf_name} trades under the ticker {ticker}, has a FIGI of {figi}, follows a {fund_strategy} strategy, has a month-to-date return of {return_mtd}%, was incepted on {inception_date}, and is primarily {primary}."
+    },
+    {
+        "prompt": "What are the {asset_class_focus}, {fund_objective}, {total_return_1y}, {bid_ask_spread}, and {use_derivative} for {etf_name}?",
+        "response": "The {etf_name} focuses on the {asset_class_focus} asset class, aims to achieve {fund_objective}, has a total return of {total_return_1y}%, a bid-ask spread of {bid_ask_spread}%, and uses derivatives in {use_derivative}."
+    }
+]
