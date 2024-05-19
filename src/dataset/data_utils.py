@@ -1,6 +1,8 @@
 import json
 from datasets import Dataset
 from src.dataset.etf_dataset import ETFDataset
+from src.dataset.etf_text_dataset import ETFTextDataset
+
 
 def load_test_prompts(json_file):
     with open(json_file, 'r') as file:
@@ -17,6 +19,21 @@ def load_etf_dataset(json_file):
     hf_dataset = Dataset.from_dict({
         'etf_ticker': [sample['etf_ticker'] for sample in dataset],
         'features': [sample['features'] for sample in dataset]
+    })
+
+    return hf_dataset
+
+from datasets import Dataset
+
+def load_etf_text_dataset(json_file):
+    with open(json_file, 'r') as file:
+        json_data = json.load(file)
+
+    dataset = ETFTextDataset(json_data)
+
+    # Convert the ETFTextDataset to a Hugging Face Dataset
+    hf_dataset = Dataset.from_dict({
+        'text': [sample['text'] for sample in dataset]
     })
 
     return hf_dataset
