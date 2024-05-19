@@ -3,7 +3,7 @@ import json
 import torch
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, \
-    T5ForConditionalGeneration
+    T5ForConditionalGeneration, deepspeed
 from src.dataset.data_utils import load_etf_dataset, load_prompt_response_dataset, load_etf_text_dataset
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
 from src.training.etf_trainer import ETFTrainer, tokenize_structured_json, tokenize_prompt_response, tokenize_etf_text
@@ -20,7 +20,7 @@ class ETFAdvisorPipeline:
 
     def run(self):
         # Step 1: Evaluate the base model
-        #self.eval_base_model()
+        self.eval_base_model()
 
         # Step 2: Fine-tune the model
         self.finetune_model()
@@ -42,12 +42,18 @@ class ETFAdvisorPipeline:
         # trainer_prompt_response.train()
         # trainer_prompt_response.save_model(self.output_dir)
 
-        print("\nFine-tuning the model on structured JSON...")
-        trainer_structured_json = ETFTrainer(self.model_name, self.etf_structured_dataset, tokenize_etf_text)#tokenize_structured_json)
-        # trainer_structured_json = ETFTrainer(self.output_dir, self.etf_structured_dataset, tokenize_structured_json)
-        trainer_structured_json.tokenize_dataset()
-        trainer_structured_json.train()
-        trainer_structured_json.save_model(self.output_dir)
+        # print("\nFine-tuning the model on structured JSON...")
+        # trainer_structured_json = ETFTrainer(self.model_name, self.etf_structured_dataset, tokenize_etf_text)#tokenize_structured_json)
+        # # trainer_structured_json = ETFTrainer(self.output_dir, self.etf_structured_dataset, tokenize_structured_json)
+        # trainer_structured_json.tokenize_dataset()
+        # trainer_structured_json.train()
+        # trainer_structured_json.save_model(self.output_dir)
+
+        print("\nFine-tuning the model on prompt/response pairs...")
+        trainer_prompt_response = ETFTrainer(self.output_dir, self.etf_prompt_response_dataset, tokenize_prompt_response)
+        trainer_prompt_response.tokenize_dataset()
+        trainer_prompt_response.train()
+        trainer_prompt_response.save_model(self.output_dir)
 
     def eval_base_model(self):
         print("Evaluating the base model...")
@@ -96,6 +102,11 @@ class ETFAdvisorPipeline:
                 torch_dtype=torch.bfloat16
             ).to('cuda')
 
+        # model, optimizer, _, _ = deepspeed.initialize(
+        #     model=model,
+        #     config='./deep-speed.json'
+        # )
+
         return model
 
 
@@ -107,7 +118,7 @@ def load_test_prompts(json_file):
 
 def main():
     json_structured_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_data_v2.json'
-    json_prompt_response_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_training_data.json'
+    json_prompt_response_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_training_data_v2.json'
     test_prompts_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/basic-competency-test-prompts-1.json'
     #model_name = 'bert-base-uncased'
     #model_name = 'FacebookAI/roberta-large'

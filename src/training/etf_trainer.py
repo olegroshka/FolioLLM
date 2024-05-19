@@ -10,6 +10,7 @@ from src.training.memory_monitor_callback import MemoryMonitorCallback
 # Configure logging
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def tokenize_etf_text(trainer, sample):
     try:
         input_text = sample['text']
@@ -18,7 +19,7 @@ def tokenize_etf_text(trainer, sample):
             input_text,
             padding='max_length',
             truncation=True,
-            max_length=512#1024  # Adjust the max_length as needed
+            max_length=512  # 1024  # Adjust the max_length as needed
         )
 
         model_inputs["labels"] = model_inputs["input_ids"]
@@ -27,6 +28,7 @@ def tokenize_etf_text(trainer, sample):
     except KeyError as e:
         logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
         return None
+
 
 def tokenize_structured_json(trainer, sample):
     try:
@@ -39,7 +41,7 @@ def tokenize_structured_json(trainer, sample):
             input_text,
             padding='max_length',
             truncation=True,
-            max_length=512#1024  # Adjust the max_length as needed
+            max_length=512  # 1024  # Adjust the max_length as needed
         )
 
         model_inputs["labels"] = model_inputs["input_ids"]
@@ -48,6 +50,7 @@ def tokenize_structured_json(trainer, sample):
     except KeyError as e:
         logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
         return None
+
 
 def tokenize_prompt_response(trainer, sample):
     try:
@@ -75,6 +78,7 @@ def tokenize_prompt_response(trainer, sample):
     except KeyError as e:
         logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
         return None
+
 
 class ETFTrainer:
     def __init__(self, model_name, etf_dataset, tokenize_function):
@@ -107,13 +111,45 @@ class ETFTrainer:
         def tokenize_function(sample):
             return self.tokenize_function(self, sample)
 
-        self.tokenized_dataset = self.etf_dataset.map(tokenize_function, batched=False, remove_columns=self.etf_dataset.column_names)
+        self.tokenized_dataset = self.etf_dataset.map(tokenize_function, batched=False,
+                                                      remove_columns=self.etf_dataset.column_names)
         self.tokenized_dataset = self.tokenized_dataset.filter(lambda x: x is not None)
 
     def train(self):
-        data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)  # Use mlm=False for causal LM
+        data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer,
+                                                        mlm=False)  # Use mlm=False for causal LM
 
-        deepspeed_config_path = './deep-speed.json'
+        deepspeed_config_path = {
+            "train_batch_size": "auto",
+            "gradient_accumulation_steps": "auto",
+            "gradient_clipping": 1.0,
+            "fp16": {
+                "enabled": "auto"
+            },
+            "zero_optimization": {
+                "stage": 3,
+                "offload_param": {
+                    "device": "cpu",
+                    "pin_memory": "true"
+                },
+                "offload_optimizer": {
+                    "device": "cpu",
+                    "pin_memory": "true"
+                },
+                "overlap_comm": "true",
+                "contiguous_gradients": "true",
+                "reduce_bucket_size": 50000000,
+                "stage3_prefetch_bucket_size": "20000000",
+                "stage3_param_persistence_threshold": 1000000
+            },
+            "aio": {
+                "block_size": 1048576,
+                "queue_depth": 8,
+                "thread_count": 1,
+                "single_submit": "false",
+                "overlap_events": "true"
+            }
+        }
 
         training_args = TrainingArguments(
             output_dir='./results',
@@ -135,12 +171,13 @@ class ETFTrainer:
             model=self.model,
             args=training_args,
             train_dataset=self.tokenized_dataset,
-            eval_dataset=self.tokenized_dataset,  # Using the same dataset for simplicity, ideally use a separate validation set
+            eval_dataset=self.tokenized_dataset,
+            # Using the same dataset for simplicity, ideally use a separate validation set
             data_collator=data_collator,
         )
 
         # Hook into training loop
-        #trainer.add_callback(MemoryMonitorCallback())
+        # trainer.add_callback(MemoryMonitorCallback())
 
         trainer.train()
 
