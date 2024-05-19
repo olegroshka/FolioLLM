@@ -98,7 +98,7 @@ class ETFTrainer:
 
         self.accelerator = Accelerator()
         self.model, self.tokenizer = self.accelerator.prepare(self.model, self.tokenizer)
-        self.model.to(self.accelerator.device)
+        self.model = self.model.to(self.accelerator.device)
 
         # Enable gradient checkpointing
         self.model.gradient_checkpointing_enable()

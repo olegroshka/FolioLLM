@@ -44,7 +44,7 @@ class ETFAdvisorEvaluator:
             'eos_token_id': self.tokenizer.eos_token_id,
         }
 
-        model.to("cuda")
+        model = model.to("cuda")
 
         outputs = self.model.generate(tokenized_chat, **generation_params)
         decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
