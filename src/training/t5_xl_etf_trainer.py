@@ -89,10 +89,10 @@ class T5XLETFTrainer:
         )
 
         trainer = Trainer(
-            model=self.model.to(self.device),  # Move model to device
-            args=training_args,
-            train_dataset=self.tokenized_dataset,
-            data_collator=data_collator,
+            model = self.model.to(self.device),  # Move model to device
+            args = training_args,
+            train_dataset = self.tokenized_dataset,
+            data_collator = data_collator,
         )
 
         trainer.train()
