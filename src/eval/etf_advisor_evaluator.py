@@ -4,7 +4,7 @@ from rouge import Rouge
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoModelForCausalLM, AutoTokenizer
-
+import torch
 
 class ETFAdvisorEvaluator:
     def __init__(self, model, tokenizer, test_prompts):
@@ -16,11 +16,15 @@ class ETFAdvisorEvaluator:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
+        # Set tokenizer padding side to 'left'
+        self.tokenizer.padding_side = 'left'
+
+
     def generate_response(self, prompt):
         messages = [
             {"role": "system",
-             "content": "You are professional portfolio manager specializing in ETF who advises the client by provides deep inside into the finantial markets. Help the user and provide accurat information."},
-             {"role": "user", "content": prompt},
+             "content": "You are a professional portfolio manager specializing in ETF who advises the client by providing deep insight into the financial markets. Help the user and provide accurate information."},
+            {"role": "user", "content": prompt},
         ]
 
         tokenized_chat = self.tokenizer.apply_chat_template(
@@ -40,6 +44,8 @@ class ETFAdvisorEvaluator:
             'eos_token_id': self.tokenizer.eos_token_id,
         }
 
+        model.to("cuda")
+
         outputs = self.model.generate(tokenized_chat, **generation_params)
         decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
@@ -47,12 +53,14 @@ class ETFAdvisorEvaluator:
 
         return response
 
-        # inputs = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
-        # input_ids = inputs.input_ids.to(self.model.device)
-        # attention_mask = inputs.attention_mask.to(self.model.device)
-        #
-        # output = self.model.generate(input_ids, attention_mask=attention_mask, max_length=100, num_return_sequences=1)
-        # return self.tokenizer.decode(output[0], skip_special_tokens=True)
+    def calculate_perplexity(self, text):
+        encodings = self.tokenizer(text, return_tensors='pt')
+        input_ids = encodings.input_ids.to(self.model.device)
+        with torch.no_grad():
+            outputs = self.model(input_ids, labels=input_ids)
+            loss = outputs.loss
+            perplexity = torch.exp(loss)
+        return perplexity.item()
 
     def evaluate(self, detailed=False):
         rouge = Rouge()
@@ -63,6 +71,7 @@ class ETFAdvisorEvaluator:
         bert_f1_scores = []
         rouge_scores = []
         cosine_similarities = []
+        perplexity_scores = []
 
         for prompt_data in self.test_prompts:
             prompt = prompt_data['prompt']
@@ -91,6 +100,10 @@ class ETFAdvisorEvaluator:
             cosine_sim = cosine_similarity(tfidf_matrix)[0][1]
             cosine_similarities.append(cosine_sim)
 
+            # Calculate perplexity
+            perplexity = self.calculate_perplexity(generated_response)
+            perplexity_scores.append(perplexity)
+
             if detailed:
                 print(f"Prompt: {prompt}")
                 print(f"Expected Answer: {expected_answer}")
@@ -102,6 +115,7 @@ class ETFAdvisorEvaluator:
                 else:
                     print("ROUGE Score: N/A")
                 print(f"Cosine Similarity: {cosine_sim:.4f}")
+                print(f"Perplexity: {perplexity:.4f}")
                 print("---")
 
         avg_bert_precision = sum(bert_precision_scores) / len(bert_precision_scores)
@@ -123,24 +137,28 @@ class ETFAdvisorEvaluator:
             }
 
         avg_cosine_similarity = sum(cosine_similarities) / len(cosine_similarities)
+        avg_perplexity = sum(perplexity_scores) / len(perplexity_scores)
 
         print(
             f"Average BERT Score - Precision: {avg_bert_precision:.4f}, Recall: {avg_bert_recall:.4f}, F1: {avg_bert_f1:.4f}")
         print(f"Average ROUGE Score: {avg_rouge_score}")
         print(f"Average Cosine Similarity: {avg_cosine_similarity:.4f}")
+        print(f"Average Perplexity: {avg_perplexity:.4f}")
 
         return {
             "avg_bert_precision": avg_bert_precision,
             "avg_bert_recall": avg_bert_recall,
             "avg_bert_f1": avg_bert_f1,
             "avg_rouge_score": avg_rouge_score,
-            "avg_cosine_similarity": avg_cosine_similarity
+            "avg_cosine_similarity": avg_cosine_similarity,
+            "avg_perplexity": avg_perplexity
         }
 
 
 # Example usage:
 # Assuming you have a GPT-2 model and tokenizer loaded
-# model_name = "gpt2"
+#model_name = "gpt2"
+# model_name = "FINGU-AI/FinguAI-Chat-v1"
 # model = AutoModelForCausalLM.from_pretrained(model_name)
 # tokenizer = AutoTokenizer.from_pretrained(model_name)
 #
