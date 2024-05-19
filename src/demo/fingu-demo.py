@@ -6,12 +6,16 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig,TextStreamer
 
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
 model_id = 'FINGU-AI/FinguAI-Chat-v1'
 model = AutoModelForCausalLM.from_pretrained(model_id, attn_implementation="flash_attention_2", torch_dtype= torch.bfloat16)
 #model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16)
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 streamer = TextStreamer(tokenizer)
-model.to('cuda')
+
+model = model.to(device)
 
 
 etf_data =  {
@@ -131,7 +135,7 @@ messages = [
     #{"role": "user", "content": "Explain what is ETF?"},
     {"role": "user", "content": "Can you describe DIVP ETF. Contex: Analyse detailed ETF provided below data and provide user in depth analisys: " + str(etf_data)},
  ]
-tokenized_chat = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt").to("cuda")
+tokenized_chat = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt").to(device)
 
 generation_params = {
     'max_new_tokens': 1000,
