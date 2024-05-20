@@ -20,3 +20,4 @@ scikit-learn
 py-rouge
 #deepspeed  # Excluded due to CUDA requirement
 #flash-attn  # Excluded due to CUDA requirement
+wandb
