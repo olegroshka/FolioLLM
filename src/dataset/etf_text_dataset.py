@@ -30,7 +30,7 @@ Type: {sample.get("Type", "N/A")}
 Domicile: {sample.get("Domicile", "N/A")}
 Manager: {sample.get("Manager", "N/A")}
 
- {sample.get("Ticker", "N/A")} Fund Classification:
+ {sample.get("Name", "N/A")} Fund Classification:
     Asset Class Focus: {sample.get("Fund Asset Class Focus", "N/A")}
     Asset Group: {sample.get("Fund Asset Group", "N/A")}
     Industry Focus: {sample.get("Fund Industry Focus", "N/A")}
@@ -41,7 +41,7 @@ Manager: {sample.get("Manager", "N/A")}
     Market Cap Focus: {sample.get("Fund Market Cap Focus", "N/A")}
     Style: {sample.get("Fund Style", "N/A")}
 
-{sample.get("Ticker", "N/A")} Summary:
+{sample.get("Name", "N/A")} Summary:
     Class Assets (MLN USD): {self.get_value(sample, "Summary", "Class Assets (MLN USD)")}
     Fund Assets (MLN USD): {self.get_value(sample, "Summary", "Fund Assets (MLN USD)")}
     Expense Ratio: {self.get_value(sample, "Summary", "Expense Ratio")}
@@ -55,7 +55,7 @@ Manager: {sample.get("Manager", "N/A")}
     Primary: {self.get_value(sample, "Summary", "Primary")}
     Cross: {self.get_value(sample, "Summary", "Cross")}
 
-{sample.get("Ticker", "N/A")} Performance:
+{sample.get("Name", "N/A")} Performance:
     1 Day Return: {self.get_value(sample, "Performance", "1 Day Return")}
     Month-To-Date Return: {self.get_value(sample, "Performance", "Month-To-Date Return")}
     Year-To-Date Return: {self.get_value(sample, "Performance", "Year-To-Date Return")}
@@ -65,7 +65,7 @@ Manager: {sample.get("Manager", "N/A")}
     10 Years Return: {self.get_value(sample, "Performance", "10 Years Return")}
     12 Months Yield: {self.get_value(sample, "Performance", "12 Months Yield")}
 
-{sample.get("Ticker", "N/A")} Liquidity:
+{sample.get("Name", "N/A")} Liquidity:
     1 Day Volume: {self.get_value(sample, "Liquidity", "1 Day Volume")}
     Aggregated Volume: {self.get_value(sample, "Liquidity", "Aggregated Volume")}
     Aggregated Value Traded: {self.get_value(sample, "Liquidity", "Aggregated Value Traded")}
@@ -74,7 +74,7 @@ Manager: {sample.get("Manager", "N/A")}
     Short Interest%: {self.get_value(sample, "Liquidity", "Short Interest%")}
     Open Interest: {self.get_value(sample, "Liquidity", "Open Interest")}
 
-{sample.get("Ticker", "N/A")} Expense:
+{sample.get("Name", "N/A")} Expense:
     Expense Ratio: {self.get_value(sample, "Expense", "Expense Ratio")}
     Fund Manager Stated Fee: {self.get_value(sample, "Expense", "Fund Manager Stated Fee")}
     Average Bid Ask Spread: {self.get_value(sample, "Expense", "Average Bid Ask Spread")}
@@ -82,7 +82,7 @@ Manager: {sample.get("Manager", "N/A")}
     Premium: {self.get_value(sample, "Expense", "Premium")}
     52 Weeks Average Premium: {self.get_value(sample, "Expense", "52Weeks Average Premium")}
 
-{sample.get("Ticker", "N/A")} Flow:
+{sample.get("Name", "N/A")} Flow:
     Currency: {self.get_value(sample, "Flow", "Currency, Security")}
     OAS Effective Duration: {self.get_value(sample, "Flow", "OAS Effective Duration")}
     OAS Duration Coverage Ratio: {self.get_value(sample, "Flow", "OAS Duration Coverage Ratio")}
@@ -90,7 +90,7 @@ Manager: {sample.get("Manager", "N/A")}
     Options Available: {self.get_value(sample, "Flow", "Options Available")}
     Payment Type: {self.get_value(sample, "Flow", "Payment Type")}
 
-{sample.get("Ticker", "N/A")} Regulatory:
+{sample.get("Name", "N/A")} Regulatory:
     Fund Type: {self.get_value(sample, "Regulatory", "Fund Type")}
     Structure: {self.get_value(sample, "Regulatory", "Structure")}
     Index Weight: {self.get_value(sample, "Regulatory", "Index Weight")}
@@ -105,7 +105,7 @@ Manager: {sample.get("Manager", "N/A")}
     Leverage: {self.get_value(sample, "Regulatory", "Leverage")}
     Inception Date: {self.get_value(sample, "Regulatory", "Inception Date")}
 
-{sample.get("Ticker", "N/A")} Industry Exposure:
+{sample.get("Name", "N/A")} Industry Exposure:
     Materials: {self.get_value(sample, "Industry", "Materials")}
     Communications: {self.get_value(sample, "Industry", "Communications")}
     Consumer Cyclical: {self.get_value(sample, "Industry", "Consumer Cyclical")}
@@ -118,7 +118,7 @@ Manager: {sample.get("Manager", "N/A")}
     Utilities: {self.get_value(sample, "Industry", "Utilities")}
     Government: {self.get_value(sample, "Industry", "Government")}
 
-{sample.get("Ticker", "N/A")} Geographical Exposure:
+{sample.get("Name", "N/A")} Geographical Exposure:
     North America: {self.get_value(sample, "Geography", "N.Amer.")}
     Latin America: {self.get_value(sample, "Geography", "LATAM")}
     Western Europe: {self.get_value(sample, "Geography", "West Euro")}
