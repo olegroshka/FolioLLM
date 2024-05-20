@@ -1,0 +1,130 @@
+[
+    {
+        "prompt": "Who manages {etf_name}, and what are its {expense_ratio}, {asset_class_focus}, {fund_strategy}, and {inception_date}?",
+        "response": "The {etf_name} is managed by {manager}, has an expense ratio of {expense_ratio}, focuses on the {asset_class_focus} asset class, follows a {fund_strategy} strategy, and was incepted on {inception_date}."
+    },
+    {
+        "prompt": "Can you tell me about the {etf_name}, including its {fund_objective}, {fund_strategy}, and the {asset_class_focus} it targets?",
+        "response": "The {etf_name} aims to {fund_objective} with a strategy focused on {fund_strategy}, targeting the {asset_class_focus} asset class."
+    },
+    {
+        "prompt": "I'm interested in the {etf_name}. What is its {fund_type}, who manages it ({manager}), and what is its {expense_ratio}?",
+        "response": "The {etf_name} is classified as a {fund_type}, managed by {manager}, with an expense ratio of {expense_ratio}."
+    },
+    {
+        "prompt": "For the {etf_name}, what are its {holdings}, {nav_trk_error}, and how has it performed YTD ({ytd_return})?",
+        "response": "The {etf_name} holds {holdings}, has a NAV tracking error of {nav_trk_error}, and has achieved a YTD return of {ytd_return}."
+    },
+    {
+        "prompt": "What are the key details of {etf_name}, including its {inception_date}, {ticker}, and {fund_style}?",
+        "response": "The {etf_name} was incepted on {inception_date}, trades under the ticker {ticker}, and follows a {fund_style} style."
+    },
+    {
+        "prompt": "Could you provide the {fund_geographical_focus}, {fund_industry_focus}, and {economic_association} for {etf_name}?",
+        "response": "The {etf_name} focuses on the {fund_geographical_focus} region, specifically targeting the {fund_industry_focus} industry, and is associated with the {economic_association} economic sector."
+    },
+    {
+        "prompt": "What is the {etf_name}'s {expense_ratio}, {class_assets}, and {total_value_traded}?",
+        "response": "The {etf_name} has an expense ratio of {expense_ratio}, class assets totaling {class_assets}, and a total value traded of {total_value_traded}."
+    },
+    {
+        "prompt": "For {etf_name}, can you share its {fund_assets}, {inception_year}, and {fund_style}?",
+        "response": "The {etf_name} has fund assets totaling {fund_assets}, was incepted in {inception_year}, and follows a {fund_style} style."
+    },
+    {
+        "prompt": "I'm looking for a fund managed by {manager} with a {fund_strategy} strategy and {fund_assets} in assets. Can you recommend one?",
+        "response": "Certainly! The {etf_name} is managed by {manager}, follows a {fund_strategy} strategy, and has fund assets totaling {fund_assets}."
+    },
+    {
+        "prompt": "Can you find a fund that was incepted in {inception_year}, with a primary focus on {asset_class_focus} and a {fund_style} style?",
+        "response": "Yes, the {etf_name} was incepted in {inception_year}, focuses primarily on {asset_class_focus}, and follows a {fund_style} style."
+    },
+    {
+        "prompt": "Can you suggest an ETF with a {economic_association}, focusing on {fund_geographical_focus}, and having a {avg_bid_ask_spread} average bid-ask spread?",
+        "response": "Sure, one of the ETFs that fits this description is {etf_name}. It has an average bid-ask spread of {avg_bid_ask_spread}, focuses on the {fund_geographical_focus} region, and is associated with the {economic_association} sector."
+    },
+    {
+        "prompt": "I need a fund that uses {leverage}, focuses on {fund_market_cap_focus}, and has a {return_1d}. Can you recommend one?",
+        "response": "The {etf_name} is a good choice, using {leverage}, focusing on {fund_market_cap_focus} market cap, and having a one-day return of {return_1d}."
+    },
+    {
+        "prompt": "Can you find a fund with a {fund_type}, that was incepted on {inception_date}, and has a {return_mtd} return month-to-date?",
+        "response": "Yes, the {etf_name} is a {fund_type} fund, was incepted on {inception_date}, and has a return month-to-date of {return_mtd}."
+    },
+    {
+        "prompt": "Can you recommend a fund with {fund_geographical_focus}, uses {payment_type}, and has a {nav_trk_error} NAV tracking error?",
+        "response": "Certainly! The {etf_name} focuses on the {fund_geographical_focus} region, uses {payment_type}, and has a NAV tracking error of {nav_trk_error}."
+    },
+    {
+        "prompt": "I'm looking for an ETF with a {volume_30d}, focuses on {fund_geographical_focus}, and has an {expense_ratio}. Can you recommend one?",
+        "response": "You might consider the {etf_name}. It trades under the ticker {ticker}, has an average bid-ask spread of {avg_bid_ask_spread}, and follows a {fund_strategy} strategy."
+    },
+    {
+        "prompt": "I'm searching for an ETF with a {bid_ask_spread}, is involved in {economic_association}, and has a {total_value_traded}. Any suggestions?",
+        "response": "The {etf_name} might be what you're looking for. It has an inception year of {inception_year}, uses derivatives ({use_derivative}), and its aggregated value traded is {aggregated_value_traded}."
+    },
+    {
+        "prompt": "Can you suggest a fund that has a {return_3y}, is managed by {manager}, and focuses on {fund_industry_focus}?",
+        "response": "One fund that matches your criteria is {etf_name}. It has an inception date of {inception_date}, an expense ratio of {expense_ratio}, and trades under the ticker {ticker}."
+    },
+    {
+        "prompt": "Which fund has a {fund_assets}, was incepted on {inception_date}, and focuses on {fund_geographical_focus}?",
+        "response": "Consider the {etf_name}. It has a NAV tracking error of {nav_trk_error}, a 30-day volume of {volume_30d}, and a return month-to-date of {return_mtd}."
+    },
+    {
+        "prompt": "Can you suggest an ETF with {ytd_flow}, focusing on {fund_geographical_focus}, and having a {nav_trk_error}?",
+        "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
+    },
+    {
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
+    },
+    {
+        "prompt": "Can you suggest a fund that has a {return_3y}, is managed by {manager}, and focuses on {fund_industry_focus}?",
+        "response": "One fund that matches your criteria is {etf_name}. It has an inception date of {inception_date}, an expense ratio of {expense_ratio}, and trades under the ticker {ticker}."
+    },
+    {
+        "prompt": "Which fund has a {fund_assets}, was incepted on {inception_date}, and focuses on {fund_geographical_focus}?",
+        "response": "Consider the {etf_name}. It has a NAV tracking error of {nav_trk_error}, a 30-day volume of {volume_30d}, and a return month-to-date of {return_mtd}."
+    },
+    {
+        "prompt": "Can you suggest an ETF with {ytd_flow}, focusing on {fund_geographical_focus}, and having a {nav_trk_error}?",
+        "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
+    },
+    {
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
+    },
+    {
+        "prompt": "Can you suggest a fund that has a {return_3y}, is managed by {manager}, and focuses on {fund_industry_focus}?",
+        "response": "One fund that matches your criteria is {etf_name}. It has an inception date of {inception_date}, an expense ratio of {expense_ratio}, and trades under the ticker {ticker}."
+    },
+    {
+        "prompt": "Which fund has a {fund_assets}, was incepted on {inception_date}, and focuses on {fund_geographical_focus}?",
+        "response": "Consider the {etf_name}. It has a NAV tracking error of {nav_trk_error}, a 30-day volume of {volume_30d}, and a return month-to-date of {return_mtd}."
+    },
+    {
+        "prompt": "Can you suggest an ETF with {ytd_flow}, focusing on {fund_geographical_focus}, and having a {nav_trk_error}?",
+        "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
+    },
+    {
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
+    },
+    {
+        "prompt": "Can you suggest a fund that has a {return_3y}, is managed by {manager}, and focuses on {fund_industry_focus}?",
+        "response": "One fund that matches your criteria is {etf_name}. It has an inception date of {inception_date}, an expense ratio of {expense_ratio}, and trades under the ticker {ticker}."
+    },
+    {
+        "prompt": "Which fund has a {fund_assets}, was incepted on {inception_date}, and focuses on {fund_geographical_focus}?",
+        "response": "Consider the {etf_name}. It has a NAV tracking error of {nav_trk_error}, a 30-day volume of {volume_30d}, and a return month-to-date of {return_mtd}."
+    },
+    {
+        "prompt": "Can you suggest an ETF with {ytd_flow}, focusing on {fund_geographical_focus}, and having a {nav_trk_error}?",
+        "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
+    },
+    {
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
+    }
+]

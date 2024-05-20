@@ -130,7 +130,7 @@ def main(json_file):
     dataset = ETFDataset(json_data)
 
     # Print the first 10 samples
-    for i in range(10):
+    for i in range(1):
         sample = dataset[i]
         print(f"Sample {i+1}:")
         print(f"  ETF Ticker: {sample['etf_ticker']}")
@@ -140,5 +140,5 @@ def main(json_file):
         print()
 
 if __name__ == '__main__':
-    json_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_data.json'  # Replace with the path to your JSON file
+    json_file = '../../data/etf_data.json'  # Replace with the path to your JSON file
     main(json_file)

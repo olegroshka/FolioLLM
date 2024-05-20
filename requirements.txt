@@ -2,9 +2,9 @@ numpy
 scipy
 tqdm
 docopt
-nltk
-torchvision
-torch
+nltk==3.8.1  # Compatible with Python 3.12
+torchvision==0.18.0  # Available and works with newer torch versions
+torch==2.3.0  # Use a version that matches torchvision requirements
 sentencepiece
 lxml==5.0.0
 sacrebleu
@@ -12,12 +12,11 @@ tensorboard
 transformers
 datasets  # Hugging Face's datasets library for easy access to datasets
 tokenizers  # Efficient tokenizers for Transformers models
-perf
 openpyxl
 bert-score
 accelerate
 rouge-score
 scikit-learn
 py-rouge
-deepspeed
-flash-attn
+#deepspeed  # Excluded due to CUDA requirement
+#flash-attn  # Excluded due to CUDA requirement
