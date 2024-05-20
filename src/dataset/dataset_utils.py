@@ -1,3 +1,94 @@
+snippet = """ETF Details:
+Ticker: {ticker}
+Bloomberg Ticker: {bbg_ticker}
+Name: {etf_name}
+Description: {description}
+Type: {fund_type}
+Manager: {manager}
+
+{ticker} Fund Classification:
+    Asset Class Focus: {asset_class_focus}
+    Asset Group: {fund_asset_group}
+    Industry Focus: {fund_industry_focus}
+    Geographical Focus: {fund_geographical_focus}
+    Objective: {fund_objective}
+    Economic Association: {economic_association}
+    Strategy: {fund_strategy}
+    Market Cap Focus: {fund_market_cap_focus}
+    Style: {fund_style}
+
+{ticker} Summary:
+    Class Assets (MLN USD): {class_assets}
+    Fund Assets (MLN USD): {fund_assets}
+    Expense Ratio: {expense_ratio}
+    Year-To-Date Return: {year_to_date_return}
+    30 Days Volatility: {volume_30d}
+    Year-To-Date Flow: {ytd_flow}
+    1 Month Flow: {flow_1m}
+    1 Year NAV Tracking Error: {nav_trk_error}
+    Holdings: {holdings}
+    Primary: {primary}
+    Cross: {primary}
+
+{ticker} Performance:
+    1 Day Return: {return_1d}
+    Month-To-Date Return: {return_mtd}
+    Year-To-Date Return: {ytd_return}
+    3 Years Return: {return_3y}
+
+{ticker} Liquidity:
+    1 Day Volume: {volume_1d}
+    Aggregated Volume: {aggregated_volume}
+    Aggregated Value Traded: {total_value_traded}
+    Bid Ask Spread: {bid_ask_spread}
+
+{ticker} Expense:
+    Expense Ratio: {expense_ratio}
+    Fund Manager Stated Fee: {expense_ratio}
+    Average Bid Ask Spread: {avg_bid_ask_spread}
+    1 Year NAV Tracking Error: {nav_trk_error}
+    Premium: {premium}
+    52 Weeks Average Premium: {premium_52w}
+
+{ticker} Flow:
+    Currency: {currency}
+    OAS Effective Duration: {oas_effective_duration}
+    OAS Duration Coverage Ratio: {oas_duration_coverage_ratio}
+    Options Available: {options_available}
+    Payment Type: {payment_type}
+
+{ticker} Regulatory:
+    Fund Type: {fund_type}
+    Structure: {structure}
+    Index Weight: {index_weight}
+    Use Derivative: {use_derivative}
+    Tax Form: {tax_form}
+    UCITS: {ucits}
+    UK Reporting: {uk_reporting}
+    SFC: {sfc}
+    China: {china}
+    Leverage: {leverage}
+    Inception Date: {inception_date}
+
+{ticker} Industry Exposure:
+    Materials: {materials}
+    Communications: {communications}
+    Consumer Cyclical: {consumer_cyclical}
+    Consumer Non-Cyclical: {consumer_non_cyclical}
+    Energy: {energy}
+    Financials: {financials}
+    Industrials: {industrials}
+    Technology: {technology}
+    Utilities: {utilities}
+
+{ticker} Geographical Exposure:
+    North America: {north_america}
+    Western Europe: {western_europe}
+    Asia Pacific: {asia_pacific}
+"""
+
+
+
 def translate_etf_entry(etf):
     """
     Translate the keys in a single ETF entry according to specific rules.
@@ -8,59 +99,104 @@ def translate_etf_entry(etf):
     Returns:
         dict: A dictionary with translated keys.
     """
-    return {
-        'etf_name': get_value(etf, ['Name']),
-        'ticker': get_value(etf, ['Ticker']),
-        'bbg_ticker': get_value(etf, ['BBG Ticker']),
-        'figi': get_value(etf, ['FIGI']),
-        'description': get_value(etf, ['Description']),
-        'fund_type': get_value(etf, ['Type']),
-        'domicile': get_value(etf, ['Domicile']),
-        'manager': get_value(etf, ['Manager']),
-        'asset_class_focus': get_value(etf, ['Fund Asset Class Focus']),
-        'fund_asset_group': get_value(etf, ['Fund Asset Group']),
-        'fund_industry_focus': get_value(etf, ['Fund Industry Focus']),
-        'fund_geographical_focus': get_value(etf, ['Fund Geographical Focus']),
-        'fund_objective': get_value(etf, ['Fund Objective']),
-        'economic_association': get_value(etf, ['Economic Association']),
-        'fund_strategy': get_value(etf, ['Fund Strategy']),
-        'fund_market_cap_focus': get_value(etf, ['Fund Market Cap Focus']),
-        'fund_style': get_value(etf, ['Fund Style']),
-        'tot_ret_ytd': get_value(etf, ['Tot Ret Ytd']),
-        'total_return_1y': get_value(etf, ['Tot Ret 1Y']),
-        'class_assets': get_value(etf, ['Summary', 'Class Assets (MLN USD)']),
-        'fund_assets': get_value(etf, ['Summary', 'Fund Assets (MLN USD)']),
-        'expense_ratio': get_value(etf, ['Summary', 'Expense Ratio']),
-        'year_to_date_return': get_value(etf, ['Summary', 'Year-To-Date Return']),
-        'yield_12m': get_value(etf, ['Summary', '12Months Yield']),
-        'volume_30d': get_value(etf, ['Summary', '30Days Volatility']),
-        'ytd_flow': get_value(etf, ['Summary', 'Year-To-Date Flow']),
-        'flow_1m': get_value(etf, ['Summary', '1Month Flow']),
-        'nav_trk_error': get_value(etf, ['Summary', '1 Year NAV Tracking Error']),
-        'holdings': get_value(etf, ['Summary', 'Holdings']),
-        'primary': "primary" if get_value(etf, ['Summary', 'Primary']) == "Y" else "cross",
-        'return_1d': get_value(etf, ['Performance', '1 Day Return']),
-        'return_mtd': get_value(etf, ['Performance', 'Month-To-Date Return']),
-        'ytd_return': get_value(etf, ['Performance', 'Year-To-Date Return']),
-        'return_3y': get_value(etf, ['Performance', '3 Years Return']),
-        'return_5y': get_value(etf, ['Performance', '5 Years Return']),
-        'return_10y': get_value(etf, ['Performance', '10 Years Return']),
-        'volume_1d': get_value(etf, ['Liquidity', '1 Day Volume']),
-        'aggregated_volume': get_value(etf, ['Liquidity', 'Aggregated Volume']),
-        'aggregated_value_traded': get_value(etf, ['Liquidity', 'Aggregated Value Traded']),
-        'short_interest': get_value(etf, ['Liquidity', 'Short Interest%']),
-        'open_interest': get_value(etf, ['Liquidity', 'Open Interest']),
-        'total_value_traded': get_value(etf, ['Liquidity', 'Aggregated Value Traded']),
-        'bid_ask_spread': get_value(etf, ['Liquidity', 'Bid Ask Spread']),
-        'implied_liquidity': get_value(etf, ['Liquidity', 'Implied Liquidity']),
-        'inception_date': get_value(etf, ['Regulatory', 'Inception Date']),
-        'inception_year': get_value(etf, ['Regulatory', 'Inception Date']).split('/')[-1] if get_value(etf, ['Regulatory', 'Inception Date']) != "unavailable" else "unavailable",
-        'use_derivative': "Yes" if get_value(etf, ['Regulatory', 'Use Derivative']) == "Y" else "No",
-        'payment_type': get_value(etf, ['Flow', 'Payment Type']),
-        'leverage': "uses leverage" if get_value(etf, ['Regulatory', 'Leverage']) == "Y" else "does not use leverage",
-        'structure': get_value(etf, ['Regulatory', 'Structure']),
-        'avg_bid_ask_spread': get_value(etf, ['Expense', 'Average Bid Ask Spread'])
-    }
+    return  {
+    'ticker': get_value(etf, ['Ticker']),
+    'bbg_ticker': get_value(etf, ['BBG Ticker']),
+    'etf_name': get_value(etf, ['Name']),
+    'description': get_value(etf, ['Description']),
+    'fund_type': get_value(etf, ['Type']),
+    'manager': get_value(etf, ['Manager']),
+
+    'asset_class_focus': get_value(etf, ['Fund Asset Class Focus']),
+    'fund_asset_group': get_value(etf, ['Fund Asset Group']),
+    'fund_industry_focus': get_value(etf, ['Fund Industry Focus']),
+    'fund_geographical_focus': get_value(etf, ['Fund Geographical Focus']),
+    'fund_objective': get_value(etf, ['Fund Objective']),
+    'economic_association': get_value(etf, ['Economic Association']),
+    'fund_strategy': get_value(etf, ['Fund Strategy']),
+    'fund_market_cap_focus': get_value(etf, ['Fund Market Cap Focus']),
+    'fund_style': get_value(etf, ['Fund Style']),
+
+    'class_assets': get_value(etf, ['Summary', 'Class Assets (MLN USD)']),
+    'fund_assets': get_value(etf, ['Summary', 'Fund Assets (MLN USD)']),
+    'expense_ratio': get_value(etf, ['Summary', 'Expense Ratio']),
+    'year_to_date_return': get_value(etf, ['Summary', 'Year-To-Date Return']),
+    'summary_12_months_yield': get_value(etf, ['Summary', '12Months Yield']),
+    'volume_30d': get_value(etf, ['Summary', '30Days Volatility']),
+    'ytd_flow': get_value(etf, ['Summary', 'Year-To-Date Flow']),
+    'flow_1m': get_value(etf, ['Summary', '1Month Flow']),
+    'nav_trk_error': get_value(etf, ['Summary', '1 Year NAV Tracking Error']),
+    'holdings': get_value(etf, ['Summary', 'Holdings']),
+    'primary': get_value(etf, ['Summary', 'Primary']),
+    'cross': get_value(etf, ['Summary', 'Cross']),
+
+    'return_1d': get_value(etf, ['Performance', '1 Day Return']),
+    'return_mtd': get_value(etf, ['Performance', 'Month-To-Date Return']),
+    'ytd_return': get_value(etf, ['Performance', 'Year-To-Date Return']),
+    'performance_1_year_return': get_value(etf, ['Performance', '1 Year Return']),
+    'return_3y': get_value(etf, ['Performance', '3 Years Return']),
+    'performance_5_years_return': get_value(etf, ['Performance', '5 Years Return']),
+    'performance_10_years_return': get_value(etf, ['Performance', '10 Years Return']),
+    'performance_12_months_yield': get_value(etf, ['Performance', '12 Months Yield']),
+
+    'volume_1d': get_value(etf, ['Liquidity', '1 Day Volume']),
+    'aggregated_volume': get_value(etf, ['Liquidity', 'Aggregated Volume']),
+    'total_value_traded': get_value(etf, ['Liquidity', 'Aggregated Value Traded']),
+    'liquidity_implied_liquidity': get_value(etf, ['Liquidity', 'Implied Liquidity']),
+    'bid_ask_spread': get_value(etf, ['Liquidity', 'Bid Ask Spread']),
+    'liquidity_short_interest': get_value(etf, ['Liquidity', 'Short Interest%']),
+    'liquidity_open_interest': get_value(etf, ['Liquidity', 'Open Interest']),
+
+    'expense_ratio': get_value(etf, ['Expense', 'Expense Ratio']),
+    'expense_fund_manager_stated_fee': get_value(etf, ['Expense', 'Fund Manager Stated Fee']),
+    'avg_bid_ask_spread': get_value(etf, ['Expense', 'Average Bid Ask Spread']),
+    'nav_trk_error': get_value(etf, ['Expense', '1 Year NAV Tracking Error']),
+    'premium': get_value(etf, ['Expense', 'Premium']),
+    'premium_52w': get_value(etf, ['Expense', '52Weeks Average Premium']),
+
+    'currency': get_value(etf, ['Flow', 'Currency, Security']),
+    'oas_effective_duration': get_value(etf, ['Flow', 'OAS Effective Duration']),
+    'oas_duration_coverage_ratio': get_value(etf, ['Flow', 'OAS Duration Coverage Ratio']),
+    'yas_modified_duration': get_value(etf, ['Flow', 'YAS Modified Duration']),
+    'options_available': get_value(etf, ['Flow', 'Options Available']),
+    'payment_type': get_value(etf, ['Flow', 'Payment Type']),
+
+    'fund_type': get_value(etf, ['Regulatory', 'Fund Type']),
+    'structure': get_value(etf, ['Regulatory', 'Structure']),
+    'index_weight': get_value(etf, ['Regulatory', 'Index Weight']),
+    'sfdr_class': get_value(etf, ['Regulatory', 'SFDR Class.']),
+    'use_derivative': get_value(etf, ['Regulatory', 'Use Derivative']),
+    'tax_form': get_value(etf, ['Regulatory', 'Tax Form']),
+    'naic': get_value(etf, ['Regulatory', 'NAIC']),
+    'ucits': get_value(etf, ['Regulatory', 'UCITS']),
+    'uk_reporting': get_value(etf, ['Regulatory', 'UK Reporting']),
+    'sfc': get_value(etf, ['Regulatory', 'SFC']),
+    'china': get_value(etf, ['Regulatory', 'China']),
+    'leverage': get_value(etf, ['Regulatory', 'Leverage']),
+    'inception_date': get_value(etf, ['Regulatory', 'Inception Date']),
+
+    'materials': get_value(etf, ['Industry', 'Materials']),
+    'communications': get_value(etf, ['Industry', 'Communications']),
+    'consumer_cyclical': get_value(etf, ['Industry', 'Consumer Cyclical']),
+    'consumer_non_cyclical': get_value(etf, ['Industry', 'Consumer Non-Cyclical']),
+    'diversified': get_value(etf, ['Industry', 'Diversified']),
+    'energy': get_value(etf, ['Industry', 'Energy']),
+    'financials': get_value(etf, ['Industry', 'Financials']),
+    'industrials': get_value(etf, ['Industry', 'Industrials']),
+    'technology': get_value(etf, ['Industry', 'Technology']),
+    'utilities': get_value(etf, ['Industry', 'Utilities']),
+    'government': get_value(etf, ['Industry', 'Government']),
+
+    'north_america': get_value(etf, ['Geography', 'N.Amer.']),
+    'latin_america': get_value(etf, ['Geography', 'LATAM']),
+    'western_europe': get_value(etf, ['Geography', 'West Euro']),
+    'asia_pacific': get_value(etf, ['Geography', 'APAC']),
+    'eastern_europe': get_value(etf, ['Geography', 'East Euro']),
+    'africa_middle_east': get_value(etf, ['Geography', 'Africa/Middle East']),
+    'central_asia': get_value(etf, ['Geography', 'Central Asia'])
+}
+
+
 
 def get_value(data, keys, default="unavailable"):
     """Helper function to get a nested value from a dictionary."""

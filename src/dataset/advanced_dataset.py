@@ -9,8 +9,7 @@ from dataset_utils import get_value, translate_etf_entry
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 TEMPLATES_PATH = "../../data/training-template-adv.json"
-ETFS_PATH = "../../data/etf_data_v3.json"
-
+ETFS_PATH = "../../data/etf_data_v3_clean.json"
 
 
 class AdvETFDataset(Dataset):

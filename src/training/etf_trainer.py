@@ -1,21 +1,17 @@
 import torch
-import wandb
 from accelerate import Accelerator
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, \
     DataCollatorForLanguageModeling, T5ForConditionalGeneration, T5Tokenizer
 import logging
 import json
 
-from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
-from src.training.eval_at_start_callback import EvaluateAtStartCallback
 from src.training.memory_monitor_callback import MemoryMonitorCallback
-from src.training.wandb_callback import WandbCallback
 
 # Configure logging
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def tokenize_etf_text(trainer, sample, max_length=512):
+def tokenize_etf_text(trainer, sample):
     try:
         input_text = sample['text']
 
@@ -23,7 +19,7 @@ def tokenize_etf_text(trainer, sample, max_length=512):
             input_text,
             padding='max_length',
             truncation=True,
-            max_length=max_length  # 1024  # Adjust the max_length as needed
+            max_length=512  # 1024  # Adjust the max_length as needed
         )
 
         model_inputs["labels"] = model_inputs["input_ids"]
@@ -34,7 +30,7 @@ def tokenize_etf_text(trainer, sample, max_length=512):
         return None
 
 
-def tokenize_structured_json(trainer, sample, max_length=256):
+def tokenize_structured_json(trainer, sample):
     try:
         input_text = f"ETF Ticker: {sample['etf_ticker']}\n"
         input_text += "Features:\n"
@@ -45,7 +41,7 @@ def tokenize_structured_json(trainer, sample, max_length=256):
             input_text,
             padding='max_length',
             truncation=True,
-            max_length=max_length  # 1024  # Adjust the max_length as needed
+            max_length=512  # 1024  # Adjust the max_length as needed
         )
 
         model_inputs["labels"] = model_inputs["input_ids"]
@@ -56,19 +52,19 @@ def tokenize_structured_json(trainer, sample, max_length=256):
         return None
 
 
-def tokenize_prompt_response(trainer, sample, max_length=256):
+def tokenize_prompt_response(trainer, sample):
     try:
         prompt_inputs = trainer.tokenizer(
             sample['prompt'],
             padding='max_length',
             truncation=True,
-            max_length=max_length  # Adjusted for combined length
+            max_length=512  # Adjusted for combined length
         )
         response_inputs = trainer.tokenizer(
             sample['response'],
             padding='max_length',
             truncation=True,
-            max_length=max_length
+            max_length=512  # Adjusted for combined length
         )
 
         model_inputs = {
@@ -85,11 +81,10 @@ def tokenize_prompt_response(trainer, sample, max_length=256):
 
 
 class ETFTrainer:
-    def __init__(self, model_name, etf_dataset, tokenize_function, test_prompts, max_length=512):
+    def __init__(self, model_name, etf_dataset, tokenize_function):
         self.model_name = model_name
         self.etf_dataset = etf_dataset
         self.tokenize_function = tokenize_function
-        self.test_prompts = test_prompts
 
         if "t5" in self.model_name.lower():
             self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
@@ -112,11 +107,9 @@ class ETFTrainer:
         # Enable gradient checkpointing
         self.model.gradient_checkpointing_enable()
 
-        self.max_length = max_length
-
     def tokenize_dataset(self):
         def tokenize_function(sample):
-            return self.tokenize_function(self, sample, self.max_length)
+            return self.tokenize_function(self, sample)
 
         self.tokenized_dataset = self.etf_dataset.map(tokenize_function, batched=False,
                                                       remove_columns=self.etf_dataset.column_names)
@@ -161,12 +154,11 @@ class ETFTrainer:
         training_args = TrainingArguments(
             output_dir='./results',
             evaluation_strategy='steps',  # Change to 'steps' to enable evaluation during training
-            eval_steps=20,  # Adjust frequency of evaluation
-            #evaluation_strategy='epoch',
+            eval_steps=500,  # Adjust frequency of evaluation
             learning_rate=2e-5,
-            per_device_train_batch_size=1,  # Adjusted for memory constraints
-            per_device_eval_batch_size=1,  # Adjusted for memory constraints
-            num_train_epochs=5,
+            per_device_train_batch_size=2,  # Adjusted for memory constraints
+            per_device_eval_batch_size=2,  # Adjusted for memory constraints
+            num_train_epochs=3,
             weight_decay=0.01,
             gradient_accumulation_steps=64,
             logging_dir='./logs',
@@ -182,24 +174,12 @@ class ETFTrainer:
             eval_dataset=self.tokenized_dataset,
             # Using the same dataset for simplicity, ideally use a separate validation set
             data_collator=data_collator,
-            compute_metrics=self.compute_metrics
         )
 
         # Hook into training loop
         # trainer.add_callback(MemoryMonitorCallback())
 
-        trainer.add_callback(WandbCallback())
-        trainer.add_callback(EvaluateAtStartCallback())
-
         trainer.train()
-
-
-    def compute_metrics(self, eval_pred):
-        evaluator = ETFAdvisorEvaluator(self.model, self.tokenizer, self.test_prompts)
-        eval_results = evaluator.evaluate(detailed=False)
-        wandb.log(eval_results)  # Log evaluation results to wandb
-        return eval_results
-
 
     def save_model(self, output_dir):
         self.model.save_pretrained(output_dir)

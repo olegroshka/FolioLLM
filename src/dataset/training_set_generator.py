@@ -7,14 +7,14 @@ from dataset_utils import get_value, translate_etf_entry
 def generate_training_data(etf_data, templates):
     training_data = []
     for etf in etf_data:
+        print(etf)
         etf = translate_etf_entry(etf)
-
-        etf_name = etf['etf_name']
-        ticker = etf['ticker']
+        print(etf)
+        return
 
         for template in templates:
             try:
-                prompt = template['prompt'].replace("[ETF Name]", etf_name)
+                prompt = template['prompt'].replace("[ETF Name]", etf_namea)
                 response = template['response'].format(**etf)
                 training_data.append({"prompt": prompt, "response": response})
             except KeyError as e:

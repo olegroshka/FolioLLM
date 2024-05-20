@@ -28,16 +28,16 @@
         "response": "The {etf_name} has an expense ratio of {expense_ratio}, class assets totaling {class_assets}, and a total value traded of {total_value_traded}."
     },
     {
-        "prompt": "For {etf_name}, can you share its {fund_assets}, {inception_year}, and {fund_style}?",
-        "response": "The {etf_name} has fund assets totaling {fund_assets}, was incepted in {inception_year}, and follows a {fund_style} style."
+        "prompt": "For {etf_name}, can you share its {fund_assets}, {inception_date}, and {fund_style}?",
+        "response": "The {etf_name} has fund assets totaling {fund_assets}, was incepted in {inception_date}, and follows a {fund_style} style."
     },
     {
         "prompt": "I'm looking for a fund managed by {manager} with a {fund_strategy} strategy and {fund_assets} in assets. Can you recommend one?",
         "response": "Certainly! The {etf_name} is managed by {manager}, follows a {fund_strategy} strategy, and has fund assets totaling {fund_assets}."
     },
     {
-        "prompt": "Can you find a fund that was incepted in {inception_year}, with a primary focus on {asset_class_focus} and a {fund_style} style?",
-        "response": "Yes, the {etf_name} was incepted in {inception_year}, focuses primarily on {asset_class_focus}, and follows a {fund_style} style."
+        "prompt": "Can you find a fund that was incepted in {inception_date}, with a primary focus on {asset_class_focus} and a {fund_style} style?",
+        "response": "Yes, the {etf_name} was incepted in {inception_date}, focuses primarily on {asset_class_focus}, and follows a {fund_style} style."
     },
     {
         "prompt": "Can you suggest an ETF with a {economic_association}, focusing on {fund_geographical_focus}, and having a {avg_bid_ask_spread} average bid-ask spread?",
@@ -61,7 +61,7 @@
     },
     {
         "prompt": "I'm searching for an ETF with a {bid_ask_spread}, is involved in {economic_association}, and has a {total_value_traded}. Any suggestions?",
-        "response": "The {etf_name} might be what you're looking for. It has an inception year of {inception_year}, uses derivatives ({use_derivative}), and its aggregated value traded is {aggregated_value_traded}."
+        "response": "The {etf_name} might be what you're looking for. It has an inception year of {inception_date}, uses derivatives ({use_derivative}), and its aggregated value traded is {total_value_traded}."
     },
     {
         "prompt": "Can you suggest a fund that has a {return_3y}, is managed by {manager}, and focuses on {fund_industry_focus}?",
@@ -76,7 +76,7 @@
         "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
     },
     {
-        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_date}?",
         "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
     },
     {
@@ -92,7 +92,7 @@
         "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
     },
     {
-        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_date}?",
         "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
     },
     {
@@ -108,7 +108,7 @@
         "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
     },
     {
-        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_date}?",
         "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
     },
     {
@@ -124,7 +124,7 @@
         "response": "One suggestion is {etf_name}. It has a fund type of {fund_type}, an average bid-ask spread of {avg_bid_ask_spread}, and a year-to-date return of {ytd_return}."
     },
     {
-        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_year}?",
+        "prompt": "Can you find an ETF with a {return_1d}, focuses on {fund_market_cap_focus}, and was incepted in {inception_date}?",
         "response": "The {etf_name} is a match. It has a fund strategy of {fund_strategy}, total fund assets of {fund_assets}, and an expense ratio of {expense_ratio}."
     }
 ]
