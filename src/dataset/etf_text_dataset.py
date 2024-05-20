@@ -147,7 +147,7 @@ def main(json_file):
         json_data = json.load(file)
 
     # Create an instance of the ETFDataset
-    dataset = ETFDataset(json_data)
+    dataset = ETFTextDataset(json_data)
 
     # Print the first 10 samples
     for i in range(10):
