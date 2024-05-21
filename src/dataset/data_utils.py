@@ -1,8 +1,12 @@
 import json
+import logging
+
 from datasets import Dataset
 from src.dataset.etf_dataset import ETFDataset
 from src.dataset.etf_text_dataset import ETFTextDataset
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def load_test_prompts(json_file):
     with open(json_file, 'r') as file:
@@ -50,7 +54,7 @@ def load_prompt_response_dataset(json_file):
 
     return hf_dataset
 def main():
-    json_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_data.json'  # Replace with the path to your JSON file
+    json_file = '../../data/etf_data.json'  # Replace with the path to your JSON file
 
     try:
         etf_dataset = load_etf_dataset(json_file)

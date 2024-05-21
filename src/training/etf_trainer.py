@@ -1,10 +1,9 @@
 import torch
 import wandb
 from accelerate import Accelerator
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, \
-    DataCollatorForLanguageModeling, T5ForConditionalGeneration, T5Tokenizer
+from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
 import logging
-import json
+import torch.nn as nn
 
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
 from src.training.eval_at_start_callback import EvaluateAtStartCallback
@@ -13,31 +12,26 @@ from src.training.wandb_callback import WandbCallback
 
 # Configure logging
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
-
+logger = logging.getLogger(__name__)
 
 def tokenize_etf_text(trainer, sample, max_length=512):
     try:
         input_text = sample['text']
-
         model_inputs = trainer.tokenizer(
             input_text,
             padding='max_length',
             truncation=True,
-            max_length=max_length  # 1024  # Adjust the max_length as needed
+            max_length=max_length
         )
-
         model_inputs["labels"] = model_inputs["input_ids"]
-
         return model_inputs
     except KeyError as e:
         logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
         return None
 
-
 def tokenize_structured_json(trainer, sample, max_length=256):
     try:
-        input_text = f"ETF Ticker: {sample['etf_ticker']}\n"
-        input_text += "Features:\n"
+        input_text = f"ETF Ticker: {sample['etf_ticker']}\nFeatures:\n"
         for feature, value in sample['features'].items():
             input_text += f"{feature}: {value}\n"
 
@@ -45,16 +39,13 @@ def tokenize_structured_json(trainer, sample, max_length=256):
             input_text,
             padding='max_length',
             truncation=True,
-            max_length=max_length  # 1024  # Adjust the max_length as needed
+            max_length=max_length
         )
-
         model_inputs["labels"] = model_inputs["input_ids"]
-
         return model_inputs
     except KeyError as e:
         logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
         return None
-
 
 def tokenize_prompt_response(trainer, sample, max_length=256):
     try:
@@ -62,7 +53,7 @@ def tokenize_prompt_response(trainer, sample, max_length=256):
             sample['prompt'],
             padding='max_length',
             truncation=True,
-            max_length=max_length  # Adjusted for combined length
+            max_length=max_length
         )
         response_inputs = trainer.tokenizer(
             sample['response'],
@@ -75,33 +66,22 @@ def tokenize_prompt_response(trainer, sample, max_length=256):
             'input_ids': prompt_inputs['input_ids'] + response_inputs['input_ids'][1:],
             'attention_mask': prompt_inputs['attention_mask'] + response_inputs['attention_mask'][1:]
         }
-
         model_inputs["labels"] = model_inputs["input_ids"].copy()
-
         return model_inputs
     except KeyError as e:
         logging.warning(f"Missing key '{e.args[0]}' in sample: {sample}")
         return None
 
-
 class ETFTrainer:
-    def __init__(self, model_name, etf_dataset, tokenize_function, test_prompts, max_length=512):
-        self.model_name = model_name
+    def __init__(self, model, tokenizer, etf_dataset, tokenize_function, test_prompts, max_length=512):
+        self.model = model
+        self.tokenizer = tokenizer
         self.etf_dataset = etf_dataset
         self.tokenize_function = tokenize_function
         self.test_prompts = test_prompts
 
-        if "t5" in self.model_name.lower():
-            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
-            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)
-        else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
-
         # Set tokenizer padding side to 'left'
         self.tokenizer.padding_side = 'left'
-
-        # Set pad_token to eos_token if not already set
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
@@ -110,7 +90,7 @@ class ETFTrainer:
         self.model = self.model.to(self.accelerator.device)
 
         # Enable gradient checkpointing
-        self.model.gradient_checkpointing_enable()
+        #self.model.gradient_checkpointing_enable()
 
         self.max_length = max_length
 
@@ -118,13 +98,18 @@ class ETFTrainer:
         def tokenize_function(sample):
             return self.tokenize_function(self, sample, self.max_length)
 
-        self.tokenized_dataset = self.etf_dataset.map(tokenize_function, batched=False,
-                                                      remove_columns=self.etf_dataset.column_names)
+        # Ensure the dataset is tokenized and filtered correctly
+        self.tokenized_dataset = self.etf_dataset.map(tokenize_function, batched=False, remove_columns=self.etf_dataset.column_names)
         self.tokenized_dataset = self.tokenized_dataset.filter(lambda x: x is not None)
+        self.tokenized_dataset = self.tokenized_dataset.with_format("torch")
+        # self.tokenized_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'labels'])
+
+        # Debugging: Check the dataset length and some sample items
+        # print(f"Dataset length after tokenization: {len(self.tokenized_dataset)}")
+        # print(f"Sample tokenized item: {self.tokenized_dataset[0]}")
 
     def train(self):
-        data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer,
-                                                        mlm=False)  # Use mlm=False for causal LM
+        data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)
 
         deepspeed_config_path = {
             "train_batch_size": "auto",
@@ -160,18 +145,17 @@ class ETFTrainer:
 
         training_args = TrainingArguments(
             output_dir='./results',
-            evaluation_strategy='steps',  # Change to 'steps' to enable evaluation during training
-            eval_steps=1000,  # Adjust frequency of evaluation
-            #evaluation_strategy='epoch',
+            evaluation_strategy='steps',
+            eval_steps=1000,
             learning_rate=2e-5,
-            per_device_train_batch_size=1,  # Adjusted for memory constraints
-            per_device_eval_batch_size=1,  # Adjusted for memory constraints
-            num_train_epochs=5,
+            per_device_train_batch_size=1,
+            per_device_eval_batch_size=1,
+            num_train_epochs=3,
             weight_decay=0.01,
             gradient_accumulation_steps=64,
             logging_dir='./logs',
             fp16=True,
-            #deepspeed=deepspeed_config_path,  # Use DeepSpeed for optimization
+            # deepspeed=deepspeed_config_path,  # Use DeepSpeed for optimization
             logging_steps=1,  # Log the training loss every # steps
         )
 
@@ -180,19 +164,14 @@ class ETFTrainer:
             args=training_args,
             train_dataset=self.tokenized_dataset,
             eval_dataset=self.tokenized_dataset,
-            # Using the same dataset for simplicity, ideally use a separate validation set
             data_collator=data_collator,
-            #compute_metrics=self.compute_metrics
         )
 
-        # Hook into training loop
-        # trainer.add_callback(MemoryMonitorCallback())
-
         trainer.add_callback(WandbCallback())
-        trainer.add_callback(EvaluateAtStartCallback())
+        #trainer.add_callback(MemoryMonitorCallback)
+        #trainer.add_callback(EvaluateAtStartCallback())
 
         trainer.train()
-
 
     def compute_metrics(self, eval_pred):
         evaluator = ETFAdvisorEvaluator(
@@ -200,16 +179,9 @@ class ETFTrainer:
             bert_score=False, rouge_score=False, perplexity=True, cosine_similarity=True
         )
         eval_results = evaluator.evaluate(detailed=False)
-        wandb.log(eval_results)  # Log evaluation results to wandb
+        wandb.log(eval_results)
         return eval_results
-
 
     def save_model(self, output_dir):
         self.model.save_pretrained(output_dir)
         self.tokenizer.save_pretrained(output_dir)
-
-# Example usage
-# etf_trainer = ETFTrainer("distilgpt2", your_etf_dataset, tokenize_structured_json)
-# etf_trainer.tokenize_dataset()
-# etf_trainer.train()
-# etf_trainer.save_model("./output_model")
