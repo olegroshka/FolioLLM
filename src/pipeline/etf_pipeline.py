@@ -44,7 +44,7 @@ class ETFAdvisorPipeline:
         # trainer_prompt_response.save_model(self.output_dir)
 
         print("\nFine-tuning the model on structured JSON...")
-        trainer_structured_json = ETFTrainer(self.model_name, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=256)#tokenize_structured_json)
+        trainer_structured_json = ETFTrainer(self.model_name, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=512)#tokenize_structured_json)
         # trainer_structured_json = ETFTrainer(self.output_dir, self.etf_structured_dataset, tokenize_structured_json)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
@@ -125,9 +125,9 @@ def main():
     json_prompt_response_file = '/path/to/etf_training_data_v2.json'
     test_prompts_file = '/path/to/basic-competency-test-prompts-1.json'
 
-    json_structured_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_data_v2.json'
-    json_prompt_response_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/etf_training_data_v2.json'
-    test_prompts_file = '/home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/data/basic-competency-test-prompts-1.json'
+    json_structured_file = '../../data/etf_data_v3_plain.json'
+    json_prompt_response_file = '../../data/etf_training_data_v2.json'
+    test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
     #model_name = 'bert-base-uncased'
     #model_name = 'FacebookAI/roberta-large'
     #model_name = "stabilityai/stablelm-2-zephyr-1_6b" #good(!)

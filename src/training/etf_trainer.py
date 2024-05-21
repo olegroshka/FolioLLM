@@ -161,7 +161,7 @@ class ETFTrainer:
         training_args = TrainingArguments(
             output_dir='./results',
             evaluation_strategy='steps',  # Change to 'steps' to enable evaluation during training
-            eval_steps=20,  # Adjust frequency of evaluation
+            eval_steps=1000,  # Adjust frequency of evaluation
             #evaluation_strategy='epoch',
             learning_rate=2e-5,
             per_device_train_batch_size=1,  # Adjusted for memory constraints
@@ -171,7 +171,7 @@ class ETFTrainer:
             gradient_accumulation_steps=64,
             logging_dir='./logs',
             fp16=True,
-            deepspeed=deepspeed_config_path,  # Use DeepSpeed for optimization
+            #deepspeed=deepspeed_config_path,  # Use DeepSpeed for optimization
             logging_steps=1,  # Log the training loss every # steps
         )
 
@@ -182,7 +182,7 @@ class ETFTrainer:
             eval_dataset=self.tokenized_dataset,
             # Using the same dataset for simplicity, ideally use a separate validation set
             data_collator=data_collator,
-            compute_metrics=self.compute_metrics
+            #compute_metrics=self.compute_metrics
         )
 
         # Hook into training loop
@@ -195,7 +195,10 @@ class ETFTrainer:
 
 
     def compute_metrics(self, eval_pred):
-        evaluator = ETFAdvisorEvaluator(self.model, self.tokenizer, self.test_prompts)
+        evaluator = ETFAdvisorEvaluator(
+            self.model, self.tokenizer, self.test_prompts,
+            bert_score=False, rouge_score=False, perplexity=True, cosine_similarity=True
+        )
         eval_results = evaluator.evaluate(detailed=False)
         wandb.log(eval_results)  # Log evaluation results to wandb
         return eval_results
