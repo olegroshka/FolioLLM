@@ -1,0 +1,10 @@
+// ~20 prompts or more; >4 responses; 1 is the worst answer, 5 is the best
+[
+  "prompt": "Are you an AI model?",
+  "responses": [
+    "I am": 2, 
+    "I am not": 3,
+    "Never ask this question": 2,
+    "London is the capital of Great Britain": 1
+  ]
+]
