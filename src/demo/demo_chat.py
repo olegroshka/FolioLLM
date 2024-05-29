@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering, T5ForConditionalGeneration, \
-    AutoModelForSeq2SeqLM, AutoModel, AutoModelForCausalLM
+    AutoModelForSeq2SeqLM, AutoModel, AutoModelForCausalLM, TextStreamer
 
 import torch
 
@@ -16,10 +16,15 @@ models = {
     "ELECTRA": "google/electra-small-generator-squad",
     #"Meta LLaMA 3-8B": "lama/meta-llama-3-8B",
     "Zephyr-7b-beta": "HuggingFaceH4/zephyr-7b-beta",
-    "gpt-j-6b": "EleutherAI/gpt-j-6b"
+    "gpt-j-6b": "EleutherAI/gpt-j-6b",
+    "FINGU-AI": "FINGU-AI/FinguAI-Chat-v1"
 }
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 def load_model(model_name):
+    output_dir = '../pipeline/fine_tuned_model/' + model_name
+
     if "t5" in model_name:
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = T5ForConditionalGeneration.from_pretrained(model_name)
@@ -27,6 +32,13 @@ def load_model(model_name):
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         #model = AutoModel.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name)
+    elif "FINGU-AI" in model_name:  # Assuming Zephyr behaves like T5
+        model = AutoModelForCausalLM.from_pretrained(
+            output_dir,
+            attn_implementation="flash_attention_2",
+            torch_dtype=torch.bfloat16
+        ).to('cuda')
+        tokenizer = AutoTokenizer.from_pretrained(output_dir)
     else:
         # Authentication for LLaMA or any model that requires it
         if "llama" in model_name:
@@ -49,6 +61,27 @@ def answer_question(model_name, question, context):
         inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
         outputs = model.generate(inputs, max_length=200, num_beams=5, early_stopping=True)
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    elif "FINGU-AI" in model_name:
+        messages = [
+            {"role": "system", "content": context},
+            {"role": "user", "content":  question},
+        ]
+        tokenized_chat = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True,
+                                                       return_tensors="pt").to(device)
+        generation_params = {
+            'max_new_tokens': 1000,
+            'use_cache': True,
+            'do_sample': True,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'top_k': 50,
+            'eos_token_id': tokenizer.eos_token_id,
+        }
+        streamer = TextStreamer(tokenizer)
+
+        outputs = model.generate(tokenized_chat, **generation_params, streamer=streamer)
+        dcoded_outputs = tokenizer.batch_decode(outputs)
+        answer = dcoded_outputs[0]
     else:
         inputs = tokenizer.encode_plus(question, context, add_special_tokens=True, return_tensors="pt")
         input_ids = inputs["input_ids"].tolist()[0]
@@ -67,6 +100,7 @@ def setup_ui(root):
     context_label.grid(row=0, column=0, sticky='ew')
     context_text = scrolledtext.ScrolledText(root, height=10)
     context_text.grid(row=1, column=0, sticky='nsew', rowspan=2)
+    context_text.insert(tk.END, "You are as a finance specialist, help the user and provide accurate information.")
 
     # Question input
     question_label = tk.Label(root, text="Ask a question:")
