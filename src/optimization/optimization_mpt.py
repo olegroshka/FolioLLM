@@ -122,7 +122,7 @@ class PortfolioOptimizer:
             'information_ratio': information_ratio
         }
 
-def main_optimizer_mpt(tickers, ):
+def main_optimizer_mpt(tickers):
     #tickers = ['SPY US', 'IVV US', 'VO US', '510050 CH']
     data_file = '.../data/etf_prices.xlsx'  # Path to the uploaded Excel file
     risk_free_rate = 0.05  # 5% annual risk-free rate
