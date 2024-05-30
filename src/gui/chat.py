@@ -1,7 +1,8 @@
 import gradio as gr
 import re
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+from transformers.generation import TextStreamer
 
 # Define the model name and the directory where the fine-tuned model is located
 model_name = "FINGU-AI/FinguAI-Chat-v1"
@@ -62,7 +63,7 @@ def respond(user_input, history):
 
 # Create the Gradio interface
 with gr.Blocks() as demo:
-    chatbot = gr.Chatbot()
+    chatbot = gr.Chatbot(label="FolioLLM")
     with gr.Row():
         txt = gr.Textbox(show_label=False, placeholder="Type your message here...")  # Removed .style
         btn = gr.Button("Send")
