@@ -120,7 +120,7 @@ class PortfolioOptimizer:
         }
 
 def main_optimizer_mpt(tickers, ):
-    tickers = ['SPY US', 'IVY US', 'VO US', '510050 CH']
+    tickers = ['SPY US', 'IVY US', 'VO US', '510050 CH']  # to be modified
     data_file = '.../data/etf_prices.xlsx'  # Path to the uploaded Excel file
     risk_free_rate = 0.05  # 5% annual risk-free rate
 
