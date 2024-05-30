@@ -14,22 +14,25 @@ class PortfolioOptimizer:
 
     def load_data(self):
         # Load the CSV file containing daily returns
-        data = pd.read_excel(self.data_file, sheet_name='Combined', header=1, index_col='Date', parse_dates=True)
+        data = pd.read_excel(self.data_file, sheet_name='Combined', index_col='Date', parse_dates=True)
         # Convert index to datetime if not already in datetime format
         data.index = pd.to_datetime(data.index).normalize()
 
         # Ensure only the tickers we are interested in are selected
         ticker_columns = [ticker for ticker in self.tickers]
         data = data[ticker_columns]
+        data = data.fillna(method='ffill')
+
         # Rename columns to match tickers without ' Equity' suffix
         data.columns = self.tickers
         return data
 
     def calculate_returns(self):
         # Select one year period of data
-        end_date = self.data.index.max()
-        start_date = end_date - pd.DateOffset(years=1)
-        one_year_data = self.data.loc[end_date:start_date]
+        #end_date = self.data.index.max()
+        #start_date = end_date - pd.DateOffset(years=1)
+        #one_year_data = self.data.loc[end_date:start_date]
+        one_year_data = self.data
 
         # Ensure data is sorted by date in ascending order
         one_year_data = one_year_data.sort_index()
@@ -97,8 +100,8 @@ class PortfolioOptimizer:
         sortino_ratio = (annualized_return - annual_risk_free_rate) / annual_downside_deviation
 
         # Calculate Information ratio
-        benchmark_return = mean_returns['SPY US']  # Assuming 'SPY US' as the benchmark
-        tracking_error = np.sqrt(np.mean((self.returns.dot(weights) - self.returns['SPY US']) ** 2)) * np.sqrt(252)
+        benchmark_return = mean_returns['SPY US Equity']  # Assuming 'SPY US' as the benchmark
+        tracking_error = np.sqrt(np.mean((self.returns.dot(weights) - self.returns['SPY US Equity']) ** 2)) * np.sqrt(252)
         information_ratio = (annualized_return - (benchmark_return * 252)) / tracking_error
 
         # Convert weights to percentages
@@ -120,7 +123,7 @@ class PortfolioOptimizer:
         }
 
 def main_optimizer_mpt(tickers, ):
-    tickers = ['SPY US', 'IVY US', 'VO US', '510050 CH']
+    #tickers = ['SPY US', 'IVV US', 'VO US', '510050 CH']
     data_file = '.../data/etf_prices.xlsx'  # Path to the uploaded Excel file
     risk_free_rate = 0.05  # 5% annual risk-free rate
 
@@ -137,8 +140,9 @@ def main_optimizer_mpt(tickers, ):
 
 
 def test_optimizer():
-    tickers = ['SPY US', 'IVY US', 'VO US', '510050 CH']
-    data_file = r'C:\Personal\Personal documents\Github\FolioLLM\data\test_prices.xlsx'
+    tickers = ['SPY US Equity', 'IVV US Equity', 'VO US Equity', '510050 CH Equity']
+    data_file = (r'C:\Personal\Personal docume'
+                 r'nts\Github\FolioLLM\data\etf_prices.xlsx')
     risk_free_rate = 0.05  # 5% annual risk-free rate
 
     optimizer = PortfolioOptimizer(tickers, data_file, risk_free_rate)
