@@ -6,6 +6,7 @@ import logging
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5ForConditionalGeneration
 from src.dataset.data_utils import load_prompt_response_dataset, load_etf_text_dataset
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
+from src.eval.evaluator import ETFAdvisorEvaluatorGPT2, ETFAdvisorEvaluatorFingu
 from src.training.etf_trainer import ETFTrainer, tokenize_etf_text
 from src.models.knowledge_aware_lora import KnowledgeAwareLoRAModel
 from src.models.knowledge_aware_mora import KnowledgeAwareMoRAModel
@@ -45,7 +46,14 @@ class ETFAdvisorPipeline:
 
     def eval_model(self, model, tokenizer, stage):
         print(f"\nEvaluating the {stage} model...")
-        evaluator = ETFAdvisorEvaluator(model, tokenizer, self.test_prompts, rouge_score=False)
+        if 'gpt2' in model._get_name().lower():
+            evaluator = ETFAdvisorEvaluatorGPT2(model, tokenizer, self.test_prompts, bert_score=True, rouge_score=False,
+                                                perplexity=True, cosine_similarity=True)
+        else:
+            evaluator = ETFAdvisorEvaluatorFingu(model, tokenizer, self.test_prompts, bert_score=True, rouge_score=False,
+                                                 perplexity=True, cosine_similarity=True)
+
+        #evaluator = ETFAdvisorEvaluator(model, tokenizer, self.test_prompts, rouge_score=False)
         evaluator.evaluate(detailed=self.detailed)
 
     def finetune_model(self, model, tokenizer):
@@ -142,6 +150,7 @@ def main():
     json_prompt_response_file = '../../data/etf_training_data_v2.json'
     test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
     model_name = 'FINGU-AI/FinguAI-Chat-v1'
+    #model_name = 'gpt2'
 
     output_dir = './fine_tuned_model/' + model_name
     detailed = True  # Set to False if you only want average scores

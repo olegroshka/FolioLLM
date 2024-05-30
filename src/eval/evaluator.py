@@ -6,10 +6,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
-
-class ETFAdvisorEvaluator:
-    def __init__(self, model, tokenizer, test_prompts, bert_score=True, rouge_score=True, perplexity=True,
-                 cosine_similarity=True):
+class ETFAdvisorEvaluatorBase:
+    def __init__(self, model, tokenizer, test_prompts, bert_score=True, rouge_score=True, perplexity=True, cosine_similarity=True):
         self.model = model
         self.tokenizer = tokenizer
         self.test_prompts = test_prompts
@@ -22,48 +20,13 @@ class ETFAdvisorEvaluator:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
         self.tokenizer.padding_side = 'left'
-
-    def generate_response(self, prompt):
-        messages = [
-            {"role": "system",
-             "content": "You are a professional portfolio manager specializing in ETF who advises the client by providing deep insight into the financial markets. Help the user and provide accurate information."},
-            {"role": "user", "content": prompt},
-        ]
-
-        tokenized_chat = self.tokenizer.apply_chat_template(
-            messages,
-            tokenize=True,
-            add_generation_prompt=True,
-            return_tensors="pt"
-        ).to("cuda")
-
-        generation_params = {
-            'max_new_tokens': 1000,
-            'use_cache': True,
-            'do_sample': True,
-            'temperature': 0.7,
-            'top_p': 0.9,
-            'top_k': 50,
-            'eos_token_id': self.tokenizer.eos_token_id,
-        }
-
         self.model.to("cuda")
 
-        outputs = self.model.generate(tokenized_chat, **generation_params)
-        decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-        response = decoded_outputs[0]#.split("assistant\n")[1].strip()
-
-        return response
+    def generate_response(self, prompt):
+        raise NotImplementedError("Subclasses should implement this method")
 
     def calculate_perplexity(self, text):
-        encodings = self.tokenizer(text, return_tensors='pt')
-        input_ids = encodings.input_ids.to(self.model.device)
-        with torch.no_grad():
-            outputs = self.model(input_ids, labels=input_ids)
-            loss = outputs.loss
-            perplexity = torch.exp(loss)
-        return perplexity.item()
+        raise NotImplementedError("Subclasses should implement this method")
 
     def evaluate(self, detailed=False):
         if self.compute_rouge_score:
@@ -98,8 +61,7 @@ class ETFAdvisorEvaluator:
                     else:
                         rouge_scores.append(None)
                 except ValueError as e:
-                    print(
-                        f"ROUGE score calculation failed for:\nGenerated Response: {generated_response}\nExpected Answer: {expected_answer}\nError: {e}")
+                    print(f"ROUGE score calculation failed for:\nGenerated Response: {generated_response}\nExpected Answer: {expected_answer}\nError: {e}")
                     rouge_scores.append(None)
 
             if self.compute_cosine_similarity:
@@ -116,8 +78,7 @@ class ETFAdvisorEvaluator:
                 print(f"Expected Answer: {expected_answer}")
                 print(f"Generated Response: {generated_response}")
                 if self.compute_bert_score:
-                    print(
-                        f"BERT Score - Precision: {bert_precision_scores[-1]:.4f}, Recall: {bert_recall_scores[-1]:.4f}, F1: {bert_f1_scores[-1]:.4f}")
+                    print(f"BERT Score - Precision: {bert_precision_scores[-1]:.4f}, Recall: {bert_recall_scores[-1]:.4f}, F1: {bert_f1_scores[-1]:.4f}")
                 if self.compute_rouge_score:
                     print(f"ROUGE Score: {rouge_scores[-1] if rouge_scores[-1] else 'N/A'}")
                 if self.compute_cosine_similarity:
@@ -152,18 +113,100 @@ class ETFAdvisorEvaluator:
         print(results)
         return results
 
-# Example usage:
-# Assuming you have a GPT-2 model and tokenizer loaded
-# model_name = "gpt2"
-# model_name = "FINGU-AI/FinguAI-Chat-v1"
-# model = AutoModelForCausalLM.from_pretrained(model_name)
-# tokenizer = AutoTokenizer.from_pretrained(model_name)
-#
-# test_prompts = [
-#     {"prompt": "What is the YTD return and expense ratio of Cullen Enhanced Equity Income ETF?",
-#      "expected_answer": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a YTD return of 572.631% and an expense ratio of 0.55%."},
-#     # Add more test prompts here
-# ]
-#
-# evaluator = ETFAdvisorEvaluator(model, tokenizer, test_prompts, bert_score=True, rouge_score=False, perplexity=True, cosine_similarity=True)
-# evaluator.evaluate(detailed=True)
+class ETFAdvisorEvaluatorGPT2(ETFAdvisorEvaluatorBase):
+    def generate_response(self, prompt):
+        input_ids = self.tokenizer.encode(prompt, return_tensors='pt').to("cuda")
+        attention_mask = (input_ids != self.tokenizer.pad_token_id).long()
+
+        generation_params = {
+            'max_new_tokens': 100,
+            'do_sample': True,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'top_k': 50,
+            'eos_token_id': self.tokenizer.eos_token_id,
+            'pad_token_id': self.tokenizer.pad_token_id,
+            'attention_mask': attention_mask,
+        }
+
+        outputs = self.model.generate(input_ids, **generation_params)
+        decoded_outputs = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+        return decoded_outputs
+
+    def calculate_perplexity(self, text):
+        encodings = self.tokenizer(text, return_tensors='pt')
+        input_ids = encodings.input_ids.to(self.model.device)
+        with torch.no_grad():
+            outputs = self.model(input_ids, labels=input_ids)
+            loss = outputs.loss
+            perplexity = torch.exp(loss)
+        return perplexity.item()
+
+class ETFAdvisorEvaluatorFingu(ETFAdvisorEvaluatorBase):
+    def generate_response(self, prompt):
+        messages = [
+            {"role": "system", "content": "You are a professional portfolio manager specializing in ETF who advises the client by providing deep insight into the financial markets. Help the user and provide accurate information."},
+            {"role": "user", "content": prompt},
+        ]
+
+        tokenized_chat = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=True,
+            add_generation_prompt=True,
+            return_tensors="pt"
+        ).to("cuda")
+
+        generation_params = {
+            'max_new_tokens': 1000,
+            'use_cache': True,
+            'do_sample': True,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'top_k': 50,
+            'eos_token_id': self.tokenizer.eos_token_id,
+        }
+
+        outputs = self.model.generate(tokenized_chat, **generation_params)
+        decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+
+        response = decoded_outputs[0]
+
+        return response
+
+    def calculate_perplexity(self, text):
+        encodings = self.tokenizer(text, return_tensors='pt')
+        input_ids = encodings.input_ids.to(self.model.device)
+        attention_mask = (input_ids != self.tokenizer.pad_token_id).long()
+        with torch.no_grad():
+            outputs = self.model(input_ids, attention_mask=attention_mask, labels=input_ids)
+            loss = outputs.loss
+            perplexity = torch.exp(loss)
+        return perplexity.item()
+
+def main():
+    # Example usage:
+    #model_name = "gpt2"
+    model_name = "FINGU-AI/FinguAI-Chat-v1"
+
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    test_prompts = [
+        {"prompt": "What is the YTD return and expense ratio of Cullen Enhanced Equity Income ETF?",
+         "expected_answer": "The Cullen Enhanced Equity Income ETF (DIVP US Equity) has a YTD return of 572.631% and an expense ratio of 0.55%."},
+        # Add more test prompts here
+    ]
+
+    if 'gpt2' in model_name:
+        evaluator = ETFAdvisorEvaluatorGPT2(model, tokenizer, test_prompts, bert_score=True, rouge_score=False,
+                                            perplexity=True, cosine_similarity=True)
+    else:
+        evaluator = ETFAdvisorEvaluatorFingu(model, tokenizer, test_prompts, bert_score=True, rouge_score=False,
+                                             perplexity=True, cosine_similarity=True)
+
+    evaluator.evaluate(detailed=True)
+
+
+if __name__ == '__main__':
+    main()
