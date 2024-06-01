@@ -1,3 +1,5 @@
+
+import re
 from bert_score import score
 import numpy as np
 from rouge import Rouge
@@ -170,9 +172,17 @@ class ETFAdvisorEvaluatorFingu(ETFAdvisorEvaluatorBase):
         outputs = self.model.generate(tokenized_chat, **generation_params)
         decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-        response = decoded_outputs[0]
+        raw_answer = decoded_outputs[0]
 
-        return response
+        # Extract the assistant's response
+        raw_answer = raw_answer.replace("<|im_end|>", "").replace("<|im_start|>", "")
+        match = re.search(r"assistant\s*\n(.*?)(?=\nuser|\Z)", raw_answer, re.DOTALL)
+        if match:
+            answer = match.group(1).strip()
+        else:
+            answer = raw_answer.strip()
+
+        return answer
 
     def calculate_perplexity(self, text):
         encodings = self.tokenizer(text, return_tensors='pt')

@@ -126,7 +126,7 @@ def main():
     test_prompts_file = '/path/to/basic-competency-test-prompts-1.json'
 
     json_structured_file = '../../data/etf_data_v3_plain.json'
-    json_prompt_response_file = '../../data/etf_training_data_v2.json'
+    json_prompt_response_file = '../../data/tmp/etf_training_data_v2.json'
     test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
     #model_name = 'bert-base-uncased'
     #model_name = 'FacebookAI/roberta-large'
