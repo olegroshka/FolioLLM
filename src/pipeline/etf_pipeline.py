@@ -3,6 +3,7 @@ import torch
 import wandb
 import logging
 
+from peft import get_peft_model, LoraConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5ForConditionalGeneration
 
 from src.dataset.data_utils import load_prompt_response_dataset, load_etf_text_dataset
@@ -21,7 +22,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 class ETFAdvisorPipeline:
-    def __init__(self, model_name, etf_structured_dataset, etf_prompt_response_dataset, test_prompts, output_dir, detailed=False, mode="default", rank_config=None, knowledge_dim=128, hidden_features=128):
+    def __init__(self, model_name, etf_structured_dataset, etf_prompt_response_dataset, test_prompts, output_dir,
+                 detailed=False, mode="default", rank_config=None, knowledge_dim=128, hidden_features=128):
         self.model_name = model_name
         self.etf_structured_dataset = etf_structured_dataset
         self.etf_prompt_response_dataset = etf_prompt_response_dataset
@@ -39,8 +41,8 @@ class ETFAdvisorPipeline:
         self.eval_model(base_model, base_tokenizer, "base")
 
         # Step 2: Fine-tune the model
-        #finetuned_model, finetuned_tokenizer = self.finetune_model(base_model, base_tokenizer)
-        finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
+        finetuned_model, finetuned_tokenizer = self.finetune_model(base_model, base_tokenizer)
+        #finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
 
         # Step 3: Evaluate the fine-tuned model
         self.eval_model(finetuned_model, finetuned_tokenizer, "finetuned")
@@ -58,7 +60,7 @@ class ETFAdvisorPipeline:
         evaluator.evaluate(detailed=self.detailed)
 
     def finetune_model(self, model, tokenizer):
-        print("\nFine-tuning the model on structured JSON...")
+        print("\nFine-tuning the model on structured ETF data...")
         trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=512)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
@@ -89,7 +91,19 @@ class ETFAdvisorPipeline:
             )
 
         if self.mode == "lora":
-            model = LoRAModel.from_pretrained(self.model_name)
+            peft_config = LoraConfig(
+                r=self.rank_config.get("r", 8),
+                lora_alpha=self.rank_config.get("alpha", 32),
+                lora_dropout=0.1,
+                bias="none",
+                task_type="CAUSAL_LM",
+                target_modules=[
+                    "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
+                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                ]
+            )
+            model = get_peft_model(model, peft_config)
+            #model = LoRAModel.from_pretrained(self.model_name)
         elif self.mode == "mora":
             model = MoRAModel.from_pretrained(self.model_name, rank_config=self.rank_config)
         elif self.mode == "knowledge_aware_lora":
@@ -122,7 +136,19 @@ class ETFAdvisorPipeline:
             )
 
         if self.mode == "lora":
-            model = LoRAModel.from_pretrained(self.output_dir)
+            peft_config = LoraConfig(
+                r=self.rank_config.get("r", 8),
+                lora_alpha=self.rank_config.get("alpha", 32),
+                lora_dropout=0.1,
+                bias="none",
+                task_type="CAUSAL_LM",
+                target_modules=[
+                    "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
+                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                ]
+            )
+            model = get_peft_model(model, peft_config)
+            #model = LoRAModel.from_pretrained(self.output_dir)
         elif self.mode == "mora":
             model = MoRAModel.from_pretrained(self.output_dir, rank_config=self.rank_config)
         elif self.mode == "knowledge_aware_lora":
@@ -162,9 +188,8 @@ def main():
     test_prompts = load_test_prompts(test_prompts_file)
 
     rank_config = {
-        "layer_name": {
-            "param_name": 8  # Example: set rank 8 for specific layers/parameters
-        }
+        "r": 8,
+        "alpha": 32
     }
 
     pipeline = ETFAdvisorPipeline(
@@ -174,10 +199,10 @@ def main():
         test_prompts,
         output_dir,
         detailed=detailed,
-        #mode="lora",
+        mode="lora",
         #mode="mora",
         #mode="kan_mora",
-        #rank_config=rank_config
+        rank_config=rank_config
     )
 
     pipeline.run()
