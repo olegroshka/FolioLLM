@@ -64,14 +64,15 @@ class LoRAModel(nn.Module):
         instance = cls(model, rank=rank)
         return instance
 
-    # def __getattr__(self, name):
-    #     if name in ['hf_device_map', 'is_loaded_in_8bit', 'is_loaded_in_4bit', 'is_parallelizable',
-    #                 '_orig_mod', 'is_quantized', 'hf_quantizer', 'quantization_method']:
-    #         return getattr(self.model, name)
-    #     try:
-    #         return super(LoRAModel, self).__getattr__(name)
-    #     except AttributeError:
-    #         return self.model.__getattr__(name)
+
+    def __getattr__(self, name):
+        if name in ['hf_device_map', 'is_loaded_in_8bit', 'is_loaded_in_4bit', 'is_parallelizable',
+                    '_orig_mod', 'is_quantized', 'hf_quantizer', 'quantization_method']:
+            return getattr(self.model, name)
+        try:
+            return super(LoRAModel, self).__getattr__(name)
+        except AttributeError:
+            return self.model.__getattr__(name)
 
 def main():
     model_name = 'FINGU-AI/FinguAI-Chat-v1'

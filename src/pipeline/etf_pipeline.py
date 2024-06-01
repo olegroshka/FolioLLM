@@ -112,13 +112,13 @@ class ETFAdvisorPipeline:
                 self.output_dir,
                 attn_implementation="flash_attention_2",
                 torch_dtype=torch.bfloat16
-            ).to("cuda")
+            )
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 self.output_dir,
                 attn_implementation="flash_attention_2",
                 torch_dtype=torch.bfloat16
-            ).to('cuda')
+            )
 
         if self.mode == "lora":
             model = LoRAModel.from_pretrained(self.output_dir)
@@ -135,6 +135,7 @@ class ETFAdvisorPipeline:
             model = KolmogorovArnoldMoRAModel.from_pretrained(self.output_dir, rank_config=self.rank_config,
                                                               hidden_features=self.hidden_features)
 
+        model.to("cuda")
         tokenizer = AutoTokenizer.from_pretrained(self.output_dir)
         return model, tokenizer
 
@@ -172,13 +173,13 @@ def main():
         test_prompts,
         output_dir,
         detailed=detailed,
+        #mode="lora",
         #mode="mora",
         #mode="kan_mora",
         #rank_config=rank_config
     )
 
     pipeline.run()
-
     wandb.finish()
 
 if __name__ == '__main__':
