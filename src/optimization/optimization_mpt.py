@@ -9,27 +9,30 @@ class PortfolioOptimizer:
         self.tickers = tickers
         self.data_file = data_file
         self.risk_free_rate = risk_free_rate
-        self.data = self.load_data()
-        self.returns = self.calculate_returns()
+        self.data, self.benchmark = self.load_data()
+        self.returns, self.benchmark_returns = self.calculate_returns()
 
     def load_data(self):
         # Load the CSV file containing daily returns
-        data = pd.read_excel(self.data_file, sheet_name='Combined', header=1, index_col='Date', parse_dates=True)
+        data = pd.read_excel(self.data_file, sheet_name='Combined', index_col='Date', parse_dates=True)
         # Convert index to datetime if not already in datetime format
         data.index = pd.to_datetime(data.index).normalize()
-
+        benchmark = data['SPY US Equity']
         # Ensure only the tickers we are interested in are selected
         ticker_columns = [ticker for ticker in self.tickers]
         data = data[ticker_columns]
+        data = data.fillna(method='ffill')
+
         # Rename columns to match tickers without ' Equity' suffix
         data.columns = self.tickers
-        return data
+        return data, benchmark
 
     def calculate_returns(self):
         # Select one year period of data
-        end_date = self.data.index.max()
-        start_date = end_date - pd.DateOffset(years=1)
-        one_year_data = self.data.loc[end_date:start_date]
+        #end_date = self.data.index.max()
+        #start_date = end_date - pd.DateOffset(years=1)
+        #one_year_data = self.data.loc[end_date:start_date]
+        one_year_data = self.data
 
         # Ensure data is sorted by date in ascending order
         one_year_data = one_year_data.sort_index()
@@ -41,8 +44,9 @@ class PortfolioOptimizer:
         if one_year_data.empty:
             raise ValueError("No data available for the selected one-year period.")
 
+        benchmark_returns = self.benchmark.pct_change().dropna()
 
-        return returns
+        return returns, benchmark_returns
 
     def compute_statistics(self):
         # Calculate mean return, variance, and standard deviation
@@ -97,8 +101,8 @@ class PortfolioOptimizer:
         sortino_ratio = (annualized_return - annual_risk_free_rate) / annual_downside_deviation
 
         # Calculate Information ratio
-        benchmark_return = mean_returns['SPY US']  # Assuming 'SPY US' as the benchmark
-        tracking_error = np.sqrt(np.mean((self.returns.dot(weights) - self.returns['SPY US']) ** 2)) * np.sqrt(252)
+        benchmark_return = self.benchmark_returns.mean()  # Assuming 'SPY US' as the benchmark
+        tracking_error = np.sqrt(np.mean((self.returns.dot(weights) - self.benchmark_returns) ** 2)) * np.sqrt(252)
         information_ratio = (annualized_return - (benchmark_return * 252)) / tracking_error
 
         # Convert weights to percentages
@@ -119,37 +123,34 @@ class PortfolioOptimizer:
             'information_ratio': information_ratio
         }
 
-def main_optimizer_mpt(tickers, ):
-    tickers = ['SPY US', 'IVY US', 'VO US', '510050 CH']  # to be modified
-    data_file = '.../data/etf_prices.xlsx'  # Path to the uploaded Excel file
+def optimizer(tickers=['SPY US', 'IVY US', 'VO US', '510050 CH'], main=True):
+a    if main:
+        data_file = '../../data/etf_prices.xlsx'
+    else:
+        data_file = r'../../data/test_prices.xlsx'
+
     risk_free_rate = 0.05  # 5% annual risk-free rate
 
     optimizer = PortfolioOptimizer(tickers, data_file, risk_free_rate)
     portfolio_details = optimizer.get_portfolio_details()
 
-    print("Weights:")
-    print(portfolio_details['weights_table'])
-    print(f"Annualized Return: {portfolio_details['annualized_return']:.2%}")
-    print(f"Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}")
-    print(f"Sharpe Ratio: {portfolio_details['sharpe_ratio']:.2f}")
-    print(f"Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}")
-    print(f"Information Ratio: {portfolio_details['information_ratio']:.2f}")
+
+    template = f"""
+    Weights:
+    {portfolio_details['weights_table']}
+    Annualized Return: {portfolio_details['annualized_return']:.2%}
+    Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}
+    Sharpe Ratio: {portfolio_details['sharpe_ratio']:.2f}
+    Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}
+    Information Ratio: {portfolio_details['information_ratio']:.2f}"""
+    return template
+        
+
+def main_optimizer_mpt(
+        tickers=['SPY US', 'IVY US', 'VO US', '510050 CH']
+        ):
+    return optimizer(tickers, main=True)
 
 
-def test_optimizer():
-    tickers = ['SPY US', 'IVY US', 'VO US', '510050 CH']
-    data_file = r'C:\Personal\Personal documents\Github\FolioLLM\data\test_prices.xlsx'
-    risk_free_rate = 0.05  # 5% annual risk-free rate
-
-    optimizer = PortfolioOptimizer(tickers, data_file, risk_free_rate)
-    portfolio_details = optimizer.get_portfolio_details()
-
-    print("Weights:")
-    print(portfolio_details['weights_table'])
-    print(f"Annualized Return: {portfolio_details['annualized_return']:.2%}")
-    print(f"Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}")
-    print(f"Sharpe Ratio: {portfolio_details['sharpe_ratio']:.2f}")
-    print(f"Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}")
-    print(f"Information Ratio: {portfolio_details['information_ratio']:.2f}")
-
-
+def test_optimizer(tickers=['SPY US', 'IVY US', 'VO US', '510050 CH']):
+    return optimizer(tickers, main=False)

@@ -1,0 +1,59 @@
+{
+    "os": "Linux-6.5.0-27-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "heartbeatAt": "2024-06-01T02:27:07.410411",
+    "startedAt": "2024-06-01T02:27:05.152200",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "<python with no main file>",
+    "codePathLocal": null,
+    "git": {
+        "remote": "git@github.com:olegroshka/FolioLLM.git",
+        "commit": "e5f67e24772f3b689b4f8a44b49b86c6be659480"
+    },
+    "email": "ilya.badaneen@gmail.com",
+    "root": "/home/bunt/FolioLLM",
+    "host": "iPhone",
+    "username": "bunt",
+    "executable": "/usr/bin/python3",
+    "cpu_count": 2,
+    "cpu_count_logical": 4,
+    "cpu_freq": {
+        "current": 1599.99725,
+        "min": 400.0,
+        "max": 2300.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1775.938,
+            "min": 400.0,
+            "max": 2300.0
+        },
+        {
+            "current": 1610.918,
+            "min": 400.0,
+            "max": 2300.0
+        },
+        {
+            "current": 1601.525,
+            "min": 400.0,
+            "max": 2300.0
+        },
+        {
+            "current": 1755.674,
+            "min": 400.0,
+            "max": 2300.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 58.276187896728516,
+            "used": 23.278656005859375
+        }
+    },
+    "memory": {
+        "total": 7.447826385498047
+    }
+}
