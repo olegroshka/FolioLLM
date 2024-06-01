@@ -33,12 +33,15 @@ def optim_generation(user_input, history):
 respond = lambda inp, hist: raw_generation(inp, hist) if optimization_prediction(inp) > 0.5 else optim_generation(inp, hist)
 
 def raw_generation(user_input, history):
-    context = "You are chatting with a helpful assistant."  # Define your system context
+    context = (
+        "You are a financial specialist specializing in ETF portfolio construction and optimization. "
+        "Your role is to assist users by providing accurate, timely, and insightful information to guide their investment decisions. "
+        "Consider their risk tolerance, investment goals, and market conditions when offering advice."
+    )
     messages = [
         {"role": "system", "content": context},
         {"role": "user", "content": user_input},
     ]
-
     # Tokenize the chat template
     tokenized_chat = tokenizer.apply_chat_template(
         messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
