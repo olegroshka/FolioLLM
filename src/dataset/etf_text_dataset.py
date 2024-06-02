@@ -14,84 +14,84 @@ Type: {fund_type}
 Manager: {manager}
 
 {etf_name} ({ticker}) Fund Classification:
-    {ticker} Asset Class Focus: {asset_class_focus}
-    {ticker} Asset Group: {fund_asset_group}
-    {ticker} Industry Focus: {fund_industry_focus}
-    {ticker} Geographical Focus: {fund_geographical_focus}
-    {ticker} Objective: {fund_objective}
-    {ticker} Economic Association: {economic_association}
-    {ticker} Strategy: {fund_strategy}
-    {ticker} Market Cap Focus: {fund_market_cap_focus}
-    {ticker} Style: {fund_style}
+    Asset Class Focus: {asset_class_focus}
+    Asset Group: {fund_asset_group}
+    Industry Focus: {fund_industry_focus}
+    Geographical Focus: {fund_geographical_focus}
+    Objective: {fund_objective}
+    Economic Association: {economic_association}
+    Strategy: {fund_strategy}
+    Market Cap Focus: {fund_market_cap_focus}
+    Style: {fund_style}
 
 {etf_name} ({ticker}) Summary:
-    {ticker} Class Assets (MLN USD): {class_assets}
-    {ticker} Fund Assets (MLN USD): {fund_assets}
-    {ticker} Expense Ratio: {expense_ratio}
-    {ticker} Year-To-Date Return: {year_to_date_return}
-    {ticker} 30 Days Volatility: {volume_30d}
-    {ticker} Year-To-Date Flow: {ytd_flow}
-    {ticker} 1 Month Flow: {flow_1m}
-    {ticker} 1 Year NAV Tracking Error: {nav_trk_error}
-    {ticker} Holdings: {holdings}
-    {ticker} Primary: {primary}
-    {ticker} Cross: {primary}
+    Class Assets (MLN USD): {class_assets}
+    Fund Assets (MLN USD): {fund_assets}
+    Expense Ratio: {expense_ratio}
+    Year-To-Date Return: {year_to_date_return}
+    30 Days Volatility: {volume_30d}
+    Year-To-Date Flow: {ytd_flow}
+    1 Month Flow: {flow_1m}
+    1 Year NAV Tracking Error: {nav_trk_error}
+    Holdings: {holdings}
+    Primary: {primary}
+    Cross: {primary}
 
 {etf_name} ({ticker}) Performance:
-    {ticker} 1 Day Return: {return_1d}
-    {ticker} Month-To-Date Return: {return_mtd}
-    {ticker} Year-To-Date Return: {ytd_return}
-    {ticker} 3 Years Return: {return_3y}
+    1 Day Return: {return_1d}
+    Month-To-Date Return: {return_mtd}
+    Year-To-Date Return: {ytd_return}
+    3 Years Return: {return_3y}
 
 {etf_name} ({ticker}) Liquidity:
-    {ticker} 1 Day Volume: {volume_1d}
-    {ticker} Aggregated Volume: {aggregated_volume}
-    {ticker} Aggregated Value Traded: {total_value_traded}
-    {ticker} Bid Ask Spread: {bid_ask_spread}
+    1 Day Volume: {volume_1d}
+    Aggregated Volume: {aggregated_volume}
+    Aggregated Value Traded: {total_value_traded}
+    Bid Ask Spread: {bid_ask_spread}
 
 {etf_name} ({ticker}) Expense:
-    {ticker} Expense Ratio: {expense_ratio}
-    {ticker} Fund Manager Stated Fee: {expense_ratio}
-    {ticker} Average Bid Ask Spread: {avg_bid_ask_spread}
-    {ticker} 1 Year NAV Tracking Error: {nav_trk_error}
-    {ticker} Premium: {premium}
-    {ticker} 52 Weeks Average Premium: {premium_52w}
+    Expense Ratio: {expense_ratio}
+    Fund Manager Stated Fee: {expense_ratio}
+    Average Bid Ask Spread: {avg_bid_ask_spread}
+    1 Year NAV Tracking Error: {nav_trk_error}
+    Premium: {premium}
+    52 Weeks Average Premium: {premium_52w}
 
 {etf_name} ({ticker}) Flow:
-    {ticker} Currency: {currency}
-    {ticker} OAS Effective Duration: {oas_effective_duration}
-    {ticker} OAS Duration Coverage Ratio: {oas_duration_coverage_ratio}
-    {ticker} Options Available: {options_available}
-    {ticker} Payment Type: {payment_type}
+    Currency: {currency}
+    responseOAS Effective Duration: {oas_effective_duration}
+    OAS Duration Coverage Ratio: {oas_duration_coverage_ratio}
+    Options Available: {options_available}
+    Payment Type: {payment_type}
 
 {etf_name} ({ticker}) Regulatory:
-    {ticker} Fund Type: {fund_type}
-    {ticker} Structure: {structure}
-    {ticker} Index Weight: {index_weight}
-    {ticker} Use Derivative: {use_derivative}
-    {ticker} Tax Form: {tax_form}
-    {ticker} UCITS: {ucits}
-    {ticker} UK Reporting: {uk_reporting}
-    {ticker} SFC: {sfc}
-    {ticker} China: {china}
-    {ticker} Leverage: {leverage}
-    {ticker} Inception Date: {inception_date}
+    Fund Type: {fund_type}
+    Structure: {structure}
+    Index Weight: {index_weight}
+    Use Derivative: {use_derivative}
+    Tax Form: {tax_form}
+    UCITS: {ucits}
+    UK Reporting: {uk_reporting}
+    SFC: {sfc}
+    China: {china}
+    Leverage: {leverage}
+    Inception Date: {inception_date}
 
 {etf_name} ({ticker}) Industry Exposure:
-    {ticker} Materials: {materials}
-    {ticker} Communications: {communications}
-    {ticker} Consumer Cyclical: {consumer_cyclical}
-    {ticker} Consumer Non-Cyclical: {consumer_non_cyclical}
-    {ticker} Energy: {energy}
-    {ticker} Financials: {financials}
-    {ticker} Industrials: {industrials}
-    {ticker} Technology: {technology}
-    {ticker} Utilities: {utilities}
+    Materials: {materials}
+    Communications: {communications}
+    Consumer Cyclical: {consumer_cyclical}
+    Consumer Non-Cyclical: {consumer_non_cyclical}
+    Energy: {energy}
+    Financials: {financials}
+    Industrials: {industrials}
+    Technology: {technology}
+    Utilities: {utilities}
 
 {etf_name} ({ticker}) Geographical Exposure:
-    {ticker} North America: {north_america}
-    {ticker} Western Europe: {western_europe}
-    {ticker} Asia Pacific: {asia_pacific}
+    North America: {north_america}
+    Western Europe: {western_europe}
+    Asia Pacific: {asia_pacific}
 """
 
 class ETFTextDataset(Dataset):

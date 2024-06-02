@@ -3,9 +3,12 @@ import torch
 import wandb
 import logging
 
+from peft import get_peft_model, LoraConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5ForConditionalGeneration
+
 from src.dataset.data_utils import load_prompt_response_dataset, load_etf_text_dataset
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
+from src.eval.evaluator import ETFAdvisorEvaluatorGPT2, ETFAdvisorEvaluatorFingu
 from src.training.etf_trainer import ETFTrainer, tokenize_etf_text
 from src.models.knowledge_aware_lora import KnowledgeAwareLoRAModel
 from src.models.knowledge_aware_mora import KnowledgeAwareMoRAModel
@@ -19,7 +22,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 class ETFAdvisorPipeline:
-    def __init__(self, model_name, etf_structured_dataset, etf_prompt_response_dataset, test_prompts, output_dir, detailed=False, mode="default", rank_config=None, knowledge_dim=128, hidden_features=128):
+    def __init__(self, model_name, etf_structured_dataset, etf_prompt_response_dataset, test_prompts, output_dir,
+                 detailed=False, mode="default", rank_config=None, knowledge_dim=128, hidden_features=128):
         self.model_name = model_name
         self.etf_structured_dataset = etf_structured_dataset
         self.etf_prompt_response_dataset = etf_prompt_response_dataset
@@ -45,12 +49,19 @@ class ETFAdvisorPipeline:
 
     def eval_model(self, model, tokenizer, stage):
         print(f"\nEvaluating the {stage} model...")
-        evaluator = ETFAdvisorEvaluator(model, tokenizer, self.test_prompts, rouge_score=False)
+        if 'gpt2' in model._get_name().lower():
+            evaluator = ETFAdvisorEvaluatorGPT2(model, tokenizer, self.test_prompts, bert_score=True, rouge_score=False,
+                                                perplexity=True, cosine_similarity=True)
+        else:
+            evaluator = ETFAdvisorEvaluatorFingu(model, tokenizer, self.test_prompts, bert_score=True, rouge_score=False,
+                                                 perplexity=True, cosine_similarity=True)
+
+        #evaluator = ETFAdvisorEvaluator(model, tokenizer, self.test_prompts, rouge_score=False)
         evaluator.evaluate(detailed=self.detailed)
 
     def finetune_model(self, model, tokenizer):
-        print("\nFine-tuning the model on structured JSON...")
-        trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=512)
+        print("\nFine-tuning the model on structured ETF data...")
+        trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=1024)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
         trainer_structured_json.save_model(self.output_dir)
@@ -80,7 +91,20 @@ class ETFAdvisorPipeline:
             )
 
         if self.mode == "lora":
-            model = LoRAModel.from_pretrained(self.model_name)
+            peft_config = LoraConfig(
+                r=self.rank_config.get("r", 16),
+                lora_alpha=self.rank_config.get("alpha", 64),
+                lora_dropout=0.2,
+                bias="none",
+                task_type="CAUSAL_LM",
+                target_modules=[
+                    "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
+                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                ]
+            )
+            print("lora config:" + str(peft_config))
+            model = get_peft_model(model, peft_config)
+            #model = LoRAModel.from_pretrained(self.model_name)
         elif self.mode == "mora":
             model = MoRAModel.from_pretrained(self.model_name, rank_config=self.rank_config)
         elif self.mode == "knowledge_aware_lora":
@@ -104,16 +128,28 @@ class ETFAdvisorPipeline:
                 self.output_dir,
                 attn_implementation="flash_attention_2",
                 torch_dtype=torch.bfloat16
-            ).to("cuda")
+            )
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 self.output_dir,
                 attn_implementation="flash_attention_2",
                 torch_dtype=torch.bfloat16
-            ).to('cuda')
+            )
 
         if self.mode == "lora":
-            model = LoRAModel.from_pretrained(self.output_dir)
+            peft_config = LoraConfig(
+                r=self.rank_config.get("r", 16),
+                lora_alpha=self.rank_config.get("alpha", 64),
+                lora_dropout=0.2,
+                bias="none",
+                task_type="CAUSAL_LM",
+                target_modules=[
+                    "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
+                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                ]
+            )
+            model = get_peft_model(model, peft_config)
+            #model = LoRAModel.from_pretrained(self.output_dir)
         elif self.mode == "mora":
             model = MoRAModel.from_pretrained(self.output_dir, rank_config=self.rank_config)
         elif self.mode == "knowledge_aware_lora":
@@ -127,6 +163,7 @@ class ETFAdvisorPipeline:
             model = KolmogorovArnoldMoRAModel.from_pretrained(self.output_dir, rank_config=self.rank_config,
                                                               hidden_features=self.hidden_features)
 
+        model.to("cuda")
         tokenizer = AutoTokenizer.from_pretrained(self.output_dir)
         return model, tokenizer
 
@@ -139,9 +176,10 @@ def main():
     wandb.init(project="FolioLLM")  # Initialize wandb
 
     json_structured_file = '../../data/etf_data_v3_plain.json'
-    json_prompt_response_file = '../../data/etf_training_data_v2.json'
-    test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
+    json_prompt_response_file = '../../data/tmp/etf_training_data_v2.json'
+    test_prompts_file = '../../data/basic-competency-test-prompts-3.json'
     model_name = 'FINGU-AI/FinguAI-Chat-v1'
+    #model_name = 'gpt2'
 
     output_dir = './fine_tuned_model/' + model_name
     detailed = True  # Set to False if you only want average scores
@@ -151,9 +189,8 @@ def main():
     test_prompts = load_test_prompts(test_prompts_file)
 
     rank_config = {
-        "layer_name": {
-            "param_name": 8  # Example: set rank 8 for specific layers/parameters
-        }
+        "r": 32, #16
+        "alpha": 128 #64
     }
 
     pipeline = ETFAdvisorPipeline(
@@ -163,13 +200,13 @@ def main():
         test_prompts,
         output_dir,
         detailed=detailed,
+        mode="lora",
         #mode="mora",
         #mode="kan_mora",
-        #rank_config=rank_config
+        rank_config=rank_config
     )
 
     pipeline.run()
-
     wandb.finish()
 
 if __name__ == '__main__':

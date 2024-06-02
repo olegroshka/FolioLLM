@@ -52,7 +52,7 @@ class ETFAdvisorEvaluator:
         outputs = self.model.generate(tokenized_chat, **generation_params)
         decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-        response = decoded_outputs[0].split("assistant\n")[1].strip()
+        response = decoded_outputs[0]#.split("assistant\n")[1].strip()
 
         return response
 

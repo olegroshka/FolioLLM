@@ -176,7 +176,7 @@ class ETFTrainer:
     def compute_metrics(self, eval_pred):
         evaluator = ETFAdvisorEvaluator(
             self.model, self.tokenizer, self.test_prompts,
-            bert_score=False, rouge_score=False, perplexity=True, cosine_similarity=True
+            bert_score=True, rouge_score=False, perplexity=True, cosine_similarity=True
         )
         eval_results = evaluator.evaluate(detailed=False)
         wandb.log(eval_results)

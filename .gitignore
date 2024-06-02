@@ -158,3 +158,49 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+/src/pipeline/wandb/
+/src/pipeline/logs/
+/src/pipeline/results/
+/offload/
+/models/
+/src/pipeline/fine_tuned_model/
+/data/tmp/
+
+# Ignore all wandb files and directories
+wandb/
+**/wandb/
+
+# Ignore __pycache__ directories
+__pycache__/
+
+# Ignore all .pyc files
+*.pyc
+
+# Emacs backup files
+*~
+\#*\#
+.\#*
+
+# Emacs directory variables
+.dir-locals.el
+
+# Emacs auto-save files
+auto-save-list
+
+# Tramp temporary files
+.tramp
+
+# Flymake files
+_flymake*
+
+# SemanticDB files
+semantic.cache
+
+# Backup files (specific to Emacs)
+*.bak
+*.orig
+*.rej
+*.~*
+
+# Bookmarks file
+.bookmarks

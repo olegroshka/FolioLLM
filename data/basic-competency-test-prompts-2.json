@@ -1,0 +1,138 @@
+[
+  {
+    "prompt": "Is SPDR S&P 500 ETF Trust (SPY) 1 Day Return 0.13%?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Does iShares Core S&P 500 ETF (IVV) have an Expense Ratio of 0.04%?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Does Vanguard S&P 500 ETF (VOO) have a Month-To-Date Return of 3.75%?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Is the Average Bid Ask Spread for Invesco QQQ Trust Series 1 (QQQ) 0.00%?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Does Vanguard Total Stock Market ETF (VTI) hold 3758.0 stocks?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Is the 1 Month Flow for Vanguard FTSE Developed Markets ETF (VEA) 569.23?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Are the Class Assets for iShares Core MSCI EAFE ETF (IEFA) 117385.38 million USD?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Does Vanguard Growth ETF (VUG) have a 30 Days Volatility of 1084610?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Is the 1 Year NAV Tracking Error for Vanguard Value ETF (VTV) 0.0948%?",
+    "response": "Yes."
+  },
+  {
+    "prompt": "Is SPDR S&P 500 ETF Trust (SPY) 1 Day Return +0.20%?",
+    "response": "No."
+  },
+  {
+    "prompt": "Does iShares Core S&P 500 ETF (IVV) have an Expense Ratio of 0.10%?",
+    "response": "No."
+  },
+  {
+    "prompt": "Does Vanguard S&P 500 ETF (VOO) have a Month-To-Date Return of +5.00%?",
+    "response": "No."
+  },
+  {
+    "prompt": "Is the Average Bid Ask Spread for Invesco QQQ Trust Series 1 (QQQ) 0.05%?",
+    "response": "No."
+  },
+  {
+    "prompt": "Does Vanguard Total Stock Market ETF (VTI) hold 4000.0 stocks?",
+    "response": "No."
+  },
+  {
+    "prompt": "Is the 1 Month Flow for Vanguard FTSE Developed Markets ETF (VEA) 1000?",
+    "response": "No."
+  },
+  {
+    "prompt": "Are the Class Assets for iShares Core MSCI EAFE ETF (IEFA) 200000 million USD?",
+    "response": "No."
+  },
+  {
+    "prompt": "Does Vanguard Growth ETF (VUG) have a 30 Days Volatility of 5000000?",
+    "response": "No."
+  },
+  {
+    "prompt": "Is the 1 Year NAV Tracking Error for Vanguard Value ETF (VTV) 0.50%?",
+    "response": "No."
+  },
+  {
+    "prompt": "How has the DIVP ETF performed this year, and what are the fees associated with it?",
+    "response": "The DIVP ETF has a year-to-date return of 572.631% and an expense ratio of 0.55%."
+  },
+  {
+    "prompt": "Could you summarize the key characteristics of the DIVP ETF for me, please?",
+    "response": "The DIVP ETF, managed by Cullen Capital Management LLC, focuses on equity investments in the United States. It has 7.76 million USD in assets, a 12-month yield of +0.70%%, and uses derivatives in its strategy."
+  },
+  {
+    "prompt": "I'm interested in the DIVP ETF. What's its investment strategy and does it pay out income?",
+    "response": "The DIVP ETF follows a blended equity investment strategy and its payment type is income."
+  },
+  {
+    "prompt": "Is the DIVP ETF new? When was it launched?",
+    "response": "The DIVP ETF was launched on March 6, 2024."
+  },
+  {
+    "prompt": "What are the typical daily trading costs associated with the DIVP ETF?",
+    "response": "The DIVP ETF has an average bid-ask spread of 0.47%%."
+  },
+  {
+    "prompt": "How many different stocks or assets does the DIVP ETF hold in its portfolio?",
+    "response": "The DIVP ETF holds 47.0 different assets."
+  },
+  {
+    "prompt": "Has there been much interest in the DIVP ETF this year, and how much trading has occurred?",
+    "response": "The DIVP ETF has seen a year-to-date flow of 6.34 million USD and a total asset value traded of 79121 USD."
+  },
+  {
+    "prompt": "I'm looking for an ETF with exposure to the U.S. equity market. Would the DIVP ETF be a good fit?",
+    "response": "Yes, the DIVP ETF focuses on equity investments in the United States."
+  },
+  {
+    "prompt": "Can you tell me if the DIVP ETF has any limitations on who can invest in it?",
+    "response": "The regulatory structure of the DIVP ETF is unknown, so it's unclear if there are any specific investor limitations."
+  },
+  {
+    "prompt": "Does the DIVP ETF use any leverage in its investment strategy?",
+    "response": "No, the DIVP ETF does not use leverage."
+  },
+  {
+    "prompt": "Please recommend a portfolio allocation for the top 5 ETFs in the US IT sector.",
+    "response": "For a portfolio focused on the top 5 ETFs in the US IT sector, I would recommend the following allocation:\n\n- 35% - Technology Select Sector SPDR Fund (XLK)\n- 25% - Vanguard Information Technology ETF (VGT)\n- 15% - iShares U.S. Technology ETF (IYW)\n- 15% - Fidelity MSCI Information Technology Index ETF (FTEC)\n- 10% - Invesco QQQ Trust (QQQ)\n\nThis provides broad exposure to the large-cap US technology sector, with a mix of sector-specific funds and a Nasdaq-focused fund. The weightings aim to balance diversification while overweighting the largest and most liquid funds in the space."
+  },
+  {
+    "prompt": "What would be a good ETF portfolio allocation for someone looking for balanced exposure to US stocks, bonds, and real estate?",
+    "response": "For a balanced portfolio with exposure to US stocks, bonds, and real estate, I would recommend the following ETF allocation:\n\n- 50% - Vanguard Total Stock Market ETF (VTI)\n- 30% - Vanguard Total Bond Market ETF (BND)\n- 20% - Vanguard Real Estate ETF (VNQ)\n\nThis 50/30/20 split provides a solid core allocation, with about half in broad US equities, 30% in US investment-grade bonds, and 20% in US real estate. This balanced approach aims to capture returns from multiple asset classes while managing overall portfolio risk. The Vanguard funds are low-cost, broad-market options that can serve as a strong foundation for this type of diversified portfolio."
+  },
+  {
+    "prompt": "I'm interested in tilting my portfolio towards small-cap and value stocks. Can you suggest an ETF portfolio for that strategy?",
+    "response": "For a portfolio tilted towards small-cap and value stocks, I would recommend the following ETF allocation:\n\n- 35% - iShares S&P Small-Cap 600 Value ETF (IJS)\n- 30% - Vanguard Small-Cap Value ETF (VBR)\n- 20% - Vanguard Value ETF (VTV)\n- 15% - iShares Russell 2000 Value ETF (IWN)\n\nThis portfolio overweights exposure to the small-cap value segment of the US equity market, which has historically outperformed over the long-term. The core holdings are the iShares and Vanguard funds that track small-cap and value indices. This tilt aims to capture the potential outperformance of these factors, while still maintaining reasonable diversification across the small-cap and value stock universe."
+  },
+  {
+    "prompt": "Please recommend a portfolio allocation for the top 5 ETFs in the US IT sector.",
+    "response": "A diversified portfolio allocation for the top 5 US IT sector ETFs could be: 25% in Vanguard Information Technology ETF (VGT), 20% in Technology Select Sector SPDR Fund (XLK), 20% in iShares U.S. Technology ETF (IYW), 15% in Invesco QQQ Trust (QQQ), and 20% in First Trust NASDAQ-100 Technology Sector Index Fund (QTEC). This distribution balances exposure to large-cap tech companies and specific tech sub-sectors."
+  },
+  {
+    "prompt": "How should I allocate my ETF portfolio to maximize dividend yield while maintaining diversity?",
+    "response": "To maximize dividend yield while maintaining diversity, consider allocating 30% to Vanguard High Dividend Yield ETF (VYM), 25% to iShares Select Dividend ETF (DVY), 20% to SPDR S&P Dividend ETF (SDY), 15% to Invesco S&P 500 High Dividend Low Volatility ETF (SPHD), and 10% to Schwab U.S. Dividend Equity ETF (SCHD). This mix ensures exposure to high-yield dividends across different sectors."
+  },
+  {
+    "prompt": "What is a balanced ETF portfolio allocation for a moderate risk tolerance investor?",
+    "response": "For a moderate risk tolerance investor, a balanced ETF portfolio allocation could be: 40% in Vanguard Total Stock Market ETF (VTI) for broad US equity exposure, 20% in iShares MSCI EAFE ETF (EFA) for international developed markets, 20% in Vanguard Total Bond Market ETF (BND) for bond exposure, 10% in iShares MSCI Emerging Markets ETF (EEM) for emerging markets, and 10% in SPDR Gold Shares (GLD) for a hedge against inflation and market volatility."
+  }
+]
