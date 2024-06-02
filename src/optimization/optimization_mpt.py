@@ -155,10 +155,7 @@ def optimizer(tickers=test_tickers, main=False):
                 tickers, test_prices_file, risk_free_rate
             )
             print(opt_instance_test)
-        optimizer = opt_instance_test
-
-    portfolio_details = optimizer.get_portfolio_details()
-    
+        optimizer = opt_instance_test   
 
     # in future we will need to use something other than {portfolio_details[...]}
     template = f"""
@@ -169,3 +166,4 @@ def optimizer(tickers=test_tickers, main=False):
     Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}
     Information Ratio: {portfolio_details['information_ratio']:.2f}"""
     return template
+
