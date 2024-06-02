@@ -1,0 +1,74 @@
+[
+  {
+    "prompt": "Is SPDR S&P 500 ETF Trust (SPY) 1 Day Return 0.13%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Does iShares Core S&P 500 ETF (IVV) have an Expense Ratio of 0.04%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Does Vanguard S&P 500 ETF (VOO) have a Month-To-Date Return of 3.75%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Is the Average Bid Ask Spread for Invesco QQQ Trust Series 1 (QQQ) 0.00%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Does Vanguard Total Stock Market ETF (VTI) hold 3758.0 stocks?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Is the 1 Month Flow for Vanguard FTSE Developed Markets ETF (VEA) 569.23?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Are the Class Assets for iShares Core MSCI EAFE ETF (IEFA) 117385.38 million USD?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Does Vanguard Growth ETF (VUG) have a 30 Days Volatility of 1084610?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Is the 1 Year NAV Tracking Error for Vanguard Value ETF (VTV) 0.0948%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "Is SPDR S&P 500 ETF Trust (SPY) 1 Day Return +0.20%?",
+    "response": "No"
+  },
+  {
+    "prompt": "Does iShares Core S&P 500 ETF (IVV) have an Expense Ratio of 0.10%?",
+    "response": "No"
+  },
+  {
+    "prompt": "Does Vanguard S&P 500 ETF (VOO) have a Month-To-Date Return of +5.00%?",
+    "response": "No"
+  },
+  {
+    "prompt": "Is the Average Bid Ask Spread for Invesco QQQ Trust Series 1 (QQQ) 0.05%?",
+    "response": "No"
+  },
+  {
+    "prompt": "Does Vanguard Total Stock Market ETF (VTI) hold 4000.0 stocks?",
+    "response": "No"
+  },
+  {
+    "prompt": "Is the 1 Month Flow for Vanguard FTSE Developed Markets ETF (VEA) 1000?",
+    "response": "No"
+  },
+  {
+    "prompt": "Are the Class Assets for iShares Core MSCI EAFE ETF (IEFA) 200000 million USD?",
+    "response": "No"
+  },
+  {
+    "prompt": "Does Vanguard Growth ETF (VUG) have a 30 Days Volatility of 5000000?",
+    "response": "No"
+  },
+  {
+    "prompt": "Is the 1 Year NAV Tracking Error for Vanguard Value ETF (VTV) 0.50%?",
+    "response": "No"
+  }
+]
