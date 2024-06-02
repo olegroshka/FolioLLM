@@ -165,3 +165,7 @@ cython_debug/
 /models/
 /src/pipeline/fine_tuned_model/
 /data/tmp/
+
+# Ignore all wandb files and directories
+wandb/
+**/wandb/

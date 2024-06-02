@@ -7,11 +7,10 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequen
 from transformers.generation import TextStreamer
 import os
 
-from src.optimization.optimization_mpt import optimizer
 
 # kostyli
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__name__), '..', 'optimization')))
-
+from optimization_mpt import optimizer, test_tickers
 
 model_name = "FINGU-AI/FinguAI-Chat-v1"
 # output_dir = '../pipeline/fine_tuned_model/' + model_name
@@ -27,35 +26,35 @@ model.eval()
 classifier.eval()
 
 
-def optimization_prediction_ez(text: str) -> int:
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True)
-    logits = classifier(**inputs).logits
-    return torch.argmax(logits, dim=-1).item()
-
 # Function to classify text
 def optimization_prediction(text: str) -> int:
     inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True)
+    logits = classifier(**inputs).logits
+    print(f"Logits: {logits}")
+    return torch.argmax(logits, dim=-1).item()
+
+    # inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True)
     
-    # Perform forward pass to get logits
-    with torch.no_grad():
-        outputs = classifier(**inputs)
+    # # Perform forward pass to get logits
+    # with torch.no_grad():
+    #     outputs = classifier(**inputs)
     
-    # Get the logits and apply softmax to get probabilities; not needed
-    logits = outputs.logits
-    probs = torch.nn.functional.softmax(logits, dim=-1)
+    # # Get the logits and apply softmax to get probabilities; not needed
+    # logits = outputs.logits
+    # probs = torch.nn.functional.softmax(logits, dim=-1)
     
-    # Get the predicted class (0 or 1)
-    predicted_class = torch.argmax(probs, dim=-1).item()
+    # # Get the predicted class (0 or 1)
+    # predicted_class = torch.argmax(probs, dim=-1).item()
        
-    # Print the intermediate values for debugging
-    print(f"Probabilities: {probs}")
+    # # Print the intermediate values for debugging
+    # print(f"Probabilities: {probs}")
     
-    return predicted_class
+    # return predicted_class
 
 
 def extract_tickers(history):
     #TODO
-    return ['SPY US', 'IVY US', 'VO US', '510050 CH']
+    return test_tickers
 
 
 def optim_generation(user_input, history):
@@ -104,6 +103,7 @@ def optim_generation(user_input, history):
 
     # Append the conversation to history
     history.append((user_input, combined_response))
+    return history
 
 
 def respond(inp, hist=[]):
@@ -166,18 +166,18 @@ def raw_generation(user_input, history):
 
 
 # Create the Gradio interface
-# with gr.Blocks() as demo:
-#     chatbot = gr.Chatbot(label="FolioLLM")
-#     with gr.Row():
-#         txt = gr.Textbox(show_label=False, placeholder="Type your message here...")  # Removed .style
-#         btn = gr.Button("Send")
+with gr.Blocks() as demo:
+    chatbot = gr.Chatbot(label="FolioLLM")
+    with gr.Row():
+        txt = gr.Textbox(show_label=False, placeholder="Type your message here...")  # Removed .style
+        btn = gr.Button("Send")
 
 
-#     def submit_message(user_input, history=[]):
-#         new_history = respond(user_input, history)
-#         return new_history, ""
+    def submit_message(user_input, history=[]):
+        new_history = respond(user_input, history)
+        return new_history, ""
 
 
-#     btn.click(submit_message, [txt, chatbot], [chatbot, txt])
+    btn.click(submit_message, [txt, chatbot], [chatbot, txt])
 
-#demo.launch()
+demo.launch()
