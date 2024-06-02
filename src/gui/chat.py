@@ -1,7 +1,8 @@
-import gradio as gr
+import random
 import re
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+import gradio as gr
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers.generation import TextStreamer
 
 # Define the model name and the directory where the fine-tuned model is located
@@ -17,7 +18,21 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 
 
-def respond(user_input, history):
+def optimization_prediction(user_input):
+    # TODO: Improve
+    return random.random()
+
+
+def optim_generation(user_input, history):
+    # TODO: Extract Tickers
+    # TODO: add main_optimizer_mpt(tickers) call
+    answer = "50% ABC\n25% CDE\n25DEF"
+    # TODO: add Fingu reasoning (posterior explaination)
+    history.append((user_input, answer))
+
+respond = lambda inp, hist: raw_generation(inp, hist) if optimization_prediction(inp) > 0.5 else optim_generation(inp, hist)
+
+def raw_generation(user_input, history):
     context = "You are chatting with a helpful assistant."  # Define your system context
     messages = [
         {"role": "system", "content": context},
@@ -69,8 +84,7 @@ with gr.Blocks() as demo:
         btn = gr.Button("Send")
 
 
-    def submit_message(user_input, history):
-        history = history or []
+    def submit_message(user_input, history=[]):
         new_history = respond(user_input, history)
         return new_history, ""
 
