@@ -4,6 +4,8 @@ import datetime as dt
 from scipy.optimize import minimize
 
 
+test_tickers = ['SPY US Equity', 'IVV US Equity', 'VO US Equity', '510050 CH Equity']
+
 class PortfolioOptimizer:
     def __init__(self, tickers, data_file, risk_free_rate=0.05):
         self.tickers = tickers
@@ -123,7 +125,7 @@ class PortfolioOptimizer:
             'information_ratio': information_ratio
         }
 
-def optimizer(tickers=['SPY US', 'IVY US', 'VO US', '510050 CH'], main=True):
+def optimizer(tickers=test_tickers, main=True):
     if main:
         data_file = '../../data/etf_prices.xlsx'
     else:
@@ -147,10 +149,11 @@ def optimizer(tickers=['SPY US', 'IVY US', 'VO US', '510050 CH'], main=True):
         
 
 def main_optimizer_mpt(
-        tickers=['SPY US', 'IVY US', 'VO US', '510050 CH']
+        tickers=test_tickers
         ):
     return optimizer(tickers, main=True)
 
 
-def test_optimizer(tickers=['SPY US', 'IVY US', 'VO US', '510050 CH']):
+def test_optimizer(tickers=test_tickers):
     return optimizer(tickers, main=False)
+
