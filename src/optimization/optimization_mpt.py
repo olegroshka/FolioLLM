@@ -2,9 +2,21 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 from scipy.optimize import minimize
-
+import os
 
 test_tickers = ['SPY US Equity', 'IVV US Equity', 'VO US Equity', '510050 CH Equity']
+
+opt_instance_test = None
+opt_instance_main = None
+
+current_file_path = os.path.abspath(os.path.dirname(__file__))
+
+# Resolve the absolute path of the relative file
+abs_path = lambda path: os.path.abspath(os.path.join(current_file_path, path))
+
+main_prices_file = abs_path('../../data/etf_prices.xlsx')
+test_prices_file = abs_path('../../data/test_prices.xlsx')
+
 
 class PortfolioOptimizer:
     def __init__(self, tickers, data_file, risk_free_rate=0.05):
@@ -125,20 +137,31 @@ class PortfolioOptimizer:
             'information_ratio': information_ratio
         }
 
-def optimizer(tickers=test_tickers, main=True):
+def optimizer(tickers=test_tickers, main=False):
+    global opt_instance_main, opt_instance_test
+    risk_free_rate = 0.05
     if main:
-        data_file = '../../data/etf_prices.xlsx'
+        print(opt_instance_main)
+        if not opt_instance_main:
+            opt_instance_main = PortfolioOptimizer(
+                tickers, main_prices_file, risk_free_rate
+            )
+            print(opt_instance_main)
+        optimizer = opt_instance_main
     else:
-        data_file = r'../../data/test_prices.xlsx'
+        print(opt_instance_test)
+        if not opt_instance_test:
+            opt_instance_test = PortfolioOptimizer(
+                tickers, test_prices_file, risk_free_rate
+            )
+            print(opt_instance_test)
+        optimizer = opt_instance_test
 
-    risk_free_rate = 0.05  # 5% annual risk-free rate
-
-    optimizer = PortfolioOptimizer(tickers, data_file, risk_free_rate)
     portfolio_details = optimizer.get_portfolio_details()
+    
 
-
+    # in future we will need to use something other than {portfolio_details[...]}
     template = f"""
-    Weights:
     {portfolio_details['weights_table']}
     Annualized Return: {portfolio_details['annualized_return']:.2%}
     Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}
@@ -146,14 +169,3 @@ def optimizer(tickers=test_tickers, main=True):
     Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}
     Information Ratio: {portfolio_details['information_ratio']:.2f}"""
     return template
-        
-
-def main_optimizer_mpt(
-        tickers=test_tickers
-        ):
-    return optimizer(tickers, main=True)
-
-
-def test_optimizer(tickers=test_tickers):
-    return optimizer(tickers, main=False)
-

@@ -9,7 +9,9 @@ import os
 
 
 # kostyli
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__name__), '..', 'optimization')))
+current_file_path = os.path.abspath(os.path.dirname(__file__))
+optimization_path = os.path.abspath(os.path.join(current_file_path, '../optimization'))
+sys.path.append(optimization_path)
 from optimization_mpt import optimizer, test_tickers
 
 model_name = "FINGU-AI/FinguAI-Chat-v1"
@@ -26,30 +28,18 @@ model.eval()
 classifier.eval()
 
 
+context_message = (
+    "You are a financial specialist specializing in ETF portfolio construction and optimization. "
+    "Your role is to assist users by providing accurate, timely, and insightful information to guide their investment decisions. "
+    "Consider their risk tolerance, investment goals, and market conditions when offering advice."
+)
+
 # Function to classify text
 def optimization_prediction(text: str) -> int:
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True)
+    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True).to(device)
     logits = classifier(**inputs).logits
     print(f"Logits: {logits}")
-    return torch.argmax(logits, dim=-1).item()
-
-    # inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True)
-    
-    # # Perform forward pass to get logits
-    # with torch.no_grad():
-    #     outputs = classifier(**inputs)
-    
-    # # Get the logits and apply softmax to get probabilities; not needed
-    # logits = outputs.logits
-    # probs = torch.nn.functional.softmax(logits, dim=-1)
-    
-    # # Get the predicted class (0 or 1)
-    # predicted_class = torch.argmax(probs, dim=-1).item()
-       
-    # # Print the intermediate values for debugging
-    # print(f"Probabilities: {probs}")
-    
-    # return predicted_class
+    return torch.argmax(logits, dim=-1).detach().item()
 
 
 def extract_tickers(history):
@@ -59,9 +49,7 @@ def extract_tickers(history):
 
 def optim_generation(user_input, history):
     tickers = extract_tickers(history)
-    initial_allocation = optimizer(tickers, main=False) # main doesnt work
-
-    context_message = "You are chatting with a helpful assistant."
+    initial_allocation = optimizer(tickers, main=True)  # main doesn't work
 
     # Construct the conversation messages
     messages = [
@@ -71,17 +59,23 @@ def optim_generation(user_input, history):
     ]
 
     # Prompt the model to explain the allocation
-    follow_up_question = "Can you explain why these ETFs were chosen for the allocation?"
+    follow_up_question = (
+        "As the financial expert who generated this ETF allocation, can you explain the reasoning behind it in detail? "
+        "Please provide insights on why each specific ETF was selected, how they align with the investment goals and market conditions, "
+        "and the benefits of each ETF in this portfolio."
+    )
+
     messages.append({"role": "user", "content": follow_up_question})
 
     # Tokenize the chat messages
     tokenized_messages = tokenizer.apply_chat_template(
-        messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
+        messages, tokenize=True, add_generation_prompt=True,
+        return_tensors="pt"
     ).to(device)
 
     # Define generation parameters
     generation_parameters = {
-        'max_new_tokens': 100,
+        'max_new_tokens': 200,
         'use_cache': True,
         'do_sample': True,
         'temperature': 0.7,
@@ -90,20 +84,21 @@ def optim_generation(user_input, history):
         'eos_token_id': tokenizer.eos_token_id,
     }
 
-    # Use a streamer for generating the response
-    streamer = TextStreamer(tokenizer)
-
     # Generate the response
-    outputs = model.generate(tokenized_messages, **generation_parameters, streamer=streamer)
+    outputs = model.generate(tokenized_messages, **generation_parameters)
     decoded_output = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     generated_explanation = decoded_output[0]
 
+    # Extract only the assistant's explanation from the generated output
+    explanation = generated_explanation.split("assistant")[-1].strip()
+
     # Combine the initial allocation with the generated explanation
-    combined_response = f"{initial_allocation}\n\n{generated_explanation.strip()}"
+    combined_response = f"{initial_allocation}\n\n{explanation}"
 
     # Append the conversation to history
     history.append((user_input, combined_response))
     return history
+
 
 
 def respond(inp, hist=[]):
@@ -119,13 +114,8 @@ def respond(inp, hist=[]):
 
 
 def raw_generation(user_input, history):
-    context = (
-        "You are a financial specialist specializing in ETF portfolio construction and optimization. "
-        "Your role is to assist users by providing accurate, timely, and insightful information to guide their investment decisions. "
-        "Consider their risk tolerance, investment goals, and market conditions when offering advice."
-    )
     messages = [
-        {"role": "system", "content": context},
+        {"role": "system", "content": context_message},
         {"role": "user", "content": user_input},
     ]
     # Tokenize the chat template
