@@ -1,0 +1,198 @@
+[
+  {
+    "prompt": "What is the expense ratio of SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "0.09%"
+  },
+  {
+    "prompt": "What is the 1 Day Return for iShares Core S&P 500 ETF (IVV)?",
+    "response": "+0.17%"
+  },
+  {
+    "prompt": "Does Vanguard S&P 500 ETF (VOO) have a Month-To-Date Return of +3.75%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "What is the 30 Days Volatility of Vanguard Total Stock Market ETF (VTI)?",
+    "response": "2976170"
+  },
+  {
+    "prompt": "What is the 1 Year NAV Tracking Error for Invesco QQQ Trust Series 1 (QQQ)?",
+    "response": "0.0141%"
+  },
+  {
+    "prompt": "How many holdings does Vanguard FTSE Developed Markets ETF (VEA) have?",
+    "response": "4111.0"
+  },
+  {
+    "prompt": "What is the Year-To-Date Return for Vanguard Growth ETF (VUG)?",
+    "response": "+10.74%"
+  },
+  {
+    "prompt": "What is the average bid ask spread for iShares Core MSCI EAFE ETF (IEFA)?",
+    "response": "0.01%"
+  },
+  {
+    "prompt": "Does Vanguard Value ETF (VTV) have an Expense Ratio of 0.04%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "What is the 1 Month Flow for SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "-7267.63"
+  },
+  {
+    "prompt": "What is the 1 Day Volume for iShares Core S&P 500 ETF (IVV)?",
+    "response": "2421321"
+  },
+  {
+    "prompt": "What is the Fund Manager Stated Fee for Vanguard S&P 500 ETF (VOO)?",
+    "response": "0.03%"
+  },
+  {
+    "prompt": "What is the 1 Year NAV Tracking Error for Vanguard Total Stock Market ETF (VTI)?",
+    "response": "0.0318%"
+  },
+  {
+    "prompt": "What is the aggregated value traded for Invesco QQQ Trust Series 1 (QQQ)?",
+    "response": "12023540650"
+  },
+  {
+    "prompt": "What is the Expense Ratio for Vanguard FTSE Developed Markets ETF (VEA)?",
+    "response": "0.06%"
+  },
+  {
+    "prompt": "What is the 1 Day Return for Vanguard Growth ETF (VUG)?",
+    "response": "-0.06%"
+  },
+  {
+    "prompt": "What is the 1 Year NAV Tracking Error for iShares Core MSCI EAFE ETF (IEFA)?",
+    "response": "3.7063%"
+  },
+  {
+    "prompt": "Does Vanguard Value ETF (VTV) have a 30 Days Volatility of 2199063?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "What is the 1 Day Return for SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "+0.13%"
+  },
+  {
+    "prompt": "Does iShares Core S&P 500 ETF (IVV) have a Year-To-Date Return of +13.26%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "How many holdings does Vanguard S&P 500 ETF (VOO) have?",
+    "response": "510.0"
+  },
+  {
+    "prompt": "What is the 1 Month Flow for Vanguard Total Stock Market ETF (VTI)?",
+    "response": "2962.57"
+  },
+  {
+    "prompt": "What is the aggregated volume for Invesco QQQ Trust Series 1 (QQQ)?",
+    "response": "27201248"
+  },
+  {
+    "prompt": "What is the premium for Vanguard FTSE Developed Markets ETF (VEA)?",
+    "response": "+0.10%"
+  },
+  {
+    "prompt": "What is the Expense Ratio for Vanguard Growth ETF (VUG)?",
+    "response": "0.04%"
+  },
+  {
+    "prompt": "What is the 1 Day Return for iShares Core MSCI EAFE ETF (IEFA)?",
+    "response": "+0.16%"
+  },
+  {
+    "prompt": "What is the 1 Year NAV Tracking Error for Vanguard Value ETF (VTV)?",
+    "response": "0.0948%"
+  },
+  {
+    "prompt": "What is the Class Assets for SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "514613.75"
+  },
+  {
+    "prompt": "What is the Fund Assets for iShares Core S&P 500 ETF (IVV)?",
+    "response": "5151.89"
+  },
+  {
+    "prompt": "What is the 1 Day Volume for Vanguard S&P 500 ETF (VOO)?",
+    "response": "3347159"
+  },
+  {
+    "prompt": "What is the Year-To-Date Flow for Vanguard Total Stock Market ETF (VTI)?",
+    "response": "12076.4"
+  },
+  {
+    "prompt": "What is the aggregated volume for SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "52326300"
+  },
+  {
+    "prompt": "What is the 1 Day Return for Vanguard FTSE Developed Markets ETF (VEA)?",
+    "response": "+0.04%"
+  },
+  {
+    "prompt": "What is the 1 Year NAV Tracking Error for Vanguard Growth ETF (VUG)?",
+    "response": "0.0139%"
+  },
+  {
+    "prompt": "What is the average bid ask spread for Vanguard Value ETF (VTV)?",
+    "response": "0.01%"
+  },
+  {
+    "prompt": "What is the Year-To-Date Return for SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "+9.92%"
+  },
+  {
+    "prompt": "What is the 30 Days Volatility for iShares Core S&P 500 ETF (IVV)?",
+    "response": "395957"
+  },
+  {
+    "prompt": "Does Vanguard S&P 500 ETF (VOO) have a Year-To-Date Return of +9.95%?",
+    "response": "Yes"
+  },
+  {
+    "prompt": "What is the 1 Month Flow for Vanguard FTSE Developed Markets ETF (VEA)?",
+    "response": "569.23"
+  },
+  {
+    "prompt": "What is the aggregated value traded for SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "27254010699"
+  },
+  {
+    "prompt": "What is the premium for Vanguard Growth ETF (VUG)?",
+    "response": "0%"
+  },
+  {
+    "prompt": "What is the 1 Day Volume for Vanguard FTSE Developed Markets ETF (VEA)?",
+    "response": "8819984"
+  },
+  {
+    "prompt": "What is the 1 Year NAV Tracking Error for SPDR S&P 500 ETF Trust (SPY)?",
+    "response": "0.0224%"
+  },
+  {
+    "prompt": "What is the Expense Ratio for Invesco QQQ Trust Series 1 (QQQ)?",
+    "response": "0.20%"
+  },
+  {
+    "prompt": "What is the 1 Day Volume for Vanguard Growth ETF (VUG)?",
+    "response": "568255"
+  },
+  {
+    "prompt": "What is the Year-To-Date Flow for iShares Core MSCI EAFE ETF (IEFA)?",
+    "response": "4087.94"
+  },
+  {
+    "prompt": "What is the Fund Assets for Vanguard Value ETF (VTV)?",
+    "response": "115966.19"
+  },
+  {
+    "prompt": "What is the 1 Month Flow for Vanguard Growth ETF (VUG)?",
+    "response": "2307.05"
+  },
+  {
+    "prompt": "What is the Year-To-Date Return for Invesco QQQ Trust Series 1 (QQQ)?",
+    "response": "+8.09%"
+  }
+]

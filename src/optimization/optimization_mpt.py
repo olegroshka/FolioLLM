@@ -124,7 +124,7 @@ class PortfolioOptimizer:
         }
 
 def optimizer(tickers=['SPY US', 'IVY US', 'VO US', '510050 CH'], main=True):
-a    if main:
+    if main:
         data_file = '../../data/etf_prices.xlsx'
     else:
         data_file = r'../../data/test_prices.xlsx'

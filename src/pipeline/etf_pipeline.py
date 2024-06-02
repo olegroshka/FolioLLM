@@ -41,8 +41,8 @@ class ETFAdvisorPipeline:
         self.eval_model(base_model, base_tokenizer, "base")
 
         # Step 2: Fine-tune the model
-        #finetuned_model, finetuned_tokenizer = self.finetune_model(base_model, base_tokenizer)
-        finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
+        finetuned_model, finetuned_tokenizer = self.finetune_model(base_model, base_tokenizer)
+        #finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
 
         # Step 3: Evaluate the fine-tuned model
         self.eval_model(finetuned_model, finetuned_tokenizer, "finetuned")
@@ -61,7 +61,7 @@ class ETFAdvisorPipeline:
 
     def finetune_model(self, model, tokenizer):
         print("\nFine-tuning the model on structured ETF data...")
-        trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=512)
+        trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=1024)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
         trainer_structured_json.save_model(self.output_dir)
@@ -92,9 +92,9 @@ class ETFAdvisorPipeline:
 
         if self.mode == "lora":
             peft_config = LoraConfig(
-                r=self.rank_config.get("r", 8),
-                lora_alpha=self.rank_config.get("alpha", 32),
-                lora_dropout=0.1,
+                r=self.rank_config.get("r", 16),
+                lora_alpha=self.rank_config.get("alpha", 64),
+                lora_dropout=0.2,
                 bias="none",
                 task_type="CAUSAL_LM",
                 target_modules=[
@@ -102,6 +102,7 @@ class ETFAdvisorPipeline:
                     "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
                 ]
             )
+            print("lora config:" + str(peft_config))
             model = get_peft_model(model, peft_config)
             #model = LoRAModel.from_pretrained(self.model_name)
         elif self.mode == "mora":
@@ -137,9 +138,9 @@ class ETFAdvisorPipeline:
 
         if self.mode == "lora":
             peft_config = LoraConfig(
-                r=self.rank_config.get("r", 8),
-                lora_alpha=self.rank_config.get("alpha", 32),
-                lora_dropout=0.1,
+                r=self.rank_config.get("r", 16),
+                lora_alpha=self.rank_config.get("alpha", 64),
+                lora_dropout=0.2,
                 bias="none",
                 task_type="CAUSAL_LM",
                 target_modules=[
@@ -176,7 +177,7 @@ def main():
 
     json_structured_file = '../../data/etf_data_v3_plain.json'
     json_prompt_response_file = '../../data/tmp/etf_training_data_v2.json'
-    test_prompts_file = '../../data/basic-competency-test-prompts-2.json'
+    test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
     model_name = 'FINGU-AI/FinguAI-Chat-v1'
     #model_name = 'gpt2'
 
@@ -188,8 +189,8 @@ def main():
     test_prompts = load_test_prompts(test_prompts_file)
 
     rank_config = {
-        "r": 8,
-        "alpha": 32
+        "r": 128, #16
+        "alpha": 512 #64
     }
 
     pipeline = ETFAdvisorPipeline(

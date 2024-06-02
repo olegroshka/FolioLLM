@@ -7,9 +7,10 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequen
 from transformers.generation import TextStreamer
 import os
 
+from src.optimization.optimization_mpt import optimizer
+
 # kostyli
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__name__), '..', 'optimization')))
-from optimization_mpt import optimizer
 
 
 model_name = "FINGU-AI/FinguAI-Chat-v1"
