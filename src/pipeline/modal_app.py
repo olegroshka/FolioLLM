@@ -11,7 +11,7 @@ image = modal.Image.debian_slim().pip_install_from_requirements("requirements.tx
 app = modal.App(
     "FolioLLM-pipeline",
     image=image,
-    secrets=[Secret.from_name("huggingface"), Secret.from_name("my-wandb-secret")]
+    secrets=[Secret.from_name("my-huggingface-secret"), Secret.from_name("my-wandb-secret")]
 )
 
 @app.function()
