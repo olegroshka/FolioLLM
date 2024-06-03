@@ -245,17 +245,18 @@ def run_pipeline(
         num_train_epochs=3,
         weight_decay=0.01,
         gradient_accumulation_steps=64,
-        model_name = 'FINGU-AI/FinguAI-Chat-v1',
-        json_structured_file = '../../data/etf_data_v3_plain.json',
-        test_prompts_file = '../../data/basic-competency-test-prompts-1.json',
-        json_prompt_response_template_file = "../../data/training-template-adv.json",
-        json_prompt_response_file_cleaned = "../../data/etf_data_v3_clean.json"):
+        model_name='FINGU-AI/FinguAI-Chat-v1',
+        json_structured_file='../../data/etf_data_v3_plain.json',
+        test_prompts_file='../../data/basic-competency-test-prompts-1.json',
+        json_prompt_response_template_file="../../data/training-template-adv.json",
+        json_prompt_response_file_cleaned="../../data/etf_data_v3_clean.json",
+        output_dir='./fine_tuned_model/'):
 
     #model_name = 'gpt2'
 
     wandb.init(project="FolioLLM")  # Initialize wandb
 
-    output_dir = './fine_tuned_model/' + model_name
+    output_dir = output_dir + model_name
     detailed = True  # Set to False if you only want average scores
 
     etf_structured_dataset = load_etf_text_dataset(json_structured_file)

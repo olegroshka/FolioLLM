@@ -13,7 +13,8 @@ app = modal.App(
     image=image,
     secrets=[Secret.from_name("my-huggingface-secret"), Secret.from_name("my-wandb-secret")],
     mounts=[
-        modal.Mount.from_local_dir("data", remote_path="/root/data")
+        modal.Mount.from_local_dir("data", remote_path="/root/data"),
+        modal.Mount.from_local_dir("fine_tuned_model", remote_path="/root/fine_tuned_model", mode="rw")
     ]
 )
 
@@ -44,7 +45,9 @@ def run():
         json_structured_file=etf_data_palin_file,
         test_prompts_file=test_prompts_file,
         json_prompt_response_template_file=training_prompts_template_file,
-        json_prompt_response_file_cleaned=etf_data_palin_file)
+        json_prompt_response_file_cleaned=etf_data_palin_file,
+        output_dir="/root/fine_tuned_model"
+    )
 
 @app.local_entrypoint()
 def main():
