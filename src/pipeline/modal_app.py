@@ -1,12 +1,11 @@
 import modal
-
 from src.pipeline.etf_pipeline import run_pipeline
 
-image = modal.Image.debian_slim().pip_install_from_requirements("/mnt/data/requirements.txt")
+# Create an image with the necessary dependencies from requirements.txt
+image = modal.Image.debian_slim().pip_install_from_requirements("requirements.txt")
 
-app = modal.App(
-    "FolioLLM-pipeline"
-)  # Note: prior to April 2024, "app" was called "stub"
+# Define the application
+app = modal.App("FolioLLM-pipeline", image=image)
 
 @app.function()
 def run():
