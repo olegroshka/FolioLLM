@@ -184,18 +184,16 @@ def load_test_prompts(json_file):
         test_prompts = json.load(file)
     return test_prompts
 
-def run_pipeline():
-    wandb.init(project="FolioLLM")  # Initialize wandb
+def run_pipeline(
+        model_name = 'FINGU-AI/FinguAI-Chat-v1',
+        json_structured_file = '../../data/etf_data_v3_plain.json',
+        test_prompts_file = '../../data/basic-competency-test-prompts-1.json',
+        json_prompt_response_template_file = "../../data/training-template-adv.json",
+        json_prompt_response_file_cleaned = "../../data/etf_data_v3_clean.json"):
 
-    json_structured_file = '../../data/etf_data_v3_plain.json'
-    json_prompt_response_file = '../../data/tmp/etf_training_data_v2.json'
-    test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
-
-    json_prompt_response_template_file = "../../data/training-template-adv.json"
-    json_prompt_response_file_cleaned = "../../data/etf_data_v3_clean.json"
-
-    model_name = 'FINGU-AI/FinguAI-Chat-v1'
     #model_name = 'gpt2'
+
+    wandb.init(project="FolioLLM")  # Initialize wandb
 
     output_dir = './fine_tuned_model/' + model_name
     detailed = True  # Set to False if you only want average scores
