@@ -14,7 +14,7 @@ app = modal.App(
     secrets=[Secret.from_name("my-huggingface-secret"), Secret.from_name("my-wandb-secret")],
     mounts=[
         modal.Mount.from_local_dir("data", remote_path="/root/data"),
-        modal.Mount.from_local_dir("fine_tuned_model", remote_path="/root/fine_tuned_model")
+        modal.Mount.from_local_dir("src/pipeline/fine_tuned_model", remote_path="/root/fine_tuned_model")
     ]
 )
 
