@@ -165,7 +165,8 @@ class ETFTrainer:
                 gradient_accumulation_steps=self.gradient_accumulation_steps,
                 logging_dir=f'./logs_fold_{fold}',
                 fp16=True,
-                bf16=False
+                #bf16=False,
+                logging_steps=1
             )
 
             trainer = Trainer(

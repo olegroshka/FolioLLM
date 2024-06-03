@@ -265,8 +265,8 @@ def run_pipeline(
     test_prompts = load_test_prompts(test_prompts_file)
 
     rank_config = {
-        "r": 32, #16
-        "alpha": 128 #64
+        "r": 128, #16
+        "alpha": 512 #64
     }
 
     pipeline = ETFAdvisorPipeline(
