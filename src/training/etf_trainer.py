@@ -100,12 +100,12 @@ class ETFTrainer:
         self.etf_dataset = etf_dataset
         self.tokenize_function = tokenize_function
         self.test_prompts = test_prompts
-        self.eval_steps = eval_steps,
-        self.learning_rate = learning_rate,
-        self.per_device_train_batch_size = per_device_train_batch_size,
-        self.per_device_eval_batch_size = per_device_eval_batch_size,
-        self.num_train_epochs = num_train_epochs,
-        self.weight_decay = weight_decay,
+        self.eval_steps = eval_steps
+        self.learning_rate = learning_rate
+        self.per_device_train_batch_size = per_device_train_batch_size
+        self.per_device_eval_batch_size = per_device_eval_batch_size
+        self.num_train_epochs = num_train_epochs
+        self.weight_decay = weight_decay
         self.gradient_accumulation_steps = gradient_accumulation_steps
 
         # Set tokenizer padding side to 'left'
