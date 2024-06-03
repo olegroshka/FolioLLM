@@ -6,6 +6,10 @@ import logging
 from peft import get_peft_model, LoraConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5ForConditionalGeneration
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.dataset.data_utils import load_prompt_response_dataset, load_etf_text_dataset
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
 from src.eval.evaluator import ETFAdvisorEvaluatorGPT2, ETFAdvisorEvaluatorFingu
@@ -41,8 +45,8 @@ class ETFAdvisorPipeline:
         self.eval_model(base_model, base_tokenizer, "base")
 
         # Step 2: Fine-tune the model
-        #finetuned_model, finetuned_tokenizer = self.finetune_model(base_model, base_tokenizer)
-        finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
+        finetuned_model, finetuned_tokenizer = self.finetune_model(base_model, base_tokenizer)
+        #finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
 
         # Step 3: Evaluate the fine-tuned model
         self.eval_model(finetuned_model, finetuned_tokenizer, "finetuned")
@@ -172,12 +176,12 @@ def load_test_prompts(json_file):
         test_prompts = json.load(file)
     return test_prompts
 
-def main():
+def run_pipeline():
     wandb.init(project="FolioLLM")  # Initialize wandb
 
     json_structured_file = '../../data/etf_data_v3_plain.json'
     json_prompt_response_file = '../../data/tmp/etf_training_data_v2.json'
-    test_prompts_file = '../../data/basic-competency-test-prompts-3.json'
+    test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
     model_name = 'FINGU-AI/FinguAI-Chat-v1'
     #model_name = 'gpt2'
 
@@ -208,6 +212,10 @@ def main():
 
     pipeline.run()
     wandb.finish()
+
+def main():
+    run_pipeline()
+
 
 if __name__ == '__main__':
     main()

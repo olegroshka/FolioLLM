@@ -1,9 +1,14 @@
+import os
+import sys
+
 import torch
 import wandb
 from accelerate import Accelerator
 from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
 import logging
 import torch.nn as nn
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
 from src.training.eval_at_start_callback import EvaluateAtStartCallback
@@ -146,7 +151,7 @@ class ETFTrainer:
         training_args = TrainingArguments(
             output_dir='./results',
             evaluation_strategy='steps',
-            eval_steps=1000,
+            eval_steps=20,
             learning_rate=2e-5,
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
@@ -165,18 +170,22 @@ class ETFTrainer:
             train_dataset=self.tokenized_dataset,
             eval_dataset=self.tokenized_dataset,
             data_collator=data_collator,
+            compute_metrics=self.compute_metrics
         )
 
         trainer.add_callback(WandbCallback())
         #trainer.add_callback(MemoryMonitorCallback)
-        #trainer.add_callback(EvaluateAtStartCallback())
+        trainer.add_callback(EvaluateAtStartCallback())
 
         trainer.train()
 
     def compute_metrics(self, eval_pred):
         evaluator = ETFAdvisorEvaluator(
             self.model, self.tokenizer, self.test_prompts,
-            bert_score=True, rouge_score=False, perplexity=True, cosine_similarity=True
+            bert_score=False,
+            rouge_score=False,
+            perplexity=True,
+            cosine_similarity=True
         )
         eval_results = evaluator.evaluate(detailed=False)
         wandb.log(eval_results)
