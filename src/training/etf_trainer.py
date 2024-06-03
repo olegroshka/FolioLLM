@@ -80,12 +80,33 @@ def tokenize_prompt_response(trainer, sample, max_length=256):
         return None
 
 class ETFTrainer:
-    def __init__(self, model, tokenizer, etf_dataset, tokenize_function, test_prompts, max_length=512):
+    def __init__(self,
+                 model,
+                 tokenizer,
+                 etf_dataset,
+                 tokenize_function,
+                 test_prompts,
+                 max_length=512,
+                 eval_steps=200,
+                 learning_rate=2e-5,
+                 per_device_train_batch_size=1,
+                 per_device_eval_batch_size=1,
+                 num_train_epochs=3,
+                 weight_decay=0.01,
+                 gradient_accumulation_steps=64
+                 ):
         self.model = model
         self.tokenizer = tokenizer
         self.etf_dataset = etf_dataset
         self.tokenize_function = tokenize_function
         self.test_prompts = test_prompts
+        self.eval_steps = eval_steps,
+        self.learning_rate = learning_rate,
+        self.per_device_train_batch_size = per_device_train_batch_size,
+        self.per_device_eval_batch_size = per_device_eval_batch_size,
+        self.num_train_epochs = num_train_epochs,
+        self.weight_decay = weight_decay,
+        self.gradient_accumulation_steps = gradient_accumulation_steps
 
         # Set tokenizer padding side to 'left'
         self.tokenizer.padding_side = 'left'
@@ -135,13 +156,13 @@ class ETFTrainer:
                 output_dir=f'./results_fold_{fold}',
                 run_name=f'run_fold_{fold}',
                 evaluation_strategy='steps',
-                eval_steps=200,
-                learning_rate=2e-5,
-                per_device_train_batch_size=1,
-                per_device_eval_batch_size=1,
-                num_train_epochs=3,
-                weight_decay=0.01,
-                gradient_accumulation_steps=64,
+                eval_steps=self.eval_steps,
+                learning_rate=self.learning_rate,
+                per_device_train_batch_size=self.per_device_train_batch_size,
+                per_device_eval_batch_size=self.per_device_eval_batch_size,
+                num_train_epochs=self.num_train_epochs,
+                weight_decay=self.weight_decay,
+                gradient_accumulation_steps=self.gradient_accumulation_steps,
                 logging_dir=f'./logs_fold_{fold}',
                 fp16=True,
                 bf16=False

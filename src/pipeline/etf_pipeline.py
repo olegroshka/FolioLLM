@@ -39,13 +39,33 @@ class ETFAdvisorPipeline:
         self.knowledge_dim = knowledge_dim
         self.hidden_features = hidden_features
 
-    def run(self):
+    def run(self,
+            max_length=512,
+            eval_steps=200,
+            learning_rate=2e-5,
+            per_device_train_batch_size=1,
+            per_device_eval_batch_size=1,
+            num_train_epochs=3,
+            weight_decay=0.01,
+            gradient_accumulation_steps=64):
+
         # Step 1: Load and evaluate the base model
         base_model, base_tokenizer = self.load_base_model()
         self.eval_model(base_model, base_tokenizer, "base")
 
         # Step 2: Fine-tune the model
-        finetuned_model, finetuned_tokenizer = self.finetune_model(base_model, base_tokenizer)
+        finetuned_model, finetuned_tokenizer = self.finetune_model(
+            base_model,
+            base_tokenizer,
+            max_length,
+            eval_steps,
+            learning_rate,
+            per_device_train_batch_size,
+            per_device_eval_batch_size,
+            num_train_epochs,
+            weight_decay,
+            gradient_accumulation_steps
+        )
         #finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
 
         # Step 3: Evaluate the fine-tuned model
@@ -63,18 +83,50 @@ class ETFAdvisorPipeline:
         #evaluator = ETFAdvisorEvaluator(model, tokenizer, self.test_prompts, rouge_score=False)
         evaluator.evaluate(detailed=self.detailed)
 
-    def finetune_model(self, model, tokenizer):
+    def finetune_model(self,
+                       model,
+                       tokenizer,
+                       max_length=512,
+                       eval_steps=200,
+                       learning_rate=2e-5,
+                       per_device_train_batch_size=1,
+                       per_device_eval_batch_size=1,
+                       num_train_epochs=3,
+                       weight_decay=0.01,
+                       gradient_accumulation_steps=64):
         print("\nFine-tuning the model on structured ETF data...")
-        trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset,
-                                             tokenize_etf_text, self.test_prompts, max_length=1024)
+        trainer_structured_json = ETFTrainer(model,
+                                             tokenizer,
+                                             self.etf_structured_dataset,
+                                             tokenize_etf_text,
+                                             self.test_prompts,
+                                             max_length,
+                                             eval_steps,
+                                             learning_rate,
+                                             per_device_train_batch_size,
+                                             per_device_eval_batch_size,
+                                             num_train_epochs,
+                                             weight_decay,
+                                             gradient_accumulation_steps)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
         trainer_structured_json.save_model(self.output_dir)
 
         finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
         print("\nFine-tuning the model on prompt/response ETF data...")
-        trainer_structured_json = ETFTrainer(finetuned_model, tokenizer, self.etf_prompt_response_dataset,
-                                             tokenize_prompt_response, self.test_prompts, max_length=256)
+        trainer_structured_json = ETFTrainer(finetuned_model,
+                                             tokenizer,
+                                             self.etf_prompt_response_dataset,
+                                             tokenize_prompt_response,
+                                             self.test_prompts,
+                                             max_length,
+                                             eval_steps,
+                                             learning_rate,
+                                             per_device_train_batch_size,
+                                             per_device_eval_batch_size,
+                                             num_train_epochs,
+                                             weight_decay,
+                                             gradient_accumulation_steps)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
         trainer_structured_json.save_model(self.output_dir)
@@ -185,6 +237,14 @@ def load_test_prompts(json_file):
     return test_prompts
 
 def run_pipeline(
+        max_length=512,
+        eval_steps=200,
+        learning_rate=2e-5,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
+        num_train_epochs=3,
+        weight_decay=0.01,
+        gradient_accumulation_steps=64,
         model_name = 'FINGU-AI/FinguAI-Chat-v1',
         json_structured_file = '../../data/etf_data_v3_plain.json',
         test_prompts_file = '../../data/basic-competency-test-prompts-1.json',
