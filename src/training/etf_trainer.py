@@ -3,7 +3,7 @@ import sys
 
 import torch
 import wandb
-#from accelerate import Accelerator
+from accelerate import Accelerator
 from datasets import Dataset
 from sklearn.model_selection import KFold
 from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
@@ -92,9 +92,9 @@ class ETFTrainer:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
-        #self.accelerator = Accelerator()
-        #self.model, self.tokenizer = self.accelerator.prepare(self.model, self.tokenizer)
-        #self.model = self.model.to(self.accelerator.device)
+        self.accelerator = Accelerator()
+        self.model, self.tokenizer = self.accelerator.prepare(self.model, self.tokenizer)
+        self.model = self.model.to(self.accelerator.device)
 
         # Enable gradient checkpointing
         #self.model.gradient_checkpointing_enable()
