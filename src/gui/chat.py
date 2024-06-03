@@ -34,6 +34,20 @@ context_message = (
     "Consider their risk tolerance, investment goals, and market conditions when offering advice."
 )
 
+
+"""
+Desired workflow:
+tokens = tokenizer(input)
+
+if model.predict(tokens) == 0:
+    gen(tokens)
+else:
+    tickers = model.extract(input, history)
+    portfolio = optimizer(tickers)
+    reasoning(tokens, portfolio)
+"""
+
+
 # Function to classify text
 def optimization_prediction(text: str) -> int:
     inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True).to(device)
