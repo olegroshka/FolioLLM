@@ -3,7 +3,9 @@ import sys
 
 import torch
 import wandb
-from accelerate import Accelerator
+#from accelerate import Accelerator
+from datasets import Dataset
+from sklearn.model_selection import KFold
 from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
 import logging
 import torch.nn as nn
@@ -90,9 +92,9 @@ class ETFTrainer:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
-        self.accelerator = Accelerator()
-        self.model, self.tokenizer = self.accelerator.prepare(self.model, self.tokenizer)
-        self.model = self.model.to(self.accelerator.device)
+        #self.accelerator = Accelerator()
+        #self.model, self.tokenizer = self.accelerator.prepare(self.model, self.tokenizer)
+        #self.model = self.model.to(self.accelerator.device)
 
         # Enable gradient checkpointing
         #self.model.gradient_checkpointing_enable()
@@ -114,6 +116,51 @@ class ETFTrainer:
         # print(f"Sample tokenized item: {self.tokenized_dataset[0]}")
 
     def train(self):
+        data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)
+        kfold = KFold(n_splits=5)
+
+        # Convert dataset to a list for indexing
+        dataset_list = list(self.tokenized_dataset)
+
+        for fold, (train_idx, eval_idx) in enumerate(kfold.split(dataset_list)):
+            train_split = [dataset_list[i] for i in train_idx]
+            eval_split = [dataset_list[i] for i in eval_idx]
+
+            train_dataset = Dataset.from_dict(
+                {key: [example[key] for example in train_split] for key in train_split[0].keys()})
+            eval_dataset = Dataset.from_dict(
+                {key: [example[key] for example in eval_split] for key in eval_split[0].keys()})
+
+            training_args = TrainingArguments(
+                output_dir=f'./results_fold_{fold}',
+                run_name=f'run_fold_{fold}',
+                evaluation_strategy='steps',
+                eval_steps=200,
+                learning_rate=2e-5,
+                per_device_train_batch_size=1,
+                per_device_eval_batch_size=1,
+                num_train_epochs=3,
+                weight_decay=0.01,
+                gradient_accumulation_steps=64,
+                logging_dir=f'./logs_fold_{fold}',
+                fp16=True,
+                bf16=False
+            )
+
+            trainer = Trainer(
+                model=self.model,
+                args=training_args,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                data_collator=data_collator,
+            )
+
+            trainer.add_callback(WandbCallback())
+            trainer.add_callback(EvaluateAtStartCallback())
+
+            trainer.train()
+
+    def train_prev(self):
         data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)
 
         deepspeed_config_path = {
@@ -151,7 +198,7 @@ class ETFTrainer:
         training_args = TrainingArguments(
             output_dir='./results',
             evaluation_strategy='steps',
-            eval_steps=20,
+            eval_steps=200,
             learning_rate=2e-5,
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
@@ -170,7 +217,7 @@ class ETFTrainer:
             train_dataset=self.tokenized_dataset,
             eval_dataset=self.tokenized_dataset,
             data_collator=data_collator,
-            compute_metrics=self.compute_metrics
+            #compute_metrics=self.compute_metrics
         )
 
         trainer.add_callback(WandbCallback())

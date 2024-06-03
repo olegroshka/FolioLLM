@@ -2,6 +2,8 @@ import json
 import logging
 
 from datasets import Dataset
+
+from src.dataset.advanced_dataset import AdvETFDataset
 from src.dataset.etf_dataset import ETFDataset
 from src.dataset.etf_text_dataset import ETFTextDataset
 
@@ -53,6 +55,18 @@ def load_prompt_response_dataset(json_file):
     })
 
     return hf_dataset
+
+
+def load_prompt_response_dataset_adv(json_data_file, json_template_file):
+    dataset = AdvETFDataset(json_data_file, json_template_file)
+
+    hf_dataset = Dataset.from_dict({
+        'prompt': [sample['prompt'] for sample in dataset],
+        'response': [sample['response'] for sample in dataset]
+    })
+
+    return hf_dataset
+
 def main():
     json_file = '../../data/etf_data.json'  # Replace with the path to your JSON file
 

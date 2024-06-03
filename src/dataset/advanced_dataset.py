@@ -3,7 +3,6 @@ import json
 import logging
 from torch.utils.data import Dataset
 import torch
-from dataset_utils import get_value, translate_etf_entry
 
 # Configure logging
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -13,7 +12,7 @@ ETFS_PATH = "../../data/etf_data_v3_clean.json"
 
 
 class AdvETFDataset(Dataset):
-    def __init__(self, etf_path, templates_path, sample_size):
+    def __init__(self, etf_path=ETFS_PATH, templates_path=TEMPLATES_PATH, sample_size=1):
         """
         Initialize the dataset by loading ETF data and templates.
 
@@ -106,7 +105,7 @@ if __name__ == "__main__":
     dataset = AdvETFDataset(ETFS_PATH, TEMPLATES_PATH, 1)
     print(f"Dataset size: {len(dataset)}")
     for i in range(5):
-        print(f"Sample entry: {dataset[i]}")
+        print(f"Sample entry: {dataset[i]['prompt']}")
         print()
 
 """

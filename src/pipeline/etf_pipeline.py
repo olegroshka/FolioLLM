@@ -10,10 +10,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.dataset.data_utils import load_prompt_response_dataset, load_etf_text_dataset
+from src.dataset.data_utils import load_prompt_response_dataset, load_etf_text_dataset, load_prompt_response_dataset_adv
 from src.eval.etf_advisor_evaluator import ETFAdvisorEvaluator
 from src.eval.evaluator import ETFAdvisorEvaluatorGPT2, ETFAdvisorEvaluatorFingu
-from src.training.etf_trainer import ETFTrainer, tokenize_etf_text
+from src.training.etf_trainer import ETFTrainer, tokenize_etf_text, tokenize_prompt_response
 from src.models.knowledge_aware_lora import KnowledgeAwareLoRAModel
 from src.models.knowledge_aware_mora import KnowledgeAwareMoRAModel
 from src.models.kolmogorov_arnold_lora import KolmogorovArnoldLoRAModel
@@ -65,12 +65,20 @@ class ETFAdvisorPipeline:
 
     def finetune_model(self, model, tokenizer):
         print("\nFine-tuning the model on structured ETF data...")
-        trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset, tokenize_etf_text, self.test_prompts, max_length=1024)
+        trainer_structured_json = ETFTrainer(model, tokenizer, self.etf_structured_dataset,
+                                             tokenize_etf_text, self.test_prompts, max_length=1024)
         trainer_structured_json.tokenize_dataset()
         trainer_structured_json.train()
         trainer_structured_json.save_model(self.output_dir)
 
         finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
+        print("\nFine-tuning the model on prompt/response ETF data...")
+        trainer_structured_json = ETFTrainer(finetuned_model, tokenizer, self.etf_prompt_response_dataset,
+                                             tokenize_prompt_response, self.test_prompts, max_length=256)
+        trainer_structured_json.tokenize_dataset()
+        trainer_structured_json.train()
+        trainer_structured_json.save_model(self.output_dir)
+
         return finetuned_model, finetuned_tokenizer
 
     def create_tokenizer(self):
@@ -131,13 +139,13 @@ class ETFAdvisorPipeline:
             model = T5ForConditionalGeneration.from_pretrained(
                 self.output_dir,
                 attn_implementation="flash_attention_2",
-                torch_dtype=torch.bfloat16
+                #torch_dtype=torch.bfloat16
             )
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 self.output_dir,
                 attn_implementation="flash_attention_2",
-                torch_dtype=torch.bfloat16
+                #torch_dtype=torch.bfloat16
             )
 
         if self.mode == "lora":
@@ -182,6 +190,10 @@ def run_pipeline():
     json_structured_file = '../../data/etf_data_v3_plain.json'
     json_prompt_response_file = '../../data/tmp/etf_training_data_v2.json'
     test_prompts_file = '../../data/basic-competency-test-prompts-1.json'
+
+    json_prompt_response_template_file = "../../data/training-template-adv.json"
+    json_prompt_response_file_cleaned = "../../data/etf_data_v3_clean.json"
+
     model_name = 'FINGU-AI/FinguAI-Chat-v1'
     #model_name = 'gpt2'
 
@@ -189,7 +201,9 @@ def run_pipeline():
     detailed = True  # Set to False if you only want average scores
 
     etf_structured_dataset = load_etf_text_dataset(json_structured_file)
-    etf_prompt_response_dataset = load_prompt_response_dataset(json_prompt_response_file)
+    # etf_prompt_response_dataset = load_prompt_response_dataset(json_prompt_response_file)
+    etf_prompt_response_dataset = load_prompt_response_dataset_adv(json_prompt_response_file_cleaned,
+                                                                   json_prompt_response_template_file)
     test_prompts = load_test_prompts(test_prompts_file)
 
     rank_config = {
