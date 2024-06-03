@@ -32,10 +32,12 @@ for column in percentage_columns:
         df[column] = df[column].apply(convert_percentage)
 
 # Drop rows with any remaining non-numeric values in features or target
-df.dropna(subset=percentage_columns + ['class_assets', 'volume_30d', 'flow_1m', 'holdings', 'return_1d'], inplace=True)
+df.dropna(subset=percentage_columns + ['class_assets', 'volume_30d', 'flow_1m', 'holdings', 'return_1d',
+                                       'nav_trk_error', 'avg_bid_ask_spread'], inplace=True)
 
 # Select features and target
-feature_columns = ['class_assets', 'expense_ratio', 'volume_30d', 'flow_1m', 'nav_trk_error', 'holdings', 'return_1d']
+feature_columns = ['class_assets', 'expense_ratio', 'volume_30d', 'flow_1m', 'nav_trk_error', 'holdings',
+                   'return_1d', 'return_mtd', 'nav_trk_error', 'avg_bid_ask_spread']
 features = df[feature_columns].values
 target = df['ytd_return'].values
 

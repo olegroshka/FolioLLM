@@ -2,6 +2,20 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 from scipy.optimize import minimize
+import os
+
+test_tickers = ['SPY US Equity', 'IVV US Equity', 'VO US Equity', '510050 CH Equity']
+
+opt_instance_test = None
+opt_instance_main = None
+
+current_file_path = os.path.abspath(os.path.dirname(__file__))
+
+# Resolve the absolute path of the relative file
+abs_path = lambda path: os.path.abspath(os.path.join(current_file_path, path))
+
+main_prices_file = abs_path('../../data/etf_prices.xlsx')
+test_prices_file = abs_path('../../data/test_prices.xlsx')
 
 
 class PortfolioOptimizer:
@@ -123,38 +137,33 @@ class PortfolioOptimizer:
             'information_ratio': information_ratio
         }
 
-def main_optimizer_mpt(tickers):
-    #tickers = ['SPY US', 'IVV US', 'VO US', '510050 CH']
-    data_file = '.../data/etf_prices.xlsx'  # Path to the uploaded Excel file
-    risk_free_rate = 0.05  # 5% annual risk-free rate
+def optimizer(tickers=test_tickers, main=False):
+    global opt_instance_main, opt_instance_test
+    risk_free_rate = 0.05
+    if main:
+        print(opt_instance_main)
+        if not opt_instance_main:
+            opt_instance_main = PortfolioOptimizer(
+                tickers, main_prices_file, risk_free_rate
+            )
+            print(opt_instance_main)
+        optimizer = opt_instance_main
+    else:
+        print(opt_instance_test)
+        if not opt_instance_test:
+            opt_instance_test = PortfolioOptimizer(
+                tickers, test_prices_file, risk_free_rate
+            )
+            print(opt_instance_test)
+        optimizer = opt_instance_test   
 
-    optimizer = PortfolioOptimizer(tickers, data_file, risk_free_rate)
-    portfolio_details = optimizer.get_portfolio_details()
-
-    print("Weights:")
-    print(portfolio_details['weights_table'])
-    print(f"Annualized Return: {portfolio_details['annualized_return']:.2%}")
-    print(f"Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}")
-    print(f"Sharpe Ratio: {portfolio_details['sharpe_ratio']:.2f}")
-    print(f"Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}")
-    print(f"Information Ratio: {portfolio_details['information_ratio']:.2f}")
-
-
-def test_optimizer():
-    tickers = ['IVV US Equity', 'VO US Equity', '510050 CH Equity']
-    data_file = (r'C:\Personal\Personal docume'
-                 r'nts\Github\FolioLLM\data\etf_prices.xlsx')
-    risk_free_rate = 0.05  # 5% annual risk-free rate
-
-    optimizer = PortfolioOptimizer(tickers, data_file, risk_free_rate)
-    portfolio_details = optimizer.get_portfolio_details()
-
-    print("Weights:")
-    print(portfolio_details['weights_table'])
-    print(f"Annualized Return: {portfolio_details['annualized_return']:.2%}")
-    print(f"Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}")
-    print(f"Sharpe Ratio: {portfolio_details['sharpe_ratio']:.2f}")
-    print(f"Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}")
-    print(f"Information Ratio: {portfolio_details['information_ratio']:.2f}")
-
+    # in future we will need to use something other than {portfolio_details[...]}
+    template = f"""
+    {portfolio_details['weights_table']}
+    Annualized Return: {portfolio_details['annualized_return']:.2%}
+    Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}
+    Sharpe Ratio: {portfolio_details['sharpe_ratio']:.2f}
+    Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}
+    Information Ratio: {portfolio_details['information_ratio']:.2f}"""
+    return template
 

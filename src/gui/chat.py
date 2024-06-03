@@ -1,44 +1,123 @@
 import random
 import re
+import sys
 import torch
 import gradio as gr
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification
 from transformers.generation import TextStreamer
+import os
 
-# Define the model name and the directory where the fine-tuned model is located
+
+# kostyli
+current_file_path = os.path.abspath(os.path.dirname(__file__))
+optimization_path = os.path.abspath(os.path.join(current_file_path, '../optimization'))
+sys.path.append(optimization_path)
+from optimization_mpt import optimizer, test_tickers
+
 model_name = "FINGU-AI/FinguAI-Chat-v1"
-output_dir = '../pipeline/fine_tuned_model/' + model_name
-
-# Load the tokenizer and model from the fine-tuned directory
-tokenizer = AutoTokenizer.from_pretrained(output_dir)
-model = AutoModelForCausalLM.from_pretrained(output_dir)
-
-# Set the device to GPU if available, otherwise CPU
+# output_dir = '../pipeline/fine_tuned_model/' + model_name
+output_dir = model_name
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model.to(device)
+
+tokenizer = AutoTokenizer.from_pretrained(output_dir)
+classifier = AutoModelForSequenceClassification.from_pretrained(output_dir, num_labels=2).to(device)
+
+model = AutoModelForCausalLM.from_pretrained(output_dir).to(device)
+
+model.eval()
+classifier.eval()
 
 
-def optimization_prediction(user_input):
-    # TODO: Improve
-    return random.random()
+context_message = (
+    "You are a financial specialist specializing in ETF portfolio construction and optimization. "
+    "Your role is to assist users by providing accurate, timely, and insightful information to guide their investment decisions. "
+    "Consider their risk tolerance, investment goals, and market conditions when offering advice."
+)
+
+# Function to classify text
+def optimization_prediction(text: str) -> int:
+    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True).to(device)
+    logits = classifier(**inputs).logits
+    print(f"Logits: {logits}")
+    return torch.argmax(logits, dim=-1).detach().item()
+
+
+def extract_tickers(history):
+    #TODO
+    return test_tickers
 
 
 def optim_generation(user_input, history):
-    # TODO: Extract Tickers
-    # TODO: add main_optimizer_mpt(tickers) call
-    answer = "50% ABC\n25% CDE\n25DEF"
-    # TODO: add Fingu reasoning (posterior explaination)
-    history.append((user_input, answer))
+    tickers = extract_tickers(history)
+    initial_allocation = optimizer(tickers, main=True)  # main doesn't work
 
-respond = lambda inp, hist: raw_generation(inp, hist) if optimization_prediction(inp) > 0.5 else optim_generation(inp, hist)
-
-def raw_generation(user_input, history):
-    context = "You are chatting with a helpful assistant."  # Define your system context
+    # Construct the conversation messages
     messages = [
-        {"role": "system", "content": context},
+        {"role": "system", "content": context_message},
         {"role": "user", "content": user_input},
+        {"role": "assistant", "content": initial_allocation}
     ]
 
+    # Prompt the model to explain the allocation
+    follow_up_question = (
+        "As the financial expert who generated this ETF allocation, can you explain the reasoning behind it in detail? "
+        "Please provide insights on why each specific ETF was selected, how they align with the investment goals and market conditions, "
+        "and the benefits of each ETF in this portfolio."
+    )
+
+    messages.append({"role": "user", "content": follow_up_question})
+
+    # Tokenize the chat messages
+    tokenized_messages = tokenizer.apply_chat_template(
+        messages, tokenize=True, add_generation_prompt=True,
+        return_tensors="pt"
+    ).to(device)
+
+    # Define generation parameters
+    generation_parameters = {
+        'max_new_tokens': 200,
+        'use_cache': True,
+        'do_sample': True,
+        'temperature': 0.7,
+        'top_p': 0.9,
+        'top_k': 50,
+        'eos_token_id': tokenizer.eos_token_id,
+    }
+
+    # Generate the response
+    outputs = model.generate(tokenized_messages, **generation_parameters)
+    decoded_output = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+    generated_explanation = decoded_output[0]
+
+    # Extract only the assistant's explanation from the generated output
+    explanation = generated_explanation.split("assistant")[-1].strip()
+
+    # Combine the initial allocation with the generated explanation
+    combined_response = f"{initial_allocation}\n\n{explanation}"
+
+    # Append the conversation to history
+    history.append((user_input, combined_response))
+    return history
+
+
+
+def respond(inp, hist=[]):
+    label = optimization_prediction(inp)
+    # print(f"classification label is {label}")
+
+    if label == 0:
+        # print("executing raw generation")
+        return raw_generation(inp, hist)
+    else:
+        print("executing optimization")
+        return optim_generation(inp, hist)
+
+
+def raw_generation(user_input, history):
+    messages = [
+        {"role": "system", "content": context_message},
+        {"role": "user", "content": user_input},
+    ]
     # Tokenize the chat template
     tokenized_chat = tokenizer.apply_chat_template(
         messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"

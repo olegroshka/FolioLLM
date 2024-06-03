@@ -1,40 +1,37 @@
 import torch
 import torch.nn as nn
+from peft import get_peft_model
 from transformers import AutoModelForCausalLM
 
 
-class KolmogorovArnoldLoRALayer(AutoModelForCausalLM):
-    def __init__(self, in_features, out_features, rank=4, hidden_features=128):
-        super().__init__()
-        self.phi = nn.Linear(in_features, hidden_features)
-        self.A = nn.Linear(hidden_features, rank, bias=False)
-        self.B = nn.Linear(rank, out_features, bias=False)
-        self.psi = nn.Linear(hidden_features, out_features)
+class KAN(nn.Module):
+    def __init__(self, input_size, hidden_size1, hidden_size2, hidden_size3, output_size):
+        super(KAN, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size1)
+        self.fc2 = nn.Linear(hidden_size1, hidden_size2)
+        self.fc3 = nn.Linear(hidden_size2, hidden_size3)
+        self.fc4 = nn.Linear(hidden_size3, output_size)
+        self.bn1 = nn.BatchNorm1d(hidden_size1)
+        self.bn2 = nn.BatchNorm1d(hidden_size2)
+        self.bn3 = nn.BatchNorm1d(hidden_size3)
+        self.dropout = nn.Dropout(p=0.5)
 
     def forward(self, x):
-        x = torch.sin(self.phi(x))
-        x = self.B(self.A(x)) + self.psi(x)
+        x = torch.sin(self.bn1(self.fc1(x)))
+        x = torch.sin(self.bn2(self.fc2(x)))
+        x = torch.sin(self.bn3(self.fc3(x)))
+        x = self.dropout(x)
+        x = self.fc4(x)
         return x
 
 class KolmogorovArnoldLoRAModel(AutoModelForCausalLM):
-    def __init__(self, model, rank=4, hidden_features=128):
-        super().__init__()
-        self.model = model
-        self.rank = rank
-        self.hidden_features = hidden_features
-        for name, module in self.model.named_children():
-            if 'attention' in name:
-                for param_name, param in module.named_parameters():
-                    in_features = param.shape[-1]
-                    out_features = param.shape[0]
-                    lora_layer = KolmogorovArnoldLoRALayer(in_features, out_features, rank=self.rank, hidden_features=self.hidden_features)
-                    setattr(module, f"lora_{param_name}", lora_layer)
-                    param.requires_grad = False
+    def __init__(self, base_model, lora_config, kan_input_dim, kan_hidden_dim1, kan_hidden_dim2, kan_hidden_dim3,
+                 kan_output_dim):
+        super(AutoModelForCausalLM, self).__init__()
+        self.lora_model = get_peft_model(base_model, lora_config)
+        self.kan_layer = KAN(kan_input_dim, kan_hidden_dim1, kan_hidden_dim2, kan_hidden_dim3, kan_output_dim)
 
-    def forward(self, *args, **kwargs):
-        return self.model(*args, **kwargs)
-
-    @classmethod
-    def from_pretrained(cls, pretrained_model_name_or_path, rank_config, hidden_features=128, *model_args, **kwargs):
-        model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, *model_args, **kwargs)
-        return cls(model, rank_config=rank_config, hidden_features=hidden_features)
+    def forward(self, input_ids, attention_mask=None):
+        lora_output = self.lora_model(input_ids, attention_mask)
+        kan_output = self.kan_layer(lora_output.last_hidden_state)
+        return kan_output
