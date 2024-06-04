@@ -50,6 +50,7 @@ def run():
         test_prompts_file=test_prompts_file,
         json_prompt_response_template_file=training_prompts_template_file,
         json_prompt_response_file_cleaned=etf_data_cleaned_file,
+        portfolio_construction_q_prompts_file=portfolio_construction_q_prompts_file,
         output_dir="/root/fine_tuned_model"
     )
 
