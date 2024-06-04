@@ -33,14 +33,14 @@ def run():
     os.environ["WANDB_API_KEY"] = wandb_api_key
 
     run_pipeline(
-        max_length=1024,
+        max_length=2048,
         eval_steps=20,
-        learning_rate=2e-5,
-        per_device_train_batch_size=128,
-        per_device_eval_batch_size=128,
+        learning_rate=3e-5,
+        per_device_train_batch_size=256,
+        per_device_eval_batch_size=256,
         num_train_epochs=3,
         weight_decay=0.01,
-        gradient_accumulation_steps=8,
+        gradient_accumulation_steps=1,
         model_name='FINGU-AI/FinguAI-Chat-v1',
         json_structured_file=etf_data_palin_file,
         test_prompts_file=test_prompts_file,
