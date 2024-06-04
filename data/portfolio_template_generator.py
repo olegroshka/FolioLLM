@@ -76,9 +76,35 @@ def generate_portfolio_question_and_response_q3(etf_db, number_long, number_shor
     response = response.rstrip(', ')
     return question, response, response_data
 
+def generate_portfolio_question_and_response_q4(etf_db, number, geo_focus):
+    df_sorted = etf_db.sort_values(by='ytd_return', ascending=False)
+    df_sorted = df_sorted[df_sorted['asset_class_focus'] == geo_focus]
+    sampled_etfs = df_sorted.head(number)
+    etf_list = sampled_etfs['etf_name'].tolist()
+    weight = 100 / number
+    question = f"Invest in {number} ETFs which are targeting {asset_class_focus}?"
+    response = "Please see the following ETFs and their weights in the portfolio: "
+    response_data = []
+    for etf in etf_list:
+        response += f"{etf}: {weight:.2f}%, "
+        response_data.append({"ETF": etf, "Weight (%)": weight})
+    response = response.rstrip(', ')
+    return question, response, response_data
 
-
-
+def generate_portfolio_question_and_response_q5(etf_db, number, fund_geographical_focus):
+    df_sorted = etf_db.sort_values(by='ytd_return', ascending=False)
+    df_sorted = df_sorted[df_sorted['fund_geographical_focus'] == fund_geographical_focus]
+    sampled_etfs = df_sorted.head(number)
+    etf_list = sampled_etfs['etf_name'].tolist()
+    weight = 100 / number
+    question = f"Create a portfolio with {number} ETFs investing in {fund_geographical_focus}?"
+    response = "Please see the following ETFs and their weights in the portfolio: "
+    response_data = []
+    for etf in etf_list:
+        response += f"{etf}: {weight:.2f}%, "
+        response_data.append({"ETF": etf, "Weight (%)": weight})
+    response = response.rstrip(', ')
+    return question, response, response_data
 
 def store_questions_responses(questions_responses, filename, data_folder):
     os.makedirs(data_folder, exist_ok=True)
@@ -113,3 +139,71 @@ def store_q2(etf_db, data_folder):
             })
     filename = f'q2_responses.json'
     store_questions_responses(questions_responses_q2, filename, data_folder)
+
+
+def store_q3(etf_db, data_folder):
+    # Iterate through the number of long and short positions for Q3
+    questions_responses_q3 = []
+    for num_long in range(1, 16):  # Example range for long positions
+        for num_short in range(1, 16):  # Example range for short positions
+            question, response, _ = generate_portfolio_question_and_response_q3(etf_db, num_long, num_short)
+            questions_responses_q3.append({
+                "question": question,
+                "response": response
+            })
+    store_questions_responses(questions_responses_q3, 'q3_responses.json', data_folder)
+
+def store_q4(etf_db, data_folder):
+    # Iterate through the number of long and short positions for Q3
+    assets_list = etf_db['asset_class_focus'].drop_duplicates().tolist()
+    questions_responses_q4 = []
+    for asset in assets_list:  # Example range for long positions
+        for number in range(1, 10):  # Example range for short positions
+            question, response, _ = generate_portfolio_question_and_response_q4(etf_db, number, asset)
+            questions_responses_q4.append({
+                "question": question,
+                "response": response
+            })
+    store_questions_responses(questions_responses_q4, 'q4_responses.json', data_folder)
+
+def store_q5(etf_db, data_folder):
+    # Iterate through the number of long and short positions for Q3
+    assets_list = etf_db['fund_geographical_focus'].drop_duplicates().tolist()
+    questions_responses_q5 = []
+    for asset in assets_list:  # Example range for long positions
+        for number in range(1, 10):  # Example range for short positions
+            question, response, _ = generate_portfolio_question_and_response_q5(etf_db, number, asset)
+            questions_responses_q5.append({
+                "question": question,
+                "response": response
+            })
+    store_questions_responses(questions_responses_q5, 'q5_responses.json', data_folder)
+
+
+# List of JSON files to be combined
+json_files = [
+    'q1_responses.json',
+    'q2_responses.json',
+    'q3_responses.json',
+    'q4_responses.json',
+    'q5_responses.json'
+]
+
+# Initialize an empty list to hold the combined data
+combined_data = []
+
+# Read each JSON file and append its data to the combined_data list
+for file_name in json_files:
+    file_path = os.path.join(data_folder, file_name)  # Update the path as needed
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+        combined_data.extend(data)
+
+# Specify the output file path
+output_file_path = os.path.join(data_folder, 'portfolio_construction_q_prompts.json')
+
+# Write the combined data to the output JSON file
+with open(output_file_path, 'w') as output_file:
+    json.dump(combined_data, output_file, indent=4)
+
+print(f"Combined data has been written to {output_file_path}")
