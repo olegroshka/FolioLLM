@@ -18,7 +18,7 @@ app = modal.App(
         modal.Mount.from_local_dir("data", remote_path="/root/data")
     ],
     volumes={
-        "/root/fine_tuned_model": output_volume,
+        "/root/fine_tuned_model/": output_volume,
     }
 )
 
@@ -38,7 +38,7 @@ def run():
 
     run_pipeline(
         max_length=1024,
-        eval_steps=1000,
+        eval_steps=20000,
         learning_rate=2e-5,
         per_device_train_batch_size=8,
         per_device_eval_batch_size=8,
@@ -51,7 +51,7 @@ def run():
         json_prompt_response_template_file=training_prompts_template_file,
         json_prompt_response_file_cleaned=etf_data_cleaned_file,
         portfolio_construction_q_prompts_file=portfolio_construction_q_prompts_file,
-        output_dir="/root/fine_tuned_model"
+        output_dir="/root/fine_tuned_model/"
     )
 
 @app.local_entrypoint()
