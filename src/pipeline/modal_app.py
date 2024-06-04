@@ -34,8 +34,8 @@ def run():
 
     run_pipeline(
         max_length=1024,
-        eval_steps=1000,
-        learning_rate=3e-5,
+        eval_steps=20,
+        learning_rate=2e-5,
         per_device_train_batch_size=16,
         per_device_eval_batch_size=16,
         num_train_epochs=3,

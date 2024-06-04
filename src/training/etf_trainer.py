@@ -136,7 +136,7 @@ class ETFTrainer:
         # print(f"Dataset length after tokenization: {len(self.tokenized_dataset)}")
         # print(f"Sample tokenized item: {self.tokenized_dataset[0]}")
 
-    def train(self):
+    def train_kfold(self):
         data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)
         kfold = KFold(n_splits=5)
 
@@ -182,7 +182,7 @@ class ETFTrainer:
 
             trainer.train()
 
-    def train_prev(self):
+    def train(self):
         data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)
 
         deepspeed_config_path = {
@@ -220,13 +220,13 @@ class ETFTrainer:
         training_args = TrainingArguments(
             output_dir='./results',
             evaluation_strategy='steps',
-            eval_steps=200,
-            learning_rate=2e-5,
-            per_device_train_batch_size=1,
-            per_device_eval_batch_size=1,
-            num_train_epochs=3,
-            weight_decay=0.01,
-            gradient_accumulation_steps=64,
+            eval_steps=self.eval_steps,
+            learning_rate=self.learning_rate,
+            per_device_train_batch_size=self.per_device_train_batch_size,
+            per_device_eval_batch_size=self.per_device_eval_batch_size,
+            num_train_epochs=self.num_train_epochs,
+            weight_decay=self.weight_decay,
+            gradient_accumulation_steps=self.gradient_accumulation_steps,
             logging_dir='./logs',
             fp16=True,
             # deepspeed=deepspeed_config_path,  # Use DeepSpeed for optimization
