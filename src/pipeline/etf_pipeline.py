@@ -190,13 +190,13 @@ class ETFAdvisorPipeline:
         if "t5" in self.model_name.lower():
             model = T5ForConditionalGeneration.from_pretrained(
                 self.output_dir,
-                attn_implementation="flash_attention_2",
+                #attn_implementation="flash_attention_2",
                 #torch_dtype=torch.bfloat16
             )
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 self.output_dir,
-                attn_implementation="flash_attention_2",
+                #attn_implementation="flash_attention_2",
                 #torch_dtype=torch.bfloat16
             )
 
