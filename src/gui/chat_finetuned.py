@@ -1,5 +1,7 @@
 import gradio as gr
 import re
+
+from peft import LoraConfig, PeftModel
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 import torch
 
@@ -9,7 +11,8 @@ output_dir = '../pipeline/fine_tuned_model/' + model_name
 
 # Load the tokenizer and model from the fine-tuned directory
 tokenizer = AutoTokenizer.from_pretrained(output_dir)
-model = AutoModelForCausalLM.from_pretrained(output_dir)
+base_model = AutoModelForCausalLM.from_pretrained(output_dir, attn_implementation="flash_attention_2")
+model = PeftModel.from_pretrained(base_model, output_dir)
 
 # Set the device to GPU if available, otherwise CPU
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

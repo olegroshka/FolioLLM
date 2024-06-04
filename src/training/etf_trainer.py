@@ -263,3 +263,4 @@ class ETFTrainer:
     def save_model(self, output_dir):
         self.model.save_pretrained(output_dir)
         self.tokenizer.save_pretrained(output_dir)
+        print(f"Model params saved to {output_dir}.")
