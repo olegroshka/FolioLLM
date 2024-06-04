@@ -13,12 +13,13 @@ app = modal.App(
     image=image,
     secrets=[Secret.from_name("my-huggingface-secret"), Secret.from_name("my-wandb-secret")],
     mounts=[
-        modal.Mount.from_local_dir("data", remote_path="/root/data")
+        modal.Mount.from_local_dir("data", remote_path="/root/data"),
+        modal.Mount.from_local_dir("src/pipeline/fine_tuned_model", remote_path="/root/fine_tuned_model")
     ]
 )
 
 
-@app.function(gpu="A100", timeout=3600)  # Request a specific GPU type, e.g., A100, V100, etc.
+@app.function(gpu="A100", timeout=86400)  # Request a specific GPU type, e.g., A100, V100, etc.
 def run():
     # Define the absolute path for the JSON file
     etf_data_palin_file = "/root/data/etf_data_v3_plain.json"
@@ -33,18 +34,20 @@ def run():
 
     run_pipeline(
         max_length=1024,
-        eval_steps=1000,
-        learning_rate=3e-5,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=16,
+        eval_steps=200,
+        learning_rate=2e-5,
+        per_device_train_batch_size=8,
+        per_device_eval_batch_size=8,
         num_train_epochs=3,
         weight_decay=0.01,
-        gradient_accumulation_steps=8,
+        gradient_accumulation_steps=1,
         model_name='FINGU-AI/FinguAI-Chat-v1',
         json_structured_file=etf_data_palin_file,
         test_prompts_file=test_prompts_file,
         json_prompt_response_template_file=training_prompts_template_file,
-        json_prompt_response_file_cleaned=etf_data_palin_file)
+        json_prompt_response_file_cleaned=etf_data_palin_file,
+        output_dir="/root/fine_tuned_model"
+    )
 
 @app.local_entrypoint()
 def main():

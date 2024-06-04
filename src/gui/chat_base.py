@@ -1,93 +1,32 @@
-import re
-import json
 import gradio as gr
+import re
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 import torch
-from sentence_transformers import SentenceTransformer
-import faiss
-import numpy as np
-
-# Load the ETF data from JSON file
-with open('../../data/etf_data_v2.json', 'r') as file:
-    etf_data = json.load(file)
-
-# Ensure all descriptions are strings and handle NaN values
-# for etf in etf_data:
-#     if not isinstance(etf.get("Description"), str):
-#         etf["Description"] = ""
-for etf in etf_data:
-    for key, value in etf.items():
-        if isinstance(value, float) and np.isnan(value):
-            etf[key] = "Not Available"
-        elif not isinstance(value, str):
-            etf[key] = str(value)
-
-# Load a pre-trained embedding model
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-
-# Generate embeddings for the ETF descriptions
-descriptions = [etf["Description"] for etf in etf_data]
-embeddings = embedding_model.encode(descriptions)
-
-# Convert embeddings to FAISS index
-dimension = embeddings.shape[1]
-index = faiss.IndexFlatL2(dimension)
-index.add(np.array(embeddings))
-
-# Store additional data for retrieval
-etf_tickers = [etf["Ticker"] for etf in etf_data]
 
 # Define the model name and the directory where the fine-tuned model is located
 model_name = "FINGU-AI/FinguAI-Chat-v1"
-output_dir = '../pipeline/fine_tuned_model/' + model_name
 
 # Load the tokenizer and model from the fine-tuned directory
-tokenizer = AutoTokenizer.from_pretrained(output_dir, attn_implementation="flash_attention_2")
-model = AutoModelForCausalLM.from_pretrained(output_dir)
+tokenizer = AutoTokenizer.from_pretrained(model_name, attn_implementation="flash_attention_2")
+model = AutoModelForCausalLM.from_pretrained(model_name)
 
 # Set the device to GPU if available, otherwise CPU
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 
 
-def search_etf(query, k=3):
-    query_embedding = embedding_model.encode([query])
-    distances, indices = index.search(query_embedding, k)
-    results = [etf_data[idx] for idx in indices[0]]
-    return results
-
-
 def respond(user_input, history):
-    # Search for relevant ETF information
-    etf_results = search_etf(user_input)
-
-    # etf_context = "\n".join([f"{etf['Ticker']}: {etf['Description']}" for etf in etf_results])
-
-    # add all fields
-    # etf_context = "\n\n".join([
-    #     "\n".join([f"{key}: {etf[key]}" for key in etf.keys()])
-    #     for etf in etf_results
-    # ])
-
-    etf_results = search_etf(user_input)
-    etf_context = "\n\n".join([
-        f"{etf['Ticker']} - {etf['Name']}\n{etf['Description']}"
-        for etf in etf_results
-    ])
-
-    # Construct the context for the language model
     context = (
         "You are a financial specialist specializing in ETF portfolio construction and optimization. "
         "Your role is to assist users by providing accurate, timely, and insightful information to guide their investment decisions. "
         "Consider their risk tolerance, investment goals, and market conditions when offering advice."
-        f"\n\nRelevant ETF Information:\n{etf_context}."
     )
-
     messages = [
         {"role": "system", "content": context},
         {"role": "user", "content": user_input},
     ]
 
+    # Tokenize the chat template
     tokenized_chat = tokenizer.apply_chat_template(
         messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
     ).to(device)
@@ -126,10 +65,11 @@ def respond(user_input, history):
 
 # Create the Gradio interface
 with gr.Blocks() as demo:
-    chatbot = gr.Chatbot(label="FolioLLM (RAG)")
+    chatbot = gr.Chatbot(label="FINGU-AI (Base)")
     with gr.Row():
         txt = gr.Textbox(show_label=False, placeholder="Type your message here...")  # Removed .style
         btn = gr.Button("Send")
+
 
     def submit_message(user_input, history):
         history = history or []
