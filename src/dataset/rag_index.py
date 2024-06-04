@@ -71,7 +71,7 @@ The ETF's ticker is {etf['ticker']} ({etf['bbg_ticker']}), known as the {etf['et
 - **Inception Date**: {etf['inception_date']}"""
 
 descriptions = [
-    form(etf) for etf in etf_data[:5]
+    form(etf) for etf in etf_data
 ]
 
 tokens = tokenizer(descriptions, return_tensors='pt', padding=True, truncation=True)
