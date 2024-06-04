@@ -267,14 +267,14 @@ def load_test_prompts(json_file):
     return test_prompts
 
 def run_pipeline(
-        max_length=512,
-        eval_steps=20,
+        max_length=1024,
+        eval_steps=20000,
         learning_rate=2e-5,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
         num_train_epochs=3,
         weight_decay=0.01,
-        gradient_accumulation_steps=64,
+        gradient_accumulation_steps=8,
         model_name='FINGU-AI/FinguAI-Chat-v1',
         json_structured_file='../../data/etf_data_v3_plain.json',
         test_prompts_file='../../data/basic-competency-test-prompts-1.json',
