@@ -87,7 +87,7 @@ class ETFTrainer:
                  tokenize_function,
                  test_prompts,
                  max_length=512,
-                 eval_steps=200,
+                 eval_steps=20,
                  learning_rate=2e-5,
                  per_device_train_batch_size=1,
                  per_device_eval_batch_size=1,
