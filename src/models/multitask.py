@@ -5,11 +5,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM
-
+import faiss
+from faiss import write_index, read_index
 
 etfs_num = 11796
 vocab_size = 151936
 
+
+model_name = '../pipeline/fine_tuned_model/FINGU-AI/FinguAI-Chat-v1'
 
 def select_scores(
         heatmap, do_sample=False, top_p=0.2, top_k=50, temperature=1,
@@ -41,9 +44,9 @@ sel_cfg = {
 }
 
 
-class DownstreamLM(nn.Module):
-    def __init__(self, body_path, class_path=None, select_path=None, sel_cfg=sel_cfg):
-        super(DownstreamLM, self).__init__()
+class MultitaskLM(nn.Module):
+    def __init__(self, body_path, class_path=None, select_path=None, sel_cfg=sel_cfg, index_path="../../data/etfs.index"):
+        super(MultitaskLM, self).__init__()
         self.model = AutoModelForCausalLM.from_pretrained(
             body_path, output_hidden_states=True
         )
@@ -58,37 +61,46 @@ class DownstreamLM(nn.Module):
             self.select_head.load_state_dict(torch.load(select_path))
 
         self.out = None
-        self.sel_cfg = sel_cfg
 
+        self.index = None
+        self.init_index(index_path)
         self.model.eval()
 
     def forward(self, **kwargs):
-        with torch.no_grad():
-            return self.model(**kwargs)
+        return self.model(**kwargs)
+
+
+    def init_index(self, index_path):
+        self.index = read_index(index_path)
 
     
-    def classify(self, **kwargs):
-        self.out = self.model(**kwargs).hidden_states[-1]
-        out_token = self.out[:,-1]
+    def classify(self, use_prev=False, **kwargs):
+        if not use_prev:
+            self.out = self.model(**kwargs).hidden_states[-1]
+        embedding = self.encode(True)
         return self.class_head(out_token)
 
 
-    def _heatmap_selection(scores):
-        d = 1024
-        heatmap / torch.sqrt(d)
-
-    def select(self):
-        # X-Attn of out tokens (Batch, Seq, Hid)
-        return self.select_head(self.out[:, -1])
+    def encode(self, use_prev=False, **kwargs):
+        if not use_prev:
+            self.out = self.model(**kwargs).hidden_states[-1]
+        return self.out.mean(-2)
 
 
-model_name = "FINGU-AI/FinguAI-Chat-v1" # output_dir
+    def select(self, use_prev=True, **kwargs):
+        if not use_prev:
+            self.out = self.model(**kwargs).hidden_states[-1]
+        embedding = self.encode(True)
+        distances, indices = self.index.search(embedding, 50)
+        return indices[0, :random.randint(3,8)]
 
-# m = DownstreamLM(model_name)
-# text = "hello yann lecun"
-# tokenizer = AutoTokenizer.from_pretrained(model_name)
-# tokens = tokenizer(text, return_tensors='pt')
 
-# # verification everything works
-# m.classify(**tokens)
-# _ = m.select()
+if __name__ == "__main__":
+    m = MultitaskLM(model_name)
+    text = "hello yann lecun"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokens = tokenizer(text, return_tensors='pt')
+
+    # check if all works
+    m.classify(**tokens)
+    _ = m.select(text)
