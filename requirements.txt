@@ -19,7 +19,8 @@ rouge-score
 scikit-learn
 py-rouge
 #deepspeed  # Excluded due to CUDA requirement
-flash-attn  # Excluded due to CUDA requirement
 wandb
 gradio
 peft
+flash-attn[cu117,sdpa]==2.5.9.post1
+packaging  # Excluded due to CUDA requirement
