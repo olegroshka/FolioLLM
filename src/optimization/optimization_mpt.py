@@ -137,25 +137,30 @@ class PortfolioOptimizer:
             'information_ratio': information_ratio
         }
 
-def optimizer(tickers=test_tickers, main=False):
+def optimizer(tickers=test_tickers, main=True):
     global opt_instance_main, opt_instance_test
     risk_free_rate = 0.05
     if main:
-        print(opt_instance_main)
         if not opt_instance_main:
+            print("New instance of optim pd df")
             opt_instance_main = PortfolioOptimizer(
                 tickers, main_prices_file, risk_free_rate
             )
             print(opt_instance_main)
+        else: print("Using saved optim pd df")
         optimizer = opt_instance_main
     else:
-        print(opt_instance_test)
         if not opt_instance_test:
+            print("New instance of optim pd df")
             opt_instance_test = PortfolioOptimizer(
                 tickers, test_prices_file, risk_free_rate
             )
             print(opt_instance_test)
+        else: print("Using saved optim pd df")
         optimizer = opt_instance_test   
+
+    # wtf why details are not fetched
+    portfolio_details = optimizer.get_portfolio_details()
 
     # in future we will need to use something other than {portfolio_details[...]}
     template = f"""
