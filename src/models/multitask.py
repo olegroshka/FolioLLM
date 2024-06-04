@@ -84,7 +84,8 @@ class MultitaskLM(nn.Module):
     def encode(self, use_prev=False, **kwargs):
         if not use_prev:
             self.out = self.model(**kwargs).hidden_states[-1]
-        return self.out.mean(-2)
+        enc = self.out.mean(-2)
+        return enc / torch.norm(enc)
 
 
     def select(self, use_prev=True, **kwargs):
