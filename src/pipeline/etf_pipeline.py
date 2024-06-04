@@ -190,13 +190,13 @@ class ETFAdvisorPipeline:
         if "t5" in self.model_name.lower():
             model = T5ForConditionalGeneration.from_pretrained(
                 self.output_dir,
-                attn_implementation="flash_attention_2",
+                #attn_implementation="flash_attention_2",
                 #torch_dtype=torch.bfloat16
             )
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 self.output_dir,
-                attn_implementation="flash_attention_2",
+                #attn_implementation="flash_attention_2",
                 #torch_dtype=torch.bfloat16
             )
 
@@ -238,24 +238,25 @@ def load_test_prompts(json_file):
 
 def run_pipeline(
         max_length=512,
-        eval_steps=200,
+        eval_steps=20,
         learning_rate=2e-5,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
         num_train_epochs=3,
         weight_decay=0.01,
         gradient_accumulation_steps=64,
-        model_name = 'FINGU-AI/FinguAI-Chat-v1',
-        json_structured_file = '../../data/etf_data_v3_plain.json',
-        test_prompts_file = '../../data/basic-competency-test-prompts-1.json',
-        json_prompt_response_template_file = "../../data/training-template-adv.json",
-        json_prompt_response_file_cleaned = "../../data/etf_data_v3_clean.json"):
+        model_name='FINGU-AI/FinguAI-Chat-v1',
+        json_structured_file='../../data/etf_data_v3_plain.json',
+        test_prompts_file='../../data/basic-competency-test-prompts-1.json',
+        json_prompt_response_template_file="../../data/training-template-adv.json",
+        json_prompt_response_file_cleaned="../../data/etf_data_v3_clean.json",
+        output_dir='./fine_tuned_model/'):
 
     #model_name = 'gpt2'
 
     wandb.init(project="FolioLLM")  # Initialize wandb
 
-    output_dir = './fine_tuned_model/' + model_name
+    output_dir = output_dir + model_name
     detailed = True  # Set to False if you only want average scores
 
     etf_structured_dataset = load_etf_text_dataset(json_structured_file)
@@ -265,8 +266,8 @@ def run_pipeline(
     test_prompts = load_test_prompts(test_prompts_file)
 
     rank_config = {
-        "r": 32, #16
-        "alpha": 128 #64
+        "r": 128, #16
+        "alpha": 512 #64
     }
 
     pipeline = ETFAdvisorPipeline(
@@ -282,7 +283,16 @@ def run_pipeline(
         rank_config=rank_config
     )
 
-    pipeline.run()
+    pipeline.run(
+        max_length,
+        eval_steps,
+        learning_rate,
+        per_device_train_batch_size,
+        per_device_eval_batch_size,
+        num_train_epochs,
+        weight_decay,
+        gradient_accumulation_steps)
+
     wandb.finish()
 
 def main():
