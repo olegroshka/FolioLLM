@@ -238,7 +238,7 @@ def load_test_prompts(json_file):
 
 def run_pipeline(
         max_length=512,
-        eval_steps=200,
+        eval_steps=20,
         learning_rate=2e-5,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
@@ -283,7 +283,16 @@ def run_pipeline(
         rank_config=rank_config
     )
 
-    pipeline.run()
+    pipeline.run(
+        max_length,
+        eval_steps,
+        learning_rate,
+        per_device_train_batch_size,
+        per_device_eval_batch_size,
+        num_train_epochs,
+        weight_decay,
+        gradient_accumulation_steps)
+
     wandb.finish()
 
 def main():

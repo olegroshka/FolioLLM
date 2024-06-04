@@ -33,9 +33,9 @@ def run():
     os.environ["WANDB_API_KEY"] = wandb_api_key
 
     run_pipeline(
-        max_length=2048,
+        max_length=1024,
         eval_steps=20,
-        learning_rate=3e-5,
+        learning_rate=2e-5,
         per_device_train_batch_size=256,
         per_device_eval_batch_size=256,
         num_train_epochs=3,
