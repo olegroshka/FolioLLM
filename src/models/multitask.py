@@ -65,6 +65,7 @@ class MultitaskLM(nn.Module):
     def select(self, use_prev=True, use_index=True, **kwargs):
         if not use_prev:
             self.out = self.model(**kwargs).hidden_states[-1]
+
         embedding = self.encode(True)
         if not use_index:
             scores = self.select_head(embedding)
