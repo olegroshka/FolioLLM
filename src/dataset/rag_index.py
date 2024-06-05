@@ -6,37 +6,44 @@ import torch
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
-from models.multitask import MultitaskLM
-# exit(0)
 
-ETFS_PATH = "../data/etf_data_v3_clean.json"
-INDEX_PATH = "../data/etfs.index"
+from src.models.multitask import MultitaskLM
+
+ETFS_PATH = "../../data/etf_data_v3_clean.json"
+INDEX_PATH = "../../data/etfs.index"
 model_name = 'FINGU-AI/FinguAI-Chat-v1'
 
 with open(ETFS_PATH, 'r') as file:
     etf_data = json.load(file)
 
 embedding_model = MultitaskLM(model_name, index_path=INDEX_PATH)
-tokenizer = AutoTokenizer.from_pretrained(model_name, )
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+embedding_model.to(device)
+
 
 def form(etf):
     top_sectors = {
-        "Technology": etf["technology"],
-        "Consumer Non-Cyclical": etf["consumer_non_cyclical"],
-        "Communications": etf["communications"],
-        "Financials": etf["financials"]
+        "Technology": etf.get("technology"),
+        "Consumer Non-Cyclical": etf.get("consumer_non_cyclical"),
+        "Communications": etf.get("communications"),
+        "Financials": etf.get("financials")
     }
-    
+
     top_sectors = {
         sector: float(value[:-1]) for sector, value in top_sectors.items()
         if value is not None
     }
-    
-    major_sector = max(top_sectors, key=top_sectors.get)
 
-    total_top_sectors = sum(top_sectors.values())
+    if not top_sectors:
+        major_sector = "N/A"
+        total_top_sectors = 0
+    else:
+        major_sector = max(top_sectors, key=top_sectors.get)
+        total_top_sectors = sum(top_sectors.values())
 
-    return  f"""
+    return f"""
 The ETF's ticker is {etf['ticker']} ({etf['bbg_ticker']}), known as the {etf['etf_name']}.
 {etf['description']}
 
@@ -52,7 +59,7 @@ The ETF's ticker is {etf['ticker']} ({etf['bbg_ticker']}), known as the {etf['et
 
 **Holdings and Allocations:**
 - **Number of Holdings**: {etf['holdings']}
-- **Major Sector**: {major_sector} ({top_sectors[major_sector]}%)
+- **Major Sector**: {major_sector} ({top_sectors.get(major_sector, 0)}%)
 - **Top Sectors Total Allocation**: {total_top_sectors}%
 - **Top Sectors**:
   - Technology: {etf['technology']}%
@@ -70,16 +77,17 @@ The ETF's ticker is {etf['ticker']} ({etf['bbg_ticker']}), known as the {etf['et
 - **Structure**: {etf['structure']}
 - **Inception Date**: {etf['inception_date']}"""
 
+
 descriptions = [
     form(etf) for etf in etf_data
 ]
 
-tokens = tokenizer(descriptions, return_tensors='pt', padding=True, truncation=True)
+tokens = tokenizer(descriptions, return_tensors='pt', padding=True, truncation=True).to(device)
 
 embeddings = embedding_model.encode(**tokens)
 
 dimension = embeddings.shape[1]
 index = faiss.IndexFlatL2(dimension)
-index.add(np.array(embeddings))
+index.add(embeddings.cpu().numpy())
 from faiss import write_index, read_index
 write_index(index, INDEX_PATH)
