@@ -81,7 +81,8 @@ class ETFAdvisorPipeline:
         #finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
 
         # Step 3: Evaluate the fine-tuned model
-        self.eval_model(finetuned_model, finetuned_tokenizer, "finetuned")
+        if self.test_prompts is not None:
+            self.eval_model(finetuned_model, finetuned_tokenizer, "finetuned")
 
     def eval_model(self, model, tokenizer, stage):
         print(f"\nEvaluating the {stage} model...")
@@ -276,13 +277,13 @@ def load_test_prompts(json_file):
 
 def run_pipeline(
         max_length=1024,
-        eval_steps=50000,
+        eval_steps=500000,
         learning_rate=2e-5,
-        per_device_train_batch_size=1,
-        per_device_eval_batch_size=1,
+        per_device_train_batch_size=2,
+        per_device_eval_batch_size=2,
         num_train_epochs=3,
         weight_decay=0.01,
-        gradient_accumulation_steps=8,
+        gradient_accumulation_steps=16,
         model_name='FINGU-AI/FinguAI-Chat-v1',
         json_structured_file='../../data/etf_data_v3_plain.json',
         test_prompts_file='../../data/basic-competency-test-prompts-1.json',
@@ -312,10 +313,10 @@ def run_pipeline(
 
     pipeline = ETFAdvisorPipeline(
         model_name,
-        etf_structured_dataset,
+        None,#etf_structured_dataset,
         etf_prompt_response_dataset,
         portfolio_construction_q_prompts_dataset,
-        test_prompts,
+        None, #test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",
