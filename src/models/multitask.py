@@ -75,9 +75,9 @@ class MultitaskLM(nn.Module):
 
 
 if __name__ == "__main__":
-    m = MultitaskLM(MODEL_NAME)
+    m = MultitaskLM(MODEL_NAME, lora_path=LORA_PATH)
     text = "hello yann lecun"
-    tokenizer = AutoTokenizer.from_pretrained(x)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokens = tokenizer(text, return_tensors='pt')
 
     # check if all works
