@@ -12,11 +12,12 @@ from src.models.multitask import MultitaskLM
 ETFS_PATH = "../../data/etf_data_v3_clean.json"
 INDEX_PATH = "../../data/etfs.index"
 model_name = 'FINGU-AI/FinguAI-Chat-v1'
+LORA_PATH = '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'
 
 with open(ETFS_PATH, 'r') as file:
     etf_data = json.load(file)
 
-embedding_model = MultitaskLM(model_name, index_path=INDEX_PATH)
+embedding_model = MultitaskLM(model_name, index_path=None, lora_path=LORA_PATH)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -82,12 +83,32 @@ descriptions = [
     form(etf) for etf in etf_data
 ]
 
-tokens = tokenizer(descriptions, return_tensors='pt', padding=True, truncation=True).to(device)
+# Split code START
+BATCH_SIZE = 500  # 300-400 tokens per ETF
 
-embeddings = embedding_model.encode(**tokens)
+# Prepare descriptions
+num_batches = len(descriptions) // BATCH_SIZE + int(len(descriptions) % BATCH_SIZE != 0)
+
+# Initialize empty list to hold all embeddings
+all_embeddings = []
+
+# Process in batches
+for i in range(num_batches):
+    batch_descriptions = descriptions[i * BATCH_SIZE: (i + 1) * BATCH_SIZE]
+    tokens = tokenizer(batch_descriptions, return_tensors='pt', padding=True, truncation=True).to(device)
+
+    with torch.no_grad():
+        embeddings = embedding_model.encode(**tokens)
+        all_embeddings.append(embeddings.cpu().numpy())
+
+# Concatenate all embeddings
+embeddings = np.vstack(all_embeddings)
+# Split code END
+
 
 dimension = embeddings.shape[1]
 index = faiss.IndexFlatL2(dimension)
-index.add(embeddings.cpu().numpy())
+index.add(embeddings)
 from faiss import write_index, read_index
+torch.save(embeddings, 'etf_embeddings.pth')
 write_index(index, INDEX_PATH)
