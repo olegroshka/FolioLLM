@@ -164,6 +164,8 @@ cython_debug/
 /offload/
 /models/
 /src/pipeline/fine_tuned_model/
+/src/pipeline/lora_low/
+/src/pipeline/lora_high/
 /data/tmp/
 
 # Ignore all wandb files and directories
