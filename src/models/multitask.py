@@ -18,7 +18,7 @@ LORA_PATH = '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'
 
 # I don't apply no_grad()
 class MultitaskLM(nn.Module):
-    def __init__(self, body_path, class_path=None, select_path=None, sel_cfg=sel_cfg, index_path=None, n_features=1024, lora_path=None):
+    def __init__(self, body_path, class_path=None, select_path=None, index_path=None, n_features=1024, lora_path=None):
         super(MultitaskLM, self).__init__()
         self.model = AutoModelForCausalLM.from_pretrained(
             body_path, output_hidden_states=True
