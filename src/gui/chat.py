@@ -7,7 +7,9 @@ import gradio as gr
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification
 from transformers.generation import TextStreamer
 import os
-# from src.models.multitask import MultitaskLM
+
+from src.models.multitask import MultitaskLM
+from src.optimization.optimization_mpt import optimizer
 
 # kostyli
 current_file_path = os.path.abspath(os.path.dirname(__file__))
@@ -16,15 +18,13 @@ optimization_path = os.path.abspath(os.path.join(current_file_path, '../optimiza
 models_path = os.path.abspath(os.path.join(current_file_path, '../models'))
 sys.path.append(optimization_path)
 sys.path.append(models_path)
-from optimization_mpt import optimizer, test_tickers
-from multitask import MultitaskLM
 
 with open('../../data/etf_data_short.pickle', 'rb') as file:
     etf_data = pickle.load(file)
 
 HEAD_PATH = '../pipeline/modules/class_head.pth'
 SELECT_PATH = None
-LORA_PATH = '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'
+LORA_PATH = '../pipeline/fine_tuned_model/FINGU-AI/FinguAI-Chat-v1'
 MODEL_NAME = "FINGU-AI/FinguAI-Chat-v1"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

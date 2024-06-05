@@ -7,6 +7,8 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 
+from src.models.multitask import MultitaskLM
+
 # from src.models.multitask import MultitaskLM
 
 ETFS_PATH = "../../data/etf_data_v3_clean.json"
@@ -72,9 +74,7 @@ The ETF's ticker is {etf['ticker']} ({etf['bbg_ticker']}), known as the {etf['et
 - **Inception Date**: {etf['inception_date']}"""
 
 
-def main(
-        ETFS_PATH, INDEX_PATH, MODEL_NAME, LORA_PATH, BATCH_SIZE, GLOBAL_LIMIT, EMBEDDINGS_PATH
-):
+def main(ETFS_PATH, INDEX_PATH, MODEL_NAME, LORA_PATH, BATCH_SIZE, GLOBAL_LIMIT, EMBEDDINGS_PATH):
     with open(ETFS_PATH, 'r') as file:
         etf_data = json.load(file)
 
@@ -112,10 +112,9 @@ def main(
 if __name__ == '__main__':
     main(
         ETFS_PATH=ETFS_PATH,
-	INDEX_PATH=INDEX_PATH,
-	MODEL_NAME=MODEL_NAME,
-	LORA_PATH=LORA_PATH,
-	EMBEDDINGS_PATH=EMBEDDINGS_PATH,
+        INDEX_PATH=INDEX_PATH,
+        MODEL_NAME=MODEL_NAME,
+        LORA_PATH=LORA_PATH,
+        EMBEDDINGS_PATH=EMBEDDINGS_PATH,
         BATCH_SIZE=BATCH_SIZE,
-        GLOBAL_LIMIT=GLOBAL_LIMIT
-	)				
+        GLOBAL_LIMIT=GLOBAL_LIMIT)

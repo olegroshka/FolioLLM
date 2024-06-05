@@ -129,7 +129,7 @@ def main(json_file):
     dataset = ETFTextDataset(json_data)
 
     # Print the first 10 samples
-    for i in range(10):
+    for i in range(100):
         sample = dataset[i]
         print(f"Sample {i+1}:")
         print(sample['text'])
