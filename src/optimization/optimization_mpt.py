@@ -171,4 +171,3 @@ def optimizer(tickers=test_tickers, main=True):
     Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}
     Information Ratio: {portfolio_details['information_ratio']:.2f}"""
     return template
-
