@@ -8,14 +8,18 @@ from src.pipeline.etf_pipeline import run_pipeline
 image = modal.Image.debian_slim().pip_install_from_requirements("requirements.txt")
 
 # Define the application with mounts and GPU requirements
+output_volume = modal.Volume.from_name("fine_tuned_volume")
+
 app = modal.App(
     "FolioLLM-pipeline",
     image=image,
     secrets=[Secret.from_name("my-huggingface-secret"), Secret.from_name("my-wandb-secret")],
     mounts=[
-        modal.Mount.from_local_dir("data", remote_path="/root/data"),
-        modal.Mount.from_local_dir("src/pipeline/fine_tuned_model", remote_path="/root/fine_tuned_model")
-    ]
+        modal.Mount.from_local_dir("data", remote_path="/root/data")
+    ],
+    volumes={
+        "/root/fine_tuned_model/": output_volume,
+    }
 )
 
 
@@ -26,7 +30,7 @@ def run():
     test_prompts_file = "/root/data/basic-competency-test-prompts-1.json"
     training_prompts_template_file = "/root/data/training-template-adv.json"
     etf_data_cleaned_file = "/root/data/etf_data_v3_clean.json"
-    json_structured_file = "/root/data/etf_data_v3_plain.json"
+    portfolio_construction_q_prompts_file = "/root/data//portfolio_construction_q_prompts.json"
 
     # Ensure the W&B API key is set from the secret
     wandb_api_key = os.environ.get("WANDB_API_KEY")
@@ -34,7 +38,7 @@ def run():
 
     run_pipeline(
         max_length=1024,
-        eval_steps=200,
+        eval_steps=20000,
         learning_rate=2e-5,
         per_device_train_batch_size=8,
         per_device_eval_batch_size=8,
@@ -45,8 +49,9 @@ def run():
         json_structured_file=etf_data_palin_file,
         test_prompts_file=test_prompts_file,
         json_prompt_response_template_file=training_prompts_template_file,
-        json_prompt_response_file_cleaned=etf_data_palin_file,
-        output_dir="/root/fine_tuned_model"
+        json_prompt_response_file_cleaned=etf_data_cleaned_file,
+        portfolio_construction_q_prompts_file=portfolio_construction_q_prompts_file,
+        output_dir="/root/fine_tuned_model/"
     )
 
 @app.local_entrypoint()

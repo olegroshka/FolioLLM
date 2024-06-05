@@ -26,11 +26,22 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 class ETFAdvisorPipeline:
-    def __init__(self, model_name, etf_structured_dataset, etf_prompt_response_dataset, test_prompts, output_dir,
-                 detailed=False, mode="default", rank_config=None, knowledge_dim=128, hidden_features=128):
+    def __init__(self,
+                 model_name,
+                 etf_structured_dataset,
+                 etf_prompt_response_dataset,
+                 portfolio_construction_dataset,
+                 test_prompts,
+                 output_dir,
+                 detailed=False,
+                 mode="default",
+                 rank_config=None,
+                 knowledge_dim=128,
+                 hidden_features=128):
         self.model_name = model_name
         self.etf_structured_dataset = etf_structured_dataset
         self.etf_prompt_response_dataset = etf_prompt_response_dataset
+        self.portfolio_construction_dataset = portfolio_construction_dataset
         self.test_prompts = test_prompts
         self.output_dir = output_dir
         self.detailed = detailed
@@ -51,7 +62,8 @@ class ETFAdvisorPipeline:
 
         # Step 1: Load and evaluate the base model
         base_model, base_tokenizer = self.load_base_model()
-        self.eval_model(base_model, base_tokenizer, "base")
+        if self.test_prompts is not None:
+            self.eval_model(base_model, base_tokenizer, "base")
 
         # Step 2: Fine-tune the model
         finetuned_model, finetuned_tokenizer = self.finetune_model(
@@ -69,7 +81,8 @@ class ETFAdvisorPipeline:
         #finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
 
         # Step 3: Evaluate the fine-tuned model
-        self.eval_model(finetuned_model, finetuned_tokenizer, "finetuned")
+        if self.test_prompts is not None:
+            self.eval_model(finetuned_model, finetuned_tokenizer, "finetuned")
 
     def eval_model(self, model, tokenizer, stage):
         print(f"\nEvaluating the {stage} model...")
@@ -94,42 +107,68 @@ class ETFAdvisorPipeline:
                        num_train_epochs=3,
                        weight_decay=0.01,
                        gradient_accumulation_steps=64):
-        print("\nFine-tuning the model on structured ETF data...")
-        trainer_structured_json = ETFTrainer(model,
-                                             tokenizer,
-                                             self.etf_structured_dataset,
-                                             tokenize_etf_text,
-                                             self.test_prompts,
-                                             max_length,
-                                             eval_steps,
-                                             learning_rate,
-                                             per_device_train_batch_size,
-                                             per_device_eval_batch_size,
-                                             num_train_epochs,
-                                             weight_decay,
-                                             gradient_accumulation_steps)
-        trainer_structured_json.tokenize_dataset()
-        trainer_structured_json.train()
-        trainer_structured_json.save_model(self.output_dir)
 
-        finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
-        print("\nFine-tuning the model on prompt/response ETF data...")
-        trainer_structured_json = ETFTrainer(finetuned_model,
-                                             tokenizer,
-                                             self.etf_prompt_response_dataset,
-                                             tokenize_prompt_response,
-                                             self.test_prompts,
-                                             max_length,
-                                             eval_steps,
-                                             learning_rate,
-                                             per_device_train_batch_size,
-                                             per_device_eval_batch_size,
-                                             num_train_epochs,
-                                             weight_decay,
-                                             gradient_accumulation_steps)
-        trainer_structured_json.tokenize_dataset()
-        trainer_structured_json.train()
-        trainer_structured_json.save_model(self.output_dir)
+        finetuned_model = model
+        finetuned_tokenizer = tokenizer
+
+        if self.etf_structured_dataset is not None:
+            print("\nFine-tuning the model on structured ETF data...")
+            trainer_structured_json = ETFTrainer(finetuned_model,
+                                                 tokenizer,
+                                                 self.etf_structured_dataset,
+                                                 tokenize_etf_text,
+                                                 self.test_prompts,
+                                                 max_length,
+                                                 eval_steps,
+                                                 learning_rate,
+                                                 per_device_train_batch_size,
+                                                 per_device_eval_batch_size,
+                                                 num_train_epochs,
+                                                 weight_decay,
+                                                 gradient_accumulation_steps)
+            trainer_structured_json.tokenize_dataset()
+            trainer_structured_json.train()
+            trainer_structured_json.save_model(self.output_dir)
+
+        if self.etf_prompt_response_dataset is not None:
+            finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
+            print("\nFine-tuning the model on prompt/response ETF data...")
+            trainer_structured_json = ETFTrainer(finetuned_model,
+                                                 finetuned_tokenizer,
+                                                 self.etf_prompt_response_dataset,
+                                                 tokenize_prompt_response,
+                                                 self.test_prompts,
+                                                 256,
+                                                 eval_steps,
+                                                 learning_rate,
+                                                 per_device_train_batch_size,
+                                                 per_device_eval_batch_size,
+                                                 num_train_epochs,
+                                                 weight_decay,
+                                                 gradient_accumulation_steps)
+            trainer_structured_json.tokenize_dataset()
+            trainer_structured_json.train()
+            trainer_structured_json.save_model(self.output_dir)
+
+        if self.portfolio_construction_dataset is not None:
+            finetuned_model, finetuned_tokenizer = self.load_finetuned_model()
+            print("\nFine-tuning the model on portfolio construction data...")
+            trainer_structured_json = ETFTrainer(finetuned_model,
+                                                 finetuned_tokenizer,
+                                                 self.portfolio_construction_dataset,
+                                                 tokenize_prompt_response,
+                                                 self.test_prompts,
+                                                 256,
+                                                 eval_steps,
+                                                 learning_rate,
+                                                 per_device_train_batch_size,
+                                                 per_device_eval_batch_size,
+                                                 num_train_epochs,
+                                                 weight_decay,
+                                                 gradient_accumulation_steps)
+            trainer_structured_json.tokenize_dataset()
+            trainer_structured_json.train()
+            trainer_structured_json.save_model(self.output_dir)
 
         return finetuned_model, finetuned_tokenizer
 
@@ -237,19 +276,20 @@ def load_test_prompts(json_file):
     return test_prompts
 
 def run_pipeline(
-        max_length=512,
-        eval_steps=20,
+        max_length=1024,
+        eval_steps=500000,
         learning_rate=2e-5,
-        per_device_train_batch_size=1,
-        per_device_eval_batch_size=1,
+        per_device_train_batch_size=2,
+        per_device_eval_batch_size=2,
         num_train_epochs=3,
         weight_decay=0.01,
-        gradient_accumulation_steps=64,
+        gradient_accumulation_steps=16,
         model_name='FINGU-AI/FinguAI-Chat-v1',
         json_structured_file='../../data/etf_data_v3_plain.json',
         test_prompts_file='../../data/basic-competency-test-prompts-1.json',
         json_prompt_response_template_file="../../data/training-template-adv.json",
         json_prompt_response_file_cleaned="../../data/etf_data_v3_clean.json",
+        portfolio_construction_q_prompts_file="../../data/portfolio_construction_q_prompts.json",
         output_dir='./fine_tuned_model/'):
 
     #model_name = 'gpt2'
@@ -263,6 +303,7 @@ def run_pipeline(
     # etf_prompt_response_dataset = load_prompt_response_dataset(json_prompt_response_file)
     etf_prompt_response_dataset = load_prompt_response_dataset_adv(json_prompt_response_file_cleaned,
                                                                    json_prompt_response_template_file)
+    portfolio_construction_q_prompts_dataset = load_prompt_response_dataset(portfolio_construction_q_prompts_file)
     test_prompts = load_test_prompts(test_prompts_file)
 
     rank_config = {
@@ -272,9 +313,10 @@ def run_pipeline(
 
     pipeline = ETFAdvisorPipeline(
         model_name,
-        etf_structured_dataset,
+        None,#etf_structured_dataset,
         etf_prompt_response_dataset,
-        test_prompts,
+        portfolio_construction_q_prompts_dataset,
+        None, #test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",
