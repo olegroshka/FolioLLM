@@ -277,7 +277,7 @@ def load_test_prompts(json_file):
 
 def run_pipeline(
         max_length=1024,
-        eval_steps=500000,
+        eval_steps=20,
         learning_rate=2e-5,
         per_device_train_batch_size=2,
         per_device_eval_batch_size=2,
@@ -313,10 +313,10 @@ def run_pipeline(
 
     pipeline = ETFAdvisorPipeline(
         model_name,
-        None,#etf_structured_dataset,
-        etf_prompt_response_dataset,
+        etf_structured_dataset,
+        None, #etf_prompt_response_dataset,
         portfolio_construction_q_prompts_dataset,
-        None, #test_prompts,
+        test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",
