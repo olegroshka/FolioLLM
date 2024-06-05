@@ -7,22 +7,15 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 
-from src.models.multitask import MultitaskLM
+# from src.models.multitask import MultitaskLM
 
 ETFS_PATH = "../../data/etf_data_v3_clean.json"
 INDEX_PATH = "../../data/etfs.index"
 MODEL_NAME = 'FINGU-AI/FinguAI-Chat-v1'
 LORA_PATH = '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'
-
-with open(ETFS_PATH, 'r') as file:
-    etf_data = json.load(file)
-
-embedding_model = MultitaskLM(MODEL_NAME, index_path=None, lora_path=LORA_PATH)
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-embedding_model.to(device)
-
+EMBEDDINGS_PATH = 'etf_embeddings.pth'
+BATCH_SIZE = 500
+GLOBAL_LIMIT = 4
 
 def form(etf):
     top_sectors = {
@@ -79,36 +72,50 @@ The ETF's ticker is {etf['ticker']} ({etf['bbg_ticker']}), known as the {etf['et
 - **Inception Date**: {etf['inception_date']}"""
 
 
-descriptions = [
-    form(etf) for etf in etf_data
-]
+def main(
+        ETFS_PATH, INDEX_PATH, MODEL_NAME, LORA_PATH, BATCH_SIZE, GLOBAL_LIMIT, EMBEDDINGS_PATH
+):
+    with open(ETFS_PATH, 'r') as file:
+        etf_data = json.load(file)
 
-# Split code START
-BATCH_SIZE = 500  # 300-400 tokens per ETF
+    embedding_model = MultitaskLM(MODEL_NAME, index_path=None, lora_path=LORA_PATH)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-# Prepare descriptions
-num_batches = len(descriptions) // BATCH_SIZE + int(len(descriptions) % BATCH_SIZE != 0)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    embedding_model.to(device)
 
-# Initialize empty list to hold all embeddings
-all_embeddings = []
+    descriptions = [form(etf) for etf in etf_data][:GLOBAL_LIMIT]
 
-# Process in batches
-for i in range(num_batches):
-    batch_descriptions = descriptions[i * BATCH_SIZE: (i + 1) * BATCH_SIZE]
-    tokens = tokenizer(batch_descriptions, return_tensors='pt', padding=True, truncation=True).to(device)
-
-    with torch.no_grad():
-        embeddings = embedding_model.encode(**tokens)
+    # Prepare descriptions
+    num_batches = len(descriptions) // BATCH_SIZE + int(len(descriptions) % BATCH_SIZE != 0)
+    
+    # Initialize empty list to hold all embeddings
+    all_embeddings = []
+    for i in range(num_batches):
+        batch_descriptions = descriptions[i * BATCH_SIZE: (i + 1) * BATCH_SIZE]
+        tokens = tokenizer(batch_descriptions, return_tensors='pt', padding=True, truncation=True).to(device)
+        with torch.no_grad(): embeddings = embedding_model.encode(**tokens)
         all_embeddings.append(embeddings.cpu().numpy())
 
-# Concatenate all embeddings
-embeddings = np.vstack(all_embeddings)
-# Split code END
+    # Concatenate all embeddings
+    embeddings = np.vstack(all_embeddings)
+    # Split code END
 
+    dimension = embeddings.shape[1]
+    index = faiss.IndexFlatL2(dimension)
+    index.add(embeddings)
+    from faiss import write_index, read_index
+    torch.save(embeddings, EMBEDDINGS_PATH)
+    write_index(index, INDEX_PATH)
+   
 
-dimension = embeddings.shape[1]
-index = faiss.IndexFlatL2(dimension)
-index.add(embeddings)
-from faiss import write_index, read_index
-torch.save(embeddings, 'etf_embeddings.pth')
-write_index(index, INDEX_PATH)
+if __name__ == '__main__':
+    main(
+        ETFS_PATH=ETFS_PATH,
+	INDEX_PATH=INDEX_PATH,
+	MODEL_NAME=MODEL_NAME,
+	LORA_PATH=LORA_PATH,
+	EMBEDDINGS_PATH=EMBEDDINGS_PATH,
+        BATCH_SIZE=BATCH_SIZE,
+        GLOBAL_LIMIT=GLOBAL_LIMIT
+	)				
