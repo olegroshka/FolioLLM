@@ -10,15 +10,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
 model_name = 'FINGU-AI/FinguAI-Chat-v1'
-m = MultitaskLM(model_name)
-
-MODEL_TYPE = "base" # \in ['base', 'lora_low', 'lora_high']
-
-m.model = {
-    'lora_low': PeftModel.from_pretrained(m.model, '../pipeline/lora_low/FINGU-AI/FinguAI-Chat-v1'),
-    'lora_high': PeftModel.from_pretrained(m.model, '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'),
-    'base': m.model,
-}[MODEL_TYPE]
+LORA_PATH = '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'
+m = MultitaskLM(model_name, lora_path=LORA_PATH)
 
 texts_label_0 = df[df['label'] == 0]['text'].tolist()
 texts_label_1 = df[df['label'] == 1]['text'].tolist()
@@ -40,3 +33,16 @@ sentr_acc = -1
 print(folio_acc, sentr_acc)
 
 
+c = torch.stack((fom,fgm))
+# torch.save(c, 'class_head.pth')
+"""
+usage:
+m.class_head.weight.data = c
+
+fo = m.classify(**tokens_label_0) 
+  or 
+fo = m.classify(use_prev=True)
+
+prob_o, prob_g = fo.T
+if prob_o[i] > prob_g[i] then it's an optimization prompt
+"""

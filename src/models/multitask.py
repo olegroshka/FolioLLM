@@ -7,57 +7,27 @@ import torch.nn.functional as F
 from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM
 import faiss
 from faiss import write_index, read_index
-
-etfs_num = 11796
-vocab_size = 151936
-
-model_name = '../pipeline/fine_tuned_model/FINGU-AI/FinguAI-Chat-v1'
+from peft import PeftModel
 
 
-def select_scores(
-        heatmap, do_sample=False, top_p=0.2, top_k=50, temperature=1,
-        sorted_return=True, standardize=False
-):
-    if standardize:
-        heatmap -= heatmap.mean()
-        heatmap /= heatmap.std()
+ETFS_NUM = 11796
 
-    p = torch.nn.functional.softmax(heatmap, 0)
-    val, ind = p.sort(descending=True)
-    val, ind = val[:top_k], ind[:top_k]
-    m = int((val.cumsum(0) < val.sum() * top_p).sum(dim=-1))
+MODEL_NAME = 'FINGU-AI/FinguAI-Chat-v1'
+INDEX_PATH = "../../data/etfs.index"
+LORA_PATH = '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'
 
-    if not do_sample: return ind[:m], torch.arange(m)
-
-    T = 10 / (temperature + 1)
-    ord_stat = torch.multinomial(val ** T, m, replacement=False)
-
-    sorted_indices = ord_stat.sort()[0]
-    return ind[sorted_indices], sorted_indices
-
-
-# temperature increases randomness of sampling (0,+infty)
-sel_cfg = {
-    'do_sample': False,  #
-    'temperature': 0,  #
-    'top_p': 0.2,
-    'top_k': 50,
-}
-
-
+# I don't apply no_grad()
 class MultitaskLM(nn.Module):
-    def __init__(self, body_path, class_path=None, select_path=None, sel_cfg=sel_cfg,
-                 index_path="../../data/etfs.index", n_features=1024):
+    def __init__(self, body_path, class_path=None, select_path=None, index_path=None, n_features=1024, lora_path=None):
         super(MultitaskLM, self).__init__()
         self.model = AutoModelForCausalLM.from_pretrained(
             body_path, output_hidden_states=True
         )
+        if lora_path:
+            self.model = PeftModel.from_pretrained(self.model, lora_path)
 
         self.class_head = nn.Linear(n_features, 2, bias=False)
-        self.select_head = nn.Linear(n_features, etfs_num, bias=False)
-
-        # Add a projection layer to match the FAISS index dimensions
-        self.projection = nn.Linear(n_features, 384, bias=False)
+        self.select_head = nn.Linear(n_features, ETFS_NUM, bias=False)
 
         if class_path:
             self.class_head.load_state_dict(torch.load(class_path))
@@ -74,8 +44,9 @@ class MultitaskLM(nn.Module):
         return self.model(**kwargs)
 
     def init_index(self, index_path):
-        self.index = read_index(index_path)
-        print(f"FAISS index dimensions: {self.index.d}")
+        if index_path != None:
+            self.index = read_index(index_path)
+            print(f"FAISS index dimensions: {self.index.d}")
 
     def classify(self, use_prev=False, **kwargs):
         if not use_prev:
@@ -91,22 +62,22 @@ class MultitaskLM(nn.Module):
         print(f"Embedding shape: {normalized_enc.shape}")
         return normalized_enc
 
-    def select(self, use_prev=True, **kwargs):
+    def select(self, use_prev=True, use_index=True, **kwargs):
         if not use_prev:
             self.out = self.model(**kwargs).hidden_states[-1]
         embedding = self.encode(True)
-        projected_embedding = self.projection(embedding)
-        print(f"Embedding shape before search: {projected_embedding.shape}")
-        assert projected_embedding.shape[
-                   -1] == self.index.d, "Embedding dimension does not match FAISS index dimension."
-        distances, indices = self.index.search(projected_embedding.detach().numpy(), 50)
+        if not use_index:
+            scores = self.select_head(embedding)
+            return torch.topk(scores[0], 50)[1][:random.randint(3, 8)]
+            
+        distances, indices = self.index.search(embedding.detach().numpy(), 50)
         return indices[0, :random.randint(3, 8)]
 
 
 if __name__ == "__main__":
-    m = MultitaskLM(model_name)
+    m = MultitaskLM(MODEL_NAME, lora_path=LORA_PATH)
     text = "hello yann lecun"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokens = tokenizer(text, return_tensors='pt')
 
     # check if all works
