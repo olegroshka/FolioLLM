@@ -14,10 +14,10 @@ from src.models.multitask import MultitaskLM
 ETFS_PATH = "../../data/etf_data_v3_clean.json"
 INDEX_PATH = "../../data/etfs.index"
 MODEL_NAME = 'FINGU-AI/FinguAI-Chat-v1'
-LORA_PATH = '../pipeline/lora_high/FINGU-AI/FinguAI-Chat-v1'
+LORA_PATH = '../pipeline/fine_tuned_model/FINGU-AI/FinguAI-Chat-v1'
 EMBEDDINGS_PATH = 'etf_embeddings.pth'
-BATCH_SIZE = 500
-GLOBAL_LIMIT = 4
+BATCH_SIZE = 10
+GLOBAL_LIMIT = 13000
 
 def form(etf):
     top_sectors = {
