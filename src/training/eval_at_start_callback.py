@@ -1,9 +1,12 @@
-from transformers import TrainerCallback
+from transformers import TrainerCallback, TrainerState, TrainerControl, TrainingArguments
 
 class EvaluateAtStartCallback(TrainerCallback):
-    def on_train_begin(self, args, state, control, **kwargs):
+    def __init__(self, trainer):
+        self.trainer = trainer
+
+    def on_train_begin(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
         if not state.is_world_process_zero:
             return  # Ensure this is only done by the main process
         print("Evaluating at the start of training...")
-        control.should_evaluate = True  # Force evaluation at the beginning
+        self.trainer.evaluate()
         return control

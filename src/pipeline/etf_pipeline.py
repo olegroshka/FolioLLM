@@ -277,10 +277,10 @@ def load_test_prompts(json_file):
 
 def run_pipeline(
         max_length=1024,
-        eval_steps=20,
+        eval_steps=500,
         learning_rate=2e-5,
-        per_device_train_batch_size=2,
-        per_device_eval_batch_size=2,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
         num_train_epochs=3,
         weight_decay=0.01,
         gradient_accumulation_steps=16,
@@ -316,7 +316,7 @@ def run_pipeline(
         etf_structured_dataset,
         None, #etf_prompt_response_dataset,
         portfolio_construction_q_prompts_dataset,
-        test_prompts,
+        None, #test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",
