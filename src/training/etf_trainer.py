@@ -244,7 +244,7 @@ class ETFTrainer:
 
         trainer.add_callback(WandbCallback())
         #trainer.add_callback(MemoryMonitorCallback)
-        trainer.add_callback(EvaluateAtStartCallback(trainer))
+        #trainer.add_callback(EvaluateAtStartCallback(trainer))
 
         trainer.train()
 
