@@ -34,7 +34,9 @@ def patch_update_kan_lora_layer():
         if isinstance(self, LoraLayer):
             self.lora_A[adapter_name] = KANLayer(self.in_features, r)
             self.lora_B[adapter_name] = KANLayer(r, self.out_features)
+            self.lora_dropout[adapter_name] = nn.Dropout(p=lora_dropout)  # Ensure the adapter_name exists in lora_dropout
             return self
         return original_update_layer(self, adapter_name, r, lora_alpha, lora_dropout, init_lora_weights, use_rslora, use_dora, **kwargs)
 
     LoraLayer.update_layer = new_update_lora_layer
+
