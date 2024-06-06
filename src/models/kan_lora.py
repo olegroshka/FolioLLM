@@ -7,8 +7,8 @@ from src.models.kan import KAN
 class KANLayer(nn.Module):
     def __init__(self, in_features, out_features, bias=False):
         super().__init__()
-        hidden_size1 = max(1, in_features // 4)  #4 Example: quarter of the input features
-        hidden_size2 = max(1, in_features // 8)  #8 Example: eighth of the input features
+        hidden_size1 = max(1, in_features // 8)  #4 Example: quarter of the input features
+        hidden_size2 = max(1, in_features // 16)  #8 Example: eighth of the input features
         hidden_size3 = max(1, out_features // 4)  #4 Example: quarter of the output features
 
         self.kan = KAN(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
