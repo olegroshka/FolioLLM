@@ -1,4 +1,3 @@
-/home/oleg/anaconda3/envs/fin-llm-gpu/bin/python /home/oleg/Documents/courses/Stanford/CS224N/FinalProject/code/FolioLLM/src/dataset/etf_text_dataset.py
 Sample 1:
 ETF Details:
 Ticker: SPY

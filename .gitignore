@@ -206,3 +206,4 @@ semantic.cache
 
 # Bookmarks file
 .bookmarks
+/src/models/abacus/results/

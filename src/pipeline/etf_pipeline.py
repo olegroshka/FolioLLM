@@ -8,6 +8,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5For
 
 import sys
 import os
+
+from src.models.kan_lora import patch_update_kan_lora_layer
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.dataset.data_utils import load_prompt_response_dataset, load_etf_text_dataset, load_prompt_response_dataset_adv
@@ -310,6 +313,9 @@ def run_pipeline(
         "r": 128, #16
         "alpha": 512 #64
     }
+
+    #kan lora
+    patch_update_kan_lora_layer()
 
     pipeline = ETFAdvisorPipeline(
         model_name,

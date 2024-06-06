@@ -4,6 +4,9 @@ from peft import LoraConfig, get_peft_model
 from datasets import Dataset
 
 from src.models.abacus.abacus_kan_lora import AbacusKANLoRA
+from src.models.kan_lora import patch_update_kan_lora_layer
+
+#from src.models.kan_lora import KanLoraModel, patch_update_lora_layer
 
 # Load the text data
 with open("data_100.txt", "r") as file:
@@ -40,8 +43,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Define the LoRA configuration
 lora_config = LoraConfig(
-    r=16,
-    lora_alpha=64,
+    r=8,
+    lora_alpha=16,
     lora_dropout=0.2,
     bias="none",
     task_type="CAUSAL_LM",
@@ -58,13 +61,13 @@ base_model.to(device)
 training_args = TrainingArguments(
     output_dir="./results",
     num_train_epochs=1,
-    per_device_train_batch_size=2,
-    per_device_eval_batch_size=2,
-    gradient_accumulation_steps=8,
+    per_device_train_batch_size=1,
+    per_device_eval_batch_size=1,
+    gradient_accumulation_steps=64,
     evaluation_strategy="steps",
     eval_steps=500,
     save_steps=1000,
-    logging_steps=100,
+    logging_steps=1,
     learning_rate=1e-4,
     weight_decay=0.01,
     warmup_steps=500,
@@ -107,20 +110,29 @@ vanilla_lora_trainer = Trainer(
 #vanilla_lora_trainer.train()
 
 # Train the base model with Abacus KAN LoRA
-abacus_kan_lora_model = AbacusKANLoRA(
-    base_model, lora_config,
-    num_embeddings=100,
-    embedding_dim=32,
-    offset_range=10,
-    kan_hidden_dim1=64,
-    kan_hidden_dim2=32,
-    kan_hidden_dim3=16,
-    kan_output_dim=base_model.config.hidden_size
-)
-abacus_kan_lora_model.to(device)
+digit_tokens = tokenizer.convert_tokens_to_ids(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+
+# kan_lora_model = AbacusKANLoRA(
+#     tokenizer=tokenizer,
+#     model=base_model,
+#     lora_config=lora_config,
+#     digit_tokens=digit_tokens,
+#     embedding_dim=32,
+#     max_seq_length=1024,
+#     max_k=99,
+#     kan_hidden_dim1=64,
+#     kan_hidden_dim2=32,
+#     kan_hidden_dim3=16,
+#     kan_output_dim=base_model.config.hidden_size
+# )
+
+patch_update_kan_lora_layer()
+kan_lora_model = get_peft_model(base_model, lora_config)
+#kan_lora_model = KanLoraModel(base_model, lora_config, "kan_lora_adapter")
+kan_lora_model.to(device)
 
 abacus_kan_lora_trainer = Trainer(
-    model=abacus_kan_lora_model,
+    model=kan_lora_model,
     args=training_args,
     train_dataset=tokenized_train_dataset,
     eval_dataset=tokenized_eval_dataset,
@@ -136,8 +148,8 @@ vanilla_lora_model.eval()
 vanilla_lora_test_outputs = vanilla_lora_model(**test_tokenized_data)
 vanilla_lora_test_loss = vanilla_lora_test_outputs.loss
 
-abacus_kan_lora_model.eval()
-abacus_kan_lora_test_outputs = abacus_kan_lora_model(**test_tokenized_data)
+kan_lora_model.eval()
+abacus_kan_lora_test_outputs = kan_lora_model(**test_tokenized_data)
 abacus_kan_lora_test_loss = abacus_kan_lora_test_outputs.loss
 
 # Compare the test losses
