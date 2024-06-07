@@ -107,7 +107,7 @@ vanilla_lora_trainer = Trainer(
     eval_dataset=tokenized_eval_dataset,
     data_collator=data_collator
 )
-#vanilla_lora_trainer.train()
+vanilla_lora_trainer.train()
 
 # Train the base model with Abacus KAN LoRA
 digit_tokens = tokenizer.convert_tokens_to_ids(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
@@ -153,5 +153,5 @@ abacus_kan_lora_test_outputs = kan_lora_model(**test_tokenized_data)
 abacus_kan_lora_test_loss = abacus_kan_lora_test_outputs.loss
 
 # Compare the test losses
-print(f"Vanilla LoRA Test Loss: {vanilla_lora_test_loss.item()}")
-print(f"Abacus KAN LoRA Test Loss: {abacus_kan_lora_test_loss.item()}")
+print(f"Vanilla LoRA Test Loss: {vanilla_lora_test_loss.items()}")
+print(f"Abacus KAN LoRA Test Loss: {abacus_kan_lora_test_loss.items()}")
