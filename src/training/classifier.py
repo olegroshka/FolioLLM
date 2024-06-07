@@ -1,70 +1,57 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from transformers import AutoTokenizer
-
-# Load your dataset
-classifier_dataset = "../../data/classifier.csv"
-df = pd.read_csv(classifier_dataset)
-
-# include our pre-trained model here
-model_name = 'FINGU-AI/FinguAI-Chat-v1'  
-output_dir = '../pipeline/fine_tuned_model/' + model_name
-
-# Split the dataset
-train_texts, val_texts, train_labels, val_labels = train_test_split(
-    df['text'].tolist(), df['label'].tolist(), test_size=0.2, random_state=42
-)
-
-# Load tokenizer
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-# Tokenize the data
-train_encodings = tokenizer(train_texts, truncation=True, padding=True)
-val_encodings = tokenizer(val_texts, truncation=True, padding=True)
-
-
+from datasets import Dataset
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
 import torch
-from torch.utils.data import Dataset, DataLoader
-from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
 
-class ClassificationDataset(Dataset):
-    def __init__(self, encodings, labels):
-        self.encodings = encodings
-        self.labels = labels
+# Step 1: Load the dataset
+data_path = '../../data/classifier.csv'
+df = pd.read_csv(data_path)
 
-    def __getitem__(self, idx):
-        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        item['labels'] = torch.tensor(self.labels[idx])
-        return item
+embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-    def __len__(self):
-        return len(self.labels)
+# Assuming the dataset has columns 'text' and 'label'
+df['label'] = df['label'].astype(int)  # Ensure labels are integers
 
-# Create dataset objects
-train_dataset = ClassificationDataset(train_encodings, train_labels)
-val_dataset = ClassificationDataset(val_encodings, val_labels)
+# Step 2: Split the dataset into training and validation sets
+train_df, val_df = train_test_split(df, test_size=0.2, random_state=42)
 
-# Load the pre-trained model
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+# Convert DataFrame to Hugging Face Dataset
+train_dataset = Dataset.from_pandas(train_df)
+val_dataset = Dataset.from_pandas(val_df)
 
-# Define training arguments
+
+train_dataset = train_dataset
+val_dataset = val_dataset
+
+# Set the format for PyTorch
+train_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+val_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+
+# Step 4: Model Selection
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=df['label'].nunique())
+
+# Step 5: Training
 training_args = TrainingArguments(
     output_dir='./results',
-    eval_strategy="epoch",
-    learning_rate=2e-5,
+    num_train_epochs=3,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
-    num_train_epochs=3,
+    warmup_steps=500,
     weight_decay=0.01,
+    evaluate_during_training=True,
+    logging_dir='./logs',
 )
 
-# Initialize Trainer
 trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,
-    eval_dataset=val_dataset
+    eval_dataset=val_dataset,
 )
 
-# Fine-tune the model
+# Train the model
 trainer.train()
+
+# Step 6: Evaluation
+trainer.evaluate()
