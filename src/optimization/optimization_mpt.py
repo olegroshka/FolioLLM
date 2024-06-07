@@ -1,36 +1,31 @@
 import pandas as pd
 import numpy as np
-import datetime as dt
 from scipy.optimize import minimize
 import os
 
 test_tickers = ['SPY US Equity', 'IVV US Equity', 'VO US Equity', '510050 CH Equity']
 
-opt_instance_test = None
-opt_instance_main = None
-
 current_file_path = os.path.abspath(os.path.dirname(__file__))
+# current_file_path = os.path.abspath(os.path.dirname(os.getcwd()))
+
 
 # Resolve the absolute path of the relative file
 abs_path = lambda path: os.path.abspath(os.path.join(current_file_path, path))
 
-main_prices_file = abs_path('../../data/etf_prices.xlsx')
-test_prices_file = abs_path('../../data/test_prices.xlsx')
-
 
 class PortfolioOptimizer:
-    def __init__(self, tickers, data_file, risk_free_rate=0.05):
+    def __init__(self, tickers, data_file, risk_free_rate=0.05, data=None):
         self.tickers = tickers
         self.data_file = data_file
         self.risk_free_rate = risk_free_rate
-        self.data, self.benchmark = self.load_data()
+        self.data, self.benchmark = self.load_data(data)
         self.returns, self.benchmark_returns = self.calculate_returns()
 
-    def load_data(self):
+    def load_data(self, data=None):
         # Load the CSV file containing daily returns
-        data = pd.read_excel(self.data_file, sheet_name='Combined', index_col='Date', parse_dates=True)
+        if data is None:
+            data = pd.read_pickle('../../data/sample.pkl')
         # Convert index to datetime if not already in datetime format
-        data.index = pd.to_datetime(data.index).normalize()
         benchmark = data['SPY US Equity']
         # Ensure only the tickers we are interested in are selected
         ticker_columns = [ticker for ticker in self.tickers]
@@ -43,13 +38,7 @@ class PortfolioOptimizer:
 
     def calculate_returns(self):
         # Select one year period of data
-        #end_date = self.data.index.max()
-        #start_date = end_date - pd.DateOffset(years=1)
-        #one_year_data = self.data.loc[end_date:start_date]
         one_year_data = self.data
-
-        # Ensure data is sorted by date in ascending order
-        one_year_data = one_year_data.sort_index()
 
         # Calculate daily returns
         returns = one_year_data.pct_change().dropna()
@@ -137,29 +126,9 @@ class PortfolioOptimizer:
             'information_ratio': information_ratio
         }
 
-def optimizer(tickers=test_tickers, main=True):
-    global opt_instance_main, opt_instance_test
-    risk_free_rate = 0.05
-    if main:
-        if not opt_instance_main:
-            print("New instance of optim pd df")
-            opt_instance_main = PortfolioOptimizer(
-                tickers, main_prices_file, risk_free_rate
-            )
-            print(opt_instance_main)
-        else: print("Using saved optim pd df")
-        optimizer = opt_instance_main
-    else:
-        if not opt_instance_test:
-            print("New instance of optim pd df")
-            opt_instance_test = PortfolioOptimizer(
-                tickers, test_prices_file, risk_free_rate
-            )
-            print(opt_instance_test)
-        else: print("Using saved optim pd df")
-        optimizer = opt_instance_test   
 
-    # wtf why details are not fetched
+def optimizer(tickers=test_tickers, main=True, risk_free_rate=0.05, data=None):
+    optimizer = PortfolioOptimizer(tickers, main_prices_file, risk_free_rate, data=data)
     portfolio_details = optimizer.get_portfolio_details()
 
     # in future we will need to use something other than {portfolio_details[...]}
@@ -169,5 +138,6 @@ def optimizer(tickers=test_tickers, main=True):
     Annualized Volatility: {portfolio_details['annualized_volatility']:.2%}
     Sharpe Ratio: {portfolio_details['sharpe_ratio']:.2f}
     Sortino Ratio: {portfolio_details['sortino_ratio']:.2f}
-    Information Ratio: {portfolio_details['information_ratio']:.2f}"""
+    Information Ratio: {portfolio_details['information_ratio']:.2f}
+    """
     return template
