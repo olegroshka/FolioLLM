@@ -13,7 +13,7 @@ Dimensions: (batch_size, seq_len, 1024) -> (batch_size, seq_len, 16)
     v
 +-----------------+
 |                 |
-|     LoRA_B      |  (KAN Layer or mixed mode astandard LoRA linear layer, which would be less computationally heavy option)
+|     LoRA_B      |  (KAN Layer or in a mixed mode: a standard LoRA linear layer, which would be less computationally heavy option)
 |                 |
 +-----------------+
     |
