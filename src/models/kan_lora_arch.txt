@@ -69,10 +69,10 @@ Input (1024) -> Linear (1024 -> 128) -> ReLU -> Linear (128 -> 64) -> ReLU -> Li
 
 KAN Layer for lora_A:
 
-  * Linear 1:1024×128+128 = 131200 parameters
-  * Linear 2:128×64+64 = 8256 parameters
-  * Linear 3:64×16+16 = 1040 parameters
-  * Linear 4:16×16+16 = 272 parameters
+  * Linear 1:1024×128+128 = 131200 parameters
+  * Linear 2:128×64+64 = 8256 parameters
+  * Linear 3:64×16+16 = 1040 parameters
+  * Linear 4:16×16+16 = 272 parameters
 
 Total for KAN in lora_A: 
 140768 parameters
