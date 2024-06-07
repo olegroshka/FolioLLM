@@ -7,16 +7,15 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 
-from src.models.multitask import MultitaskLM
-
 # from src.models.multitask import MultitaskLM
+
 
 ETFS_PATH = "../../data/etf_data_v3_clean.json"
 INDEX_PATH = "../../data/etfs.index"
 MODEL_NAME = 'FINGU-AI/FinguAI-Chat-v1'
 LORA_PATH = '../pipeline/fine_tuned_model/FINGU-AI/FinguAI-Chat-v1'
 EMBEDDINGS_PATH = 'etf_embeddings.pth'
-BATCH_SIZE = 10
+BATCH_SIZE = 2000
 GLOBAL_LIMIT = 13000
 
 def form(etf):
@@ -78,8 +77,7 @@ def main(ETFS_PATH, INDEX_PATH, MODEL_NAME, LORA_PATH, BATCH_SIZE, GLOBAL_LIMIT,
     with open(ETFS_PATH, 'r') as file:
         etf_data = json.load(file)
 
-    embedding_model = MultitaskLM(MODEL_NAME, index_path=None, lora_path=LORA_PATH)
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     embedding_model.to(device)
@@ -92,10 +90,12 @@ def main(ETFS_PATH, INDEX_PATH, MODEL_NAME, LORA_PATH, BATCH_SIZE, GLOBAL_LIMIT,
     # Initialize empty list to hold all embeddings
     all_embeddings = []
     for i in range(num_batches):
+        print(i, '/', num_batches)
         batch_descriptions = descriptions[i * BATCH_SIZE: (i + 1) * BATCH_SIZE]
-        tokens = tokenizer(batch_descriptions, return_tensors='pt', padding=True, truncation=True).to(device)
-        with torch.no_grad(): embeddings = embedding_model.encode(**tokens)
-        all_embeddings.append(embeddings.cpu().numpy())
+        with torch.no_grad():
+            embeddings = embedding_model.encode(batch_descriptions)
+        # all_embeddings.append(embeddings.cpu().numpy())  # torch
+        all_embeddings.append(embeddings)
 
     # Concatenate all embeddings
     embeddings = np.vstack(all_embeddings)
