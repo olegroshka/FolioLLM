@@ -23,7 +23,7 @@ app = modal.App(
 )
 
 
-@app.function(gpu="H100:2", timeout=86400)  # Request a specific GPU type, e.g., A100, V100, etc.
+@app.function(gpu="H100:1", timeout=86400)  # Request a specific GPU type, e.g., A100, V100, etc.
 def run():
     # Define the absolute path for the JSON file
     etf_data_palin_file = "/root/data/etf_data_v3_plain.json"

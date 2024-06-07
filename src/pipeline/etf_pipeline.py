@@ -319,7 +319,7 @@ def run_pipeline(
 
     pipeline = ETFAdvisorPipeline(
         model_name,
-        etf_structured_dataset,
+        None, #etf_structured_dataset,
         None, #etf_prompt_response_dataset,
         portfolio_construction_q_prompts_dataset,
         None, #test_prompts,
