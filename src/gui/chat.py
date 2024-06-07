@@ -6,33 +6,46 @@ import torch
 import gradio as gr
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification
 from transformers.generation import TextStreamer
+from sentence_transformers import SentenceTransformer
 import os
+from torch import nn
+import faiss
 
-from src.models.multitask import MultitaskLM
-from src.optimization.optimization_mpt import optimizer
+# from src.models.multitask import MultitaskLM
+# from src.optimization.optimization_mpt import optimizer
+
+
 
 # kostyli
-current_file_path = os.path.abspath(os.path.dirname(__file__))
+# current_file_path = os.path.abspath(os.path.dirname(__file__))
 current_file_path = os.path.abspath(os.getcwd())
 optimization_path = os.path.abspath(os.path.join(current_file_path, '../optimization'))
 models_path = os.path.abspath(os.path.join(current_file_path, '../models'))
 sys.path.append(optimization_path)
 sys.path.append(models_path)
-
+from multitask import MultitaskLM
+from optimization_mpt import optimizer
 with open('../../data/etf_data_short.pickle', 'rb') as file:
     etf_data = pickle.load(file)
 
+INDEX_PATH = "../../data/etfs.index"
 HEAD_PATH = '../pipeline/modules/class_head.pth'
-SELECT_PATH = None
+SELECT_PATH = '../pipeline/modules/select_head.pth'
 LORA_PATH = '../pipeline/fine_tuned_model/FINGU-AI/FinguAI-Chat-v1'
 MODEL_NAME = "FINGU-AI/FinguAI-Chat-v1"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+linear = nn.Linear(384, 2, bias=False)
+linear.load_state_dict(torch.load(HEAD_PATH))
+
+
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-model = MultitaskLM(
-    MODEL_NAME, lora_path=LORA_PATH, class_path=HEAD_PATH, select_path=SELECT_PATH,
-).to(device)
+model = MultitaskLM(MODEL_NAME, lora_path=LORA_PATH).to(device)
+
+embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+index = faiss.read_index(INDEX_PATH)
 
 raw_context_message = (
     "You are a financial specialist specializing in ETF portfolio construction and optimization. "
@@ -40,24 +53,34 @@ raw_context_message = (
     "Consider their risk tolerance, investment goals, and market conditions when offering advice."
 )
 
+# Define generation parameters
+generation_params = {
+    'max_new_tokens': 200,
+    'use_cache': True,
+    'do_sample': True,
+    'temperature': 0.7,
+    'top_p': 0.9,
+    'top_k': 50,
+    'eos_token_id': tokenizer.eos_token_id,
+}
 
 # Function to classify text
 def optimization_prediction(text: str) -> int:
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True).to(device)
-    logits = model.classify(**inputs)[0]
-    print(f"Logits: {logits}")
+    logits = linear(torch.tensor(embedding_model.encode(text)))
+    print(logits)
     return torch.argmax(logits).detach().item()
 
 
-def extract_tickers():
-    indices = model.select(use_prev=True, use_index=False).tolist()
-    print(indices)
-    return indices
+def extract_tickers(query):
+    query_embedding = embedding_model.encode([query])
+    distances, indices = index.search(query_embedding, random.randint(3,8))
+    print(distances, indices)
+    return indices[0]
 
 
 def optim_generation(user_input, history):
     print('optim body')
-    indices = extract_tickers()
+    indices = extract_tickers(user_input)
     etf_results = [etf_data[idx] for idx in indices]
     etf_context = "\n\n".join([
         f"{etf['ticker']} - {etf['etf_name']}\n{etf['description']}"
@@ -65,7 +88,7 @@ def optim_generation(user_input, history):
     ])
 
     initial_allocation = optimizer(  # should work by indices
-        [etf['bbg_ticker'] for etf in etf_results], main=True
+        [etf['bbg_ticker'] for etf in etf_results], 
     )
 
     context = (
@@ -74,6 +97,14 @@ def optim_generation(user_input, history):
         "Consider their risk tolerance, investment goals, and market conditions when offering advice."
         f"\n\nRelevant ETF Information:\n{etf_context}.\n"
     )
+
+    print(initial_allocation)
+    print(etf_context)
+    print(indices)
+
+    # history.append((user_input, f"some answer\n\n{initial_allocation}"))
+    # return history
+
 
     # Construct the conversation messages
     messages = [
@@ -86,17 +117,6 @@ def optim_generation(user_input, history):
         messages, tokenize=True, add_generation_prompt=True,
         return_tensors="pt"
     ).to(device)
-
-    # Define generation parameters
-    generation_params = {
-        'max_new_tokens': 200,
-        'use_cache': True,
-        'do_sample': True,
-        'temperature': 0.7,
-        'top_p': 0.9,
-        'top_k': 50,
-        'eos_token_id': tokenizer.eos_token_id,
-    }
 
     streamer = TextStreamer(tokenizer)
 
@@ -137,17 +157,6 @@ def raw_generation(user_input, history):
     tokenized_chat = tokenizer.apply_chat_template(
         messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
     ).to(device)
-
-    # Define generation parameters
-    generation_params = {
-        'max_new_tokens': 1000,
-        'use_cache': True,
-        'do_sample': True,
-        'temperature': 0.7,
-        'top_p': 0.9,
-        'top_k': 50,
-        'eos_token_id': tokenizer.eos_token_id,
-    }
 
     # Use a streamer for generating the response
     streamer = TextStreamer(tokenizer)
