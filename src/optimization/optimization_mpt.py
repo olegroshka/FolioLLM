@@ -14,9 +14,8 @@ abs_path = lambda path: os.path.abspath(os.path.join(current_file_path, path))
 
 
 class PortfolioOptimizer:
-    def __init__(self, tickers, data_file, risk_free_rate=0.05, data=None):
+    def __init__(self, tickers, risk_free_rate=0.05, data=None):
         self.tickers = tickers
-        self.data_file = data_file
         self.risk_free_rate = risk_free_rate
         self.data, self.benchmark = self.load_data(data)
         self.returns, self.benchmark_returns = self.calculate_returns()
@@ -24,7 +23,7 @@ class PortfolioOptimizer:
     def load_data(self, data=None):
         # Load the CSV file containing daily returns
         if data is None:
-            data = pd.read_pickle('../../data/sample.pkl')
+            data = pd.read_pickle('../../data/etf_prices.pkl')
         # Convert index to datetime if not already in datetime format
         benchmark = data['SPY US Equity']
         # Ensure only the tickers we are interested in are selected
@@ -127,8 +126,8 @@ class PortfolioOptimizer:
         }
 
 
-def optimizer(tickers=test_tickers, main=True, risk_free_rate=0.05, data=None):
-    optimizer = PortfolioOptimizer(tickers, main_prices_file, risk_free_rate, data=data)
+def optimizer(tickers=test_tickers, risk_free_rate=0.05, data=None):
+    optimizer = PortfolioOptimizer(tickers, risk_free_rate, data=data)
     portfolio_details = optimizer.get_portfolio_details()
 
     # in future we will need to use something other than {portfolio_details[...]}

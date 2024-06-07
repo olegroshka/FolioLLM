@@ -11,7 +11,7 @@ from peft import PeftModel
 
 model_name = 'FINGU-AI/FinguAI-Chat-v1'
 LORA_PATH = '../pipeline/fine_tuned_model/' + model_name
-m = MultitaskLM(model_name, lora_path=LORA_PATH)
+
 
 texts_label_0 = df[df['label'] == 0]['text'].tolist()
 texts_label_1 = df[df['label'] == 1]['text'].tolist()
