@@ -75,6 +75,14 @@ def optim_generation(user_input, history):
         f"\n\nRelevant ETF Information:\n{etf_context}.\n"
     )
 
+    print(initial_allocation)
+    print(etf_context)
+    print(indices)
+
+    history.append((user_input, f"some answer\n\n{initial_allocation}"))
+    return history
+
+
     # Construct the conversation messages
     messages = [
         {"role": "system", "content": context},
@@ -171,17 +179,17 @@ def raw_generation(user_input, history):
 
 
 # Create the Gradio interface
-with gr.Blocks() as demo:
-    chatbot = gr.Chatbot(label="FolioLLM")
-    with gr.Row():
-        txt = gr.Textbox(show_label=False, placeholder="Type your message here...") 
-        btn = gr.Button("Send")
+# with gr.Blocks() as demo:
+#     chatbot = gr.Chatbot(label="FolioLLM")
+#     with gr.Row():
+#         txt = gr.Textbox(show_label=False, placeholder="Type your message here...") 
+#         btn = gr.Button("Send")
 
-    def submit_message(user_input, history=[]):
-        new_history = respond(user_input, history)
-        return new_history, ""
+#     def submit_message(user_input, history=[]):
+#         new_history = respond(user_input, history)
+#         return new_history, ""
 
 
-    btn.click(submit_message, [txt, chatbot], [chatbot, txt])
+#     btn.click(submit_message, [txt, chatbot], [chatbot, txt])
 
-demo.launch()
+# demo.launch()
