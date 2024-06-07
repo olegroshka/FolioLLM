@@ -11,6 +11,9 @@ import os
 from torch import nn
 import faiss
 
+from src.models.multitask import MultitaskLM
+from src.optimization.optimization_mpt import optimizer
+
 # from src.models.multitask import MultitaskLM
 # from src.optimization.optimization_mpt import optimizer
 
@@ -23,8 +26,6 @@ optimization_path = os.path.abspath(os.path.join(current_file_path, '../optimiza
 models_path = os.path.abspath(os.path.join(current_file_path, '../models'))
 sys.path.append(optimization_path)
 sys.path.append(models_path)
-from multitask import MultitaskLM
-from optimization_mpt import optimizer
 with open('../../data/etf_data_short.pickle', 'rb') as file:
     etf_data = pickle.load(file)
 
@@ -183,7 +184,7 @@ def raw_generation(user_input, history):
 with gr.Blocks() as demo:
     chatbot = gr.Chatbot(label="FolioLLM")
     with gr.Row():
-        txt = gr.Textbox(show_label=False, placeholder="Type your message here...") 
+        txt = gr.Textbox(show_label=False, placeholder="Type your message here...")
         btn = gr.Button("Send")
 
     def submit_message(user_input, history=[]):
