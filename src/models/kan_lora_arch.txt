@@ -1,0 +1,83 @@
+Visualization with Total Number of Nodes
+
+Base Layer (e.g., self_attn.q_proj)
+Dimensions: (batch_size, seq_len, 1024) -> (batch_size, seq_len, 16)
+    |
+    v
++-----------------+
+|                 |
+|     LoRA_A      |  (KAN Layer, in theory can help capture better nuanced features)
+|                 |
++-----------------+
+    |
+    v
++-----------------+
+|                 |
+|     LoRA_B      |  (KAN Layer or mixed mode astandard LoRA linear layer, which would be less computationally heavy option)
+|                 |
++-----------------+
+    |
+    v
+Output (To the next layer or component in the model)
+Dimensions: (batch_size, seq_len, 16)
+
+
+KAN Layer for LoRA_A and LoRA_B
+
+Input (batch_size, seq_len, 1024)
+    |
+    v
++---------+ 
+|  Linear | fc1 (1024 -> 128)
++---------+
+    |
+    v
++---------+
+|   ReLU  |
++---------+
+    |
+    v
++---------+
+|  Linear | fc2 (128 -> 64)
++---------+
+    |
+    v
++---------+
+|   ReLU  |
++---------+
+    |
+    v
++---------+
+|  Linear | fc3 (64 -> 4)
++---------+
+    |
+    v
++---------+
+|   ReLU  |
++---------+
+    |
+    v
++---------+
+|  Linear | fc4 (4 -> 16)
++---------+
+    |
+    v
+Output (batch_size, seq_len, 16)
+
+
+Input (1024) -> Linear (1024 -> 128) -> ReLU -> Linear (128 -> 64) -> ReLU -> Linear (64 -> 16) -> ReLU -> Linear (16 -> 16)
+
+KAN Layer for lora_A:
+
+  * Linear 1:1024×128+128 = 131200 parameters
+  * Linear 2:128×64+64 = 8256 parameters
+  * Linear 3:64×16+16 = 1040 parameters
+  * Linear 4:16×16+16 = 272 parameters
+
+Total for KAN in lora_A: 
+140768 parameters
+
+KAN Layer for lora_B:
+
+Assuming similar structure, the total number of parameters is the same as for lora_A.
+
