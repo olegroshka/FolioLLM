@@ -9,18 +9,18 @@ from src.models.kan import KAN, KANWithRecurrentLayer, KANGaussianKernel, KANPol
 class KANLayer(nn.Module):
     def __init__(self, in_features, out_features, bias=False):
         super().__init__()
-        hidden_size1 = max(1, in_features // 4)  #4 Example: quarter of the input features
-        hidden_size2 = max(1, in_features // 8)  #8 Example: eighth of the input features
+        hidden_size1 = max(1, in_features // 2)  #4 Example: quarter of the input features
+        hidden_size2 = max(1, in_features // 4)  #8 Example: eighth of the input features
         hidden_size3 = max(1, out_features // 1)  #4 Example: quarter of the output features
 
-        #self.kan = KAN(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
+        self.kan = KAN(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
         #self.kan = KANWithRecurrentLayer(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
         #self.kan = KANGaussianKernel(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
         #self.kan = KANPolynomialKernel(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
         #self.kan = KANGaussianPolynomialCosine(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
         #self.kan = KANReluExp(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
         #self.kan = KANReluTanh(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
-        self.kan = KANGaussianSigmoid(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
+        #self.kan = KANGaussianSigmoid(in_features, hidden_size1, hidden_size2, hidden_size3, out_features)
 
     def forward(self, x):
         # Apply KAN network before the final linear layer
