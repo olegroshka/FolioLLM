@@ -322,7 +322,7 @@ def run_pipeline(
         etf_structured_dataset,
         None, #etf_prompt_response_dataset,
         portfolio_construction_q_prompts_dataset,
-        None, #test_prompts,
+        test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",
