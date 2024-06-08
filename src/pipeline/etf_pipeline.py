@@ -242,7 +242,7 @@ class ETFAdvisorPipeline:
                 #torch_dtype=torch.bfloat16
             )
 
-        if self.mode == "lora":
+        if self.mode == "lora_z":
             peft_config = LoraConfig(
                 r=self.rank_config.get("r", 16),
                 lora_alpha=self.rank_config.get("alpha", 64),
@@ -322,7 +322,7 @@ def run_pipeline(
         etf_structured_dataset,
         None, #etf_prompt_response_dataset,
         portfolio_construction_q_prompts_dataset,
-        test_prompts,
+        None, #test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",
