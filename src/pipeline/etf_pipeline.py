@@ -205,7 +205,7 @@ class ETFAdvisorPipeline:
                 task_type="CAUSAL_LM",
                 target_modules=[
                     "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
-                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                    #"mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
                 ]
             )
             print("lora config:" + str(peft_config))
@@ -251,7 +251,7 @@ class ETFAdvisorPipeline:
                 task_type="CAUSAL_LM",
                 target_modules=[
                     "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
-                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                    #"mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
                 ]
             )
             model = get_peft_model(model, peft_config)
