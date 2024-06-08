@@ -242,7 +242,7 @@ class ETFAdvisorPipeline:
                 #torch_dtype=torch.bfloat16
             )
 
-        if self.mode == "lora_z":
+        if self.mode == "lora":
             peft_config = LoraConfig(
                 r=self.rank_config.get("r", 16),
                 lora_alpha=self.rank_config.get("alpha", 64),
