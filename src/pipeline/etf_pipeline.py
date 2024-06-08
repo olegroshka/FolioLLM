@@ -141,7 +141,7 @@ class ETFAdvisorPipeline:
                                                  self.etf_prompt_response_dataset,
                                                  tokenize_prompt_response,
                                                  self.test_prompts,
-                                                 max_length,
+                                                 512,
                                                  eval_steps,
                                                  learning_rate,
                                                  per_device_train_batch_size,
@@ -161,7 +161,7 @@ class ETFAdvisorPipeline:
                                                  self.portfolio_construction_dataset,
                                                  tokenize_prompt_response,
                                                  self.test_prompts,
-                                                 max_length,
+                                                 512,
                                                  eval_steps,
                                                  learning_rate,
                                                  per_device_train_batch_size,
@@ -280,7 +280,7 @@ def load_test_prompts(json_file):
 
 def run_pipeline(
         max_length=1024,
-        eval_steps=500,
+        eval_steps=500000,
         learning_rate=2e-5,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
@@ -319,7 +319,7 @@ def run_pipeline(
 
     pipeline = ETFAdvisorPipeline(
         model_name,
-        etf_structured_dataset,
+        None, #etf_structured_dataset,
         None, #etf_prompt_response_dataset,
         portfolio_construction_q_prompts_dataset,
         None, #test_prompts,
