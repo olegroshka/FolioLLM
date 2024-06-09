@@ -53,6 +53,9 @@ class ETFAdvisorPipeline:
         self.knowledge_dim = knowledge_dim
         self.hidden_features = hidden_features
 
+        if self.mode == "lora": #patch lora with kan
+            patch_update_kan_lora_layer()
+
     def run(self,
             max_length=512,
             eval_steps=200,
@@ -196,7 +199,7 @@ class ETFAdvisorPipeline:
                 # torch_dtype=torch.bfloat16
             )
 
-        if self.mode == "lora":
+        if self.mode == "lora_z":
             peft_config = LoraConfig(
                 r=self.rank_config.get("r", 16),
                 lora_alpha=self.rank_config.get("alpha", 64),
@@ -314,15 +317,15 @@ def run_pipeline(
         "alpha": 512 #64
     }
 
-    #kan lora
-    patch_update_kan_lora_layer()
+    #kan lora patch
+    #patch_update_kan_lora_layer()
 
     pipeline = ETFAdvisorPipeline(
         model_name,
         None, #etf_structured_dataset,
         None, #etf_prompt_response_dataset,
-        portfolio_construction_q_prompts_dataset,
-        None, #test_prompts,
+        None, #portfolio_construction_q_prompts_dataset,
+        test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",

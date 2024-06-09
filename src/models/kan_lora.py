@@ -10,9 +10,14 @@ class KANLayer(nn.Module):
     def __init__(self, in_features, out_features, bias=False):
         super().__init__()
         #lora kan is sensitive to the KAN sizing , sizing should be different depending where is applied A or B
-        hidden_size1 = max(1, in_features // 1)  #4 Example: quarter of the input features
-        hidden_size2 = max(1, in_features // 2)  #8 Example: eighth of the input features
+        hidden_size1 = max(1, in_features // 8)  #4 Example: quarter of the input features
+        hidden_size2 = max(1, in_features // 4)  #8 Example: eighth of the input features
         hidden_size3 = max(1, out_features // 1)  #4 Example: quarter of the output features
+
+        # more layer B configs
+        # hidden_size1 = max(1, in_features // 1)  #4 Example: quarter of the input features
+        # hidden_size2 = max(1, in_features // 2)  #8 Example: eighth of the input features
+        # hidden_size3 = max(1, out_features // 1)  #4 Example: quarter of the output features
         # hidden_size1 = max(64, in_features // 4)  # At least 64, or a quarter of in_features
         # hidden_size2 = max(128, in_features // 2)  # At least 128, or half of in_features
         # hidden_size3 = max(256, in_features // 1)  # At least 256, or equal to in_features
@@ -59,11 +64,11 @@ def patch_update_kan_lora_layer():
         self.lora_dropout.update(nn.ModuleDict({adapter_name: lora_dropout_layer}))
 
         # Now replace(!) lora_A and/or lora_B with KANLayer
-        #self.lora_A[adapter_name] = KANLayer(self.in_features, r, bias=False)
-        self.lora_B[adapter_name] = KANLayer(r, self.out_features, bias=False)
+        self.lora_A[adapter_name] = KANLayer(self.in_features, r, bias=False)
+        #self.lora_B[adapter_name] = KANLayer(r, self.out_features, bias=False)
         # Actual trainable parameters
-        self.lora_A[adapter_name] = nn.Linear(self.in_features, r, bias=False)
-        #self.lora_B[adapter_name] = nn.Linear(r, self.out_features, bias=False)
+        #self.lora_A[adapter_name] = nn.Linear(self.in_features, r, bias=False)
+        self.lora_B[adapter_name] = nn.Linear(r, self.out_features, bias=False)
 
         if use_rslora:
             self.scaling[adapter_name] = lora_alpha / math.sqrt(r)
