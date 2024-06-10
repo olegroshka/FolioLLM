@@ -50,7 +50,7 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM",
     target_modules=[
         "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
-        "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+        #"mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
     ]
 )
 
@@ -107,7 +107,7 @@ vanilla_lora_trainer = Trainer(
     eval_dataset=tokenized_eval_dataset,
     data_collator=data_collator
 )
-vanilla_lora_trainer.train()
+#vanilla_lora_trainer.train()
 
 # Train the base model with Abacus KAN LoRA
 digit_tokens = tokenizer.convert_tokens_to_ids(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])

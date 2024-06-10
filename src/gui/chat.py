@@ -182,9 +182,13 @@ def raw_generation(user_input, history):
 
 # Create the Gradio interface
 with gr.Blocks() as demo:
-    chatbot = gr.Chatbot(label="FolioLLM")
+    chatbot = gr.Chatbot(label="FolioLLM", height=1000)
     with gr.Row():
-        txt = gr.Textbox(show_label=False, placeholder="Type your message here...")
+        txt = gr.Textbox(
+            show_label=False,
+            placeholder="Type your message here...",
+            #css="height: 100px;"
+        )
         btn = gr.Button("Send")
 
     def submit_message(user_input, history=[]):

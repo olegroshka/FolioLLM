@@ -53,6 +53,9 @@ class ETFAdvisorPipeline:
         self.knowledge_dim = knowledge_dim
         self.hidden_features = hidden_features
 
+        if self.mode == "lora": #patch lora with kan
+            patch_update_kan_lora_layer()
+
     def run(self,
             max_length=512,
             eval_steps=200,
@@ -196,7 +199,7 @@ class ETFAdvisorPipeline:
                 # torch_dtype=torch.bfloat16
             )
 
-        if self.mode == "lora":
+        if self.mode == "lora_z":
             peft_config = LoraConfig(
                 r=self.rank_config.get("r", 16),
                 lora_alpha=self.rank_config.get("alpha", 64),
@@ -205,7 +208,7 @@ class ETFAdvisorPipeline:
                 task_type="CAUSAL_LM",
                 target_modules=[
                     "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
-                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                    #"mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
                 ]
             )
             print("lora config:" + str(peft_config))
@@ -251,7 +254,7 @@ class ETFAdvisorPipeline:
                 task_type="CAUSAL_LM",
                 target_modules=[
                     "self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
-                    "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
+                    #"mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"
                 ]
             )
             model = get_peft_model(model, peft_config)
@@ -280,7 +283,7 @@ def load_test_prompts(json_file):
 
 def run_pipeline(
         max_length=1024,
-        eval_steps=500,
+        eval_steps=500000,
         learning_rate=2e-5,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
@@ -314,15 +317,15 @@ def run_pipeline(
         "alpha": 512 #64
     }
 
-    #kan lora
-    patch_update_kan_lora_layer()
+    #kan lora patch
+    #patch_update_kan_lora_layer()
 
     pipeline = ETFAdvisorPipeline(
         model_name,
-        etf_structured_dataset,
+        None, #etf_structured_dataset,
         None, #etf_prompt_response_dataset,
-        portfolio_construction_q_prompts_dataset,
-        None, #test_prompts,
+        None, #portfolio_construction_q_prompts_dataset,
+        test_prompts,
         output_dir,
         detailed=detailed,
         mode="lora",
