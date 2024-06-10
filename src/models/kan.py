@@ -126,6 +126,7 @@ class KANWithRecurrentLayer(nn.Module):
         return x
 
 
+
 class KANGaussianSigmoid(nn.Module):
     def __init__(self, input_size, hidden_size1, hidden_size2, hidden_size3, output_size, sigma=1.0):
         super(KANGaussianSigmoid, self).__init__()

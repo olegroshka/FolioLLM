@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>FolioLLM Presentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/theme/beige.css" id="theme">
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <section>
+          <h1>FolioLLM</h1>
+          <h3>Constructing Portfolio of ETFs using Large Language Models</h3>
+          <p>Stanford CS224N Custom Project</p>
+          <p>Andrey Popov, Oleg Roshka, Ilia Badanin</p>
+        </section>
+        <section>
+          <img src="Combo-Emblem-SU.webp" alt="Stanford Logo" style="width: 900px;"/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Introduction</h2>
+          <p>Our goal is to develop FolioLLM, a domain-specific large language model designed to assist investors and financial professionals in constructing portfolios of exchange-traded funds (ETFs).</p>
+          <p>We aimed to fine-tune an LLM to understand user preferences, qualitative and quantitative investment features of funds, and portfolio optimization techniques, providing personalized investment advice.</p>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Problem & Data Extraction</h2>
+          <p>Extracted and prepared a comprehensive dataset from financial data providers such as Bloomberg and Refinitiv.</p>
+          <p>Gathered data on 12,224 ETFs, including both qualitative and quantitative attributes.</p>
+          <p>Collected price history for these ETFs to compute financial metrics and solve optimization problems.</p>
+        </section>
+        <section>
+          <img src="training-black.png" alt="Data Extraction" style="width: 1200px;"/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Markowitz Optimization</h2>
+          <p>Utilized Markowitz's mean-variance optimization framework to construct efficient portfolios.</p>
+          <p>Maximized expected returns for a given level of risk.</p>
+        </section>
+        <section>
+          <img src="efficient_frontier.png" alt="Markowitz Optimization" style="width: 1200px;"/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Model Fine-Tuning</h2>
+          <p>Evaluated various pre-trained language models, including BERT, Zephyr-7b, GPT-2, and Alpaca.</p>
+          <p>Fine-tuned the FinGU model with 0.5B parameters using synthetic and real ETF data.</p>
+        </section>
+        <section>
+          <img src="training-black.png" alt="Model Fine-Tuning Image 1" style="width: 1200px;"/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Training Pipeline</h2>
+          <p>Classical Fine-Tuning: Updated all model parameters to fit our ETF-specific task.</p>
+          <p>LoRA: Injected trainable low-rank matrices for efficient fine-tuning.</p>
+          <p>Modified LoRA with KAN: Replaced one LoRA matrix with a KAN layer to better extract nuanced relationships.</p>
+        </section>
+        <section>
+          <img src="lora_kan.jpeg" alt="Training Pipeline" style="width: 400px;"/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Inference Process</h2>
+          <p>Utilized Retrieval-Augmented Generation (RAG) to enhance context for generating responses.</p>
+          <p>Employed classification techniques to determine if a query required portfolio optimization.</p>
+        </section>
+        <section>
+          <img src="inference-coloured.png" alt="Inference Process" style="width: 1500px; min-width: 1200px !important; "/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Results</h2>
+          <p>Significant improvements in model performance compared to base models.</p>
+          <p>Higher BERT Recall, lower Perplexity, and higher Cosine Similarity.</p>
+          <p>Superior financial metrics in response portfolios with higher average returns and lower volatilities.</p>
+        </section>
+        <section>
+          <img src="output (3).png" alt="Results" style="width: 1000px;"/>
+	  <img src="output (4).png" alt="Results" style="width: 1000px;"/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Conclusion</h2>
+          <p>FolioLLM demonstrated potential in the financial domain for automating and personalizing portfolio construction.</p>
+          <p>Fine-tuning and innovative techniques like KAN and RAG yielded promising results.</p>
+          <p>Future improvements with larger datasets and further exploration of fine-tuning approaches.</p>
+        </section>
+        <section>
+          <img src="folio_response_2.png" alt="Conclusion" style="width: 1200px;"/>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Thank You!</h2>
+          <p>We appreciate your attention and are happy to answer any questions.</p>
+          <p>Andrey Popov, Oleg Roshka, Ilia Badanin</p>
+        </section>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize();
+  </script>
+</body>
+</html>

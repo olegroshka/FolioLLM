@@ -1,0 +1,43 @@
+.reveal .slides {
+  font-family: 'Arial', sans-serif;
+}
+
+.reveal h1, .reveal h2, .reveal h3 {
+  color: #FF4500; /* Vibrant orange */
+}
+
+.reveal p {
+  color: #FFFFFF; /* White text */
+  font-size: 1.2em;
+}
+
+.reveal section img {
+  border: 5px solid #FF4500;
+  border-radius: 10px;
+}
+
+.reveal .backgrounds {
+  background-color: #000000; /* Black background */
+}
+
+.reveal .controls {
+  color: #FF4500; /* Control buttons color */
+}
+
+.reveal .slide-background {
+  background-size: cover;
+  background-position: center;
+}
+
+.reveal .slides section {
+  background: rgba(0, 0, 0, 0.8); /* Semi-transparent black background for slides */
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.reveal pre {
+  background: #333;
+  color: #FFF;
+  padding: 20px;
+  border-radius: 10px;
+}
