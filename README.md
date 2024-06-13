@@ -25,3 +25,11 @@
 - **Bias and Fairness:** Ensures a balanced training dataset to minimize biases in recommendations.
 - **Transparency and Explainability:** Aims to enhance model transparency by implementing methods that clarify the decision-making process, supported by visualizations and detailed explanations.
 
+## Additional Information
+The project also explores innovative approaches like Low-Rank Adaptation (LoRA) and Kolmogorov-Arnold Network (KAN) techniques to further enhance the model's performance. The integration of these methods aims to improve the model's understanding of complex interactions in ETF data and deliver more accurate and relevant financial advice.
+
+## Links to Project Outputs
+- [Final Report](https://drive.google.com/file/d/1TWmDpB4n24w1lkFbqEMh2ynUEldjEQPR/view?usp=drive_link): This document provides a comprehensive overview of the FolioLLM project, including the methodology, experiments, results, and analysis.
+- [Project Poster](https://drive.google.com/file/d/1D4SFW0DBvX38lqY1XVp2wXAGlf4SJucQ/view?usp=drive_link): A visual summary of the project, highlighting key objectives, methods, and findings. 
+
+These documents offer detailed insights into the development and evaluation of FolioLLM, showcasing its potential in the financial domain.
